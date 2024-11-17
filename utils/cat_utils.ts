@@ -1,15 +1,22 @@
 import { SmallCat } from "../pages/cats/[catId]"
 
-export function isNormalCat(cat: SmallCat) {
-    return cat.id < 100
+export enum CatType {
+    Normal,
+    Rare,
+    Myneko,
+    Other,
 }
 
-export function isRareCat(cat: SmallCat) {
-    return cat.id >= 100 && cat.id < 200
-}
-
-export function isMyNeko(cat: SmallCat) {
-    cat.id > 700
+export function getCatType(cat: SmallCat): CatType {
+    if (cat.id < 100)
+        return CatType.Normal
+    if (cat.id == 122)
+        return CatType.Other
+    if (cat.id < 200)
+        return CatType.Rare
+    if (cat.id > 700)
+        return CatType.Myneko
+    throw new Error("Unknown cat type")
 }
 
 const iconOverrides = new Map<number, string>()
@@ -22,9 +29,9 @@ iconOverrides.set(107, "s06")
 iconOverrides.set(108, "s07")
 iconOverrides.set(109, "s08")
 
-export function getIconId(cat: SmallCat) {
+export function getIconId(cat: SmallCat): string {
     if (iconOverrides.has(cat.id)) {
-        return iconOverrides.get(cat.id)
+        return iconOverrides.get(cat.id)!
     }
 
     let iconId = cat.id.toString().padStart(2, "0")
@@ -32,4 +39,12 @@ export function getIconId(cat: SmallCat) {
         iconId = `s${(cat.id - 100).toString().padStart(2, "0")}`
     }
     return iconId
+}
+
+export function getIconLink(cat: SmallCat) {
+    return getIconURL(getIconId(cat))
+}
+
+export function getIconURL(id: string) {
+    return `/cat/SpriteAtlas/icon_cat.spriteatlas/${id}.png`
 }
