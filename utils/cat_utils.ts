@@ -19,19 +19,19 @@ export function getCatType(cat: SmallCat): CatType {
     throw new Error("Unknown cat type")
 }
 
-const iconOverrides = new Map<number, string>()
-iconOverrides.set(101, "s05")
-iconOverrides.set(103, "s09")
-iconOverrides.set(104, "s03")
-iconOverrides.set(105, "s01")
-iconOverrides.set(106, "s04")
-iconOverrides.set(107, "s06")
-iconOverrides.set(108, "s07")
-iconOverrides.set(109, "s08")
+const catIconOverrides = new Map<number, string>()
+catIconOverrides.set(101, "s05")
+catIconOverrides.set(103, "s09")
+catIconOverrides.set(104, "s03")
+catIconOverrides.set(105, "s01")
+catIconOverrides.set(106, "s04")
+catIconOverrides.set(107, "s06")
+catIconOverrides.set(108, "s07")
+catIconOverrides.set(109, "s08")
 
-export function getIconId(cat: SmallCat): string {
-    if (iconOverrides.has(cat.id)) {
-        return iconOverrides.get(cat.id)!
+export function getCatIconId(cat: SmallCat): string {
+    if (catIconOverrides.has(cat.id)) {
+        return catIconOverrides.get(cat.id)!
     }
 
     let iconId = cat.id.toString().padStart(2, "0")
@@ -41,10 +41,10 @@ export function getIconId(cat: SmallCat): string {
     return iconId
 }
 
-export function getIconLink(cat: SmallCat) {
-    return getIconURL(getIconId(cat))
+export function getCatIconLink(cat: SmallCat) {
+    return getCatIconURL(getCatIconId(cat))
 }
 
-export function getIconURL(id: string) {
+export function getCatIconURL(id: string) {
     return `/cat/SpriteAtlas/icon_cat.spriteatlas/${id}.png`
 }
