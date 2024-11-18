@@ -4,6 +4,7 @@ import { getGoodie, getSmallGoodie, goodies } from "../../utils/tables";
 import { translate } from "../../utils/localization";
 import { parseBitMap } from "../../utils/bit_math";
 import Head from "next/head";
+import { RenderText } from "../../components/TextRenderer";
 
 export type SmallGoodie = {
   id: number;
@@ -91,10 +92,10 @@ export default function Goodie(goodie: InferGetStaticPropsType<typeof getStaticP
         <h2 className="text-xl font-bold" id="description">Description</h2>
         <div className="grid grid-cols-2 w-fit ml-4 gap-y-2">
           <div className="font-semibold">Shop description</div>
-          <div className="text-sm whitespace-pre">{goodie.shopDesc}</div>
+          <div className="text-sm whitespace-pre-wrap"><RenderText text={goodie.shopDesc} /></div>
 
           <div className="font-semibold">Yard description</div>
-          <div className="text-sm whitespace-pre">{goodie.yardDesc}</div>
+          <div className="text-sm whitespace-pre-wrap"><RenderText text={goodie.yardDesc} /></div>
         </div>
     </div>
   </main>

@@ -10,6 +10,7 @@ import { cats, catVsFood, getCat, getCatVsFood, getGoodie, getPlaySpace, getSmal
 import { SmallGoodie } from "../goodies/[goodieId]";
 import { Main } from "next/document";
 import Head from "next/head";
+import { RenderText } from "../../components/TextRenderer";
 
 export type SmallCat = {
   id: number;
@@ -170,7 +171,7 @@ export default function Cat({cat, goodies}: InferGetStaticPropsType<typeof getSt
             </div>
             <div className="flex flex-col">
               <div className="text-xl font-bold">{cat.mementoName}</div>
-              <div className="text-sm whitespace-pre-wrap">{cat.mementoComment}</div>
+              <div className="text-sm whitespace-pre-wrap"><RenderText text={cat.mementoComment} /></div>
             </div>
           </div>
         </>}
