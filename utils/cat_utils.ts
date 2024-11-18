@@ -46,5 +46,5 @@ export function getCatIconLink(cat: SmallCat) {
 }
 
 export function getCatIconURL(id: string) {
-    return `/cat/SpriteAtlas/icon_cat.spriteatlas/${id}.png`
+    return `/na2-assets/SpriteAtlas/icon_cat.spriteatlas/${id}.png`
 }

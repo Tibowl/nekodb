@@ -5,5 +5,5 @@ export function getGoodieIconLink(goodie: SmallGoodie | { anime: string }) {
 }
 
 export function getGoodieIconURL(id: string) {
-    return `/cat/SpriteAtlas/icon_goods_big.spriteatlas/${id}.png`
+    return `/na2-assets/SpriteAtlas/icon_goods_big.spriteatlas/${id}.png`
 }

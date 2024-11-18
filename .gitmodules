@@ -1,3 +1,6 @@
 [submodule "NekoAtsume2Data"]
 	path = NekoAtsume2Data
 	url = https://github.com/Tibowl/NekoAtsume2Data
+[submodule "public/na2-assets"]
+	path = public/na2-assets
+	url = https://github.com/Tibowl/na2-assets
