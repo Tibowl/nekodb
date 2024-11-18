@@ -3,6 +3,8 @@ import CatVsFoodTable from "../NekoAtsume2Data/tables/CatVsFoodTable.json"
 import GoodsRecordTable from "../NekoAtsume2Data/tables/GoodsRecordTable.json"
 import PlaySpaceRecordTable from "../NekoAtsume2Data/tables/PlaySpaceRecordTable.json"
 import PlaySpaceVsCatTable from "../NekoAtsume2Data/tables/PlaySpaceVsCatTable.json"
+import WallpaperRecordTable from "../NekoAtsume2Data/tables/WallpaperRecordTable.json"
+
 import { translate } from "./localization"
 
 export const cats = CatRecordTable
@@ -49,3 +51,5 @@ export const playSpaceVsCat = PlaySpaceVsCatTable as {
 export function getPlaySpaceVsCat(playSpace: typeof playSpaces[number]) {
     return playSpaceVsCat.find(ps => ps.Id == playSpace.Id)
 }
+
+export const wallpapers = WallpaperRecordTable

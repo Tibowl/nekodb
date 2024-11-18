@@ -1,4 +1,4 @@
-import FormattedLink from "./FormattedLink";
+import FormattedLink from "./FormattedLink"
 
 export default function Footer({ location, marginBottom }: { location: string, marginBottom?: number }) {
     return <footer className="flex flex-col items-center justify-center w-full border-t text-center" style={({ marginBottom: marginBottom && `${marginBottom}px` })}>

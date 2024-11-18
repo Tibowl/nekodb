@@ -1,14 +1,12 @@
-import { GetStaticProps, InferGetStaticPropsType } from "next";
-import { translate } from "../../utils/localization";
-import { cats, getSmallGoodie, goodies } from "../../utils/tables";
-import CatLink from "../../components/CatLink";
-import { CatType, getCatType } from "../../utils/cat_utils";
-import { SmallGoodie } from "./[goodieId]";
-import GoodieLink from "../../components/GoodieLink";
-import { parseBitMap } from "../../utils/bit_math";
-import { useState } from "react";
-import { CheckboxInput } from "../../components/CheckboxInput";
-import Head from "next/head";
+import { GetStaticProps, InferGetStaticPropsType } from "next"
+import Head from "next/head"
+import { useState } from "react"
+import { CheckboxInput } from "../../components/CheckboxInput"
+import GoodieLink from "../../components/GoodieLink"
+import { parseBitMap } from "../../utils/bit_math"
+import { translate } from "../../utils/localization"
+import { getSmallGoodie, goodies } from "../../utils/tables"
+import { SmallGoodie } from "./[goodieId]"
 
 type GoodieList = {
   goodies: (SmallGoodie & { categories: string[] })[];
@@ -16,9 +14,9 @@ type GoodieList = {
 };
 
 export const getStaticProps = (async () => {
-  const allCategories = [];
+  const allCategories = []
   for (let i = 0; i < 32; i++) {
-    allCategories.push(translate("Program", `Category${i + 1}`, "en"));
+    allCategories.push(translate("Program", `Category${i + 1}`, "en"))
   }
 
   const mappedGoodies = goodies
@@ -27,9 +25,9 @@ export const getStaticProps = (async () => {
     .map((goodie) => {
       const categories = parseBitMap(goodie.Category).map((id) =>
         translate("Program", `Category${id + 1}`, "en")
-      );
-      return { ...getSmallGoodie(goodie), categories };
-    });
+      )
+      return { ...getSmallGoodie(goodie), categories }
+    })
 
   return {
     props: {
@@ -38,14 +36,14 @@ export const getStaticProps = (async () => {
         mappedGoodies.some((goodie) => goodie.categories.includes(category))
       ),
     },
-  };
-}) satisfies GetStaticProps<GoodieList>;
+  }
+}) satisfies GetStaticProps<GoodieList>
 
 export default function GoodiesList({
   goodies,
   categories,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
-  const [groupByCategory, setGroupByCategory] = useState(false);
+  const [groupByCategory, setGroupByCategory] = useState(false)
 
   return (
     <main className="w-full max-w-7xl">
@@ -61,7 +59,7 @@ export default function GoodiesList({
 
       {groupByCategory && categories.map((category) => {
         const filtered = goodies.filter((goodie) => goodie.categories.includes(category))
-      
+
         return <div key={category}>
           <h2 className="text-xl font-bold" id={category}>
             {category} ({filtered.length})
@@ -83,5 +81,5 @@ export default function GoodiesList({
         </div>
       </div>}
     </main>
-  );
+  )
 }

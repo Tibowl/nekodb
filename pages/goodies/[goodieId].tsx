@@ -1,12 +1,12 @@
-import { GetStaticProps, InferGetStaticPropsType } from "next";
-import Head from "next/head";
-import { RenderText } from "../../components/TextRenderer";
-import { parseBitMap } from "../../utils/bit_math";
-import { getGoodieIconLink, getGoodieIconURL } from "../../utils/goodie_utils";
-import { translate } from "../../utils/localization";
-import { getCat, getGoodie, getPlaySpaceVsCat, getSmallCat, getSmallGoodie, goodies, playSpaces } from "../../utils/tables";
-import { SmallCat } from "../cats/[catId]";
-import CatLink from "../../components/CatLink";
+import { GetStaticProps, InferGetStaticPropsType } from "next"
+import Head from "next/head"
+import CatLink from "../../components/CatLink"
+import { RenderText } from "../../components/TextRenderer"
+import { parseBitMap } from "../../utils/bit_math"
+import { getGoodieIconLink, getGoodieIconURL } from "../../utils/goodie_utils"
+import { translate } from "../../utils/localization"
+import { getCat, getGoodie, getPlaySpaceVsCat, getSmallCat, getSmallGoodie, goodies, playSpaces } from "../../utils/tables"
+import { SmallCat } from "../cats/[catId]"
 
 export type SmallGoodie = {
   id: number;
@@ -53,7 +53,7 @@ export const getStaticProps = (async (context) => {
   if (!goodie) {
     return {
       notFound: true,
-    };
+    }
   }
 
   const catgories = parseBitMap(goodie.Category).map(id => translate("Program", `Category${id+1}`, "en"))
@@ -91,44 +91,44 @@ export const getStaticProps = (async (context) => {
     props: {
       goodie: {
         ...getSmallGoodie(goodie),
-  
+
         shopDesc: translate("Goods", `GoodsShop${goodie.Id}`, "en"),
         yardDesc: translate("Goods", `GoodsYard${goodie.Id}`, "en"),
-  
+
         attributes: goodie.Attribute,
         category: catgories,
         toughness: goodie.Toughness,
-  
+
         silver: goodie.Silver,
         gold: goodie.Gold,
-  
+
         gallery: getGallery(goodie),
 
         playSpaces: spaces,
       },
       cats
     },
-  };
-}) satisfies GetStaticProps<GoodieInfo>;
+  }
+}) satisfies GetStaticProps<GoodieInfo>
 
 function getGallery(goodie: typeof goodies[number]) {
   const baseKey = goodie.AnimePngs[0]
   if (goodie.Toughness == 0) return [baseKey]
   if (goodie.RepairPattern == 0) return [
-    baseKey, 
+    baseKey,
     `${baseKey}_break`,
     `${baseKey}_repair`,
   ]
 
   if (goodie.RepairPattern == 1) return [
-    baseKey, 
+    baseKey,
     `${baseKey}_break`,
     `${baseKey}_repair`,
     `${baseKey}_repair_break`,
   ]
 
   const patterns = [
-    baseKey, 
+    baseKey,
     `${baseKey}_break`,
   ]
 
@@ -144,11 +144,11 @@ export const getStaticPaths = (async () => {
   return {
     paths: goodies.map((goodie) => ({ params: { goodieId: goodie.Id.toString() } })),
     fallback: false,
-  };
+  }
 })
 
 
-export default function Goodie({goodie, cats}: InferGetStaticPropsType<typeof getStaticProps>) {
+export default function Goodie({ goodie, cats }: InferGetStaticPropsType<typeof getStaticProps>) {
   return (
     <main className="w-full max-w-7xl">
       <Head>
@@ -162,7 +162,7 @@ export default function Goodie({goodie, cats}: InferGetStaticPropsType<typeof ge
       <div className="flex flex-col gap-2 w-full">
         <div className="flex flex-row items-center gap-2">
           <div className="w-24 h-24 flex flex-col items-center justify-center">
-            <img src={getGoodieIconLink(goodie)} className="max-h-full max-w-full" />
+            <img src={getGoodieIconLink(goodie)} alt={goodie.name} className="max-h-full max-w-full" />
           </div>
           <div className="flex flex-col">
             <h1 className="text-4xl font-bold">{goodie.name}</h1>
@@ -170,7 +170,7 @@ export default function Goodie({goodie, cats}: InferGetStaticPropsType<typeof ge
               <div className="text-sm">{goodie.attributes == 0 ? "Small" : "Large"}</div>
               <div>&middot;</div>
               {goodie.category.map((cat, i) => {
-                if (i > 0) return <div className="flex flex-row items-center gap-2">
+                if (i > 0) return <div key={i} className="flex flex-row items-center gap-2">
                   <div>&middot;</div>
                   <div key={i} className="text-sm">{cat}</div>
                 </div>
@@ -199,7 +199,7 @@ export default function Goodie({goodie, cats}: InferGetStaticPropsType<typeof ge
 
             <div className="font-semibold">Silver</div>
             <div className="text-right">{goodie.silver}</div>
-            
+
             <div className="font-semibold">Gold</div>
             <div className="text-right">{goodie.gold}</div>
         </div>
@@ -209,13 +209,13 @@ export default function Goodie({goodie, cats}: InferGetStaticPropsType<typeof ge
           <div className="flex flex-row flex-wrap gap-2">
             {goodie.gallery.map((gallery, i) => <div key={i}>
               <div className="bg-gray-100 dark:bg-slate-800 rounded-md p-1">
-                <img src={getGoodieIconURL(gallery)} className="max-h-full max-w-full" />
+                <img src={getGoodieIconURL(gallery)} alt={gallery} className="max-h-full max-w-full" />
                 <div className="text-sm p-2 pt-0 flex flex-col gap-1 text-center">{gallery}</div>
               </div>
             </div>)}
           </div>
         </>}
-        
+
         <h2 className="text-xl font-bold" id="animations">Animation gallery</h2>
         <div className="text-sm">Coming soon</div>
 
@@ -232,10 +232,10 @@ export default function Goodie({goodie, cats}: InferGetStaticPropsType<typeof ge
             <div className="font-medium">Fish gift factor</div>
             <div className="text-right">{ps.niboshi}</div>
 
-            
+
             <div className="font-medium">Gommenne</div>
             <div className="text-right">{ps.gomenne ? "✅" : "❌"}</div>
-            
+
             <div className="font-medium">Grooming</div>
             <div className="text-right">{ps.grooming ? "✅" : "❌"}</div>
           </div>
@@ -246,7 +246,7 @@ export default function Goodie({goodie, cats}: InferGetStaticPropsType<typeof ge
               const cat = cats.find(cat => cat.id == Number(catId))
               const link = cat ? <CatLink cat={cat}></CatLink> : <div className="text-sm">Unknown cat #{catId}</div>
 
-              if (weights.length == 1 || weights.every(weight => weight == weights[0])) 
+              if (weights.length == 1 || weights.every(weight => weight == weights[0]))
                 return <div key={catId} className="flex flex-row items-center">{link} {weights[0]}</div>
               else if (weights.length == 3)
                 return <div key={catId} className="flex flex-row items-center gap-2">
@@ -264,5 +264,5 @@ export default function Goodie({goodie, cats}: InferGetStaticPropsType<typeof ge
         </div>)}
     </div>
   </main>
-  );
+  )
 }

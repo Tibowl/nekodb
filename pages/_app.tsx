@@ -1,8 +1,8 @@
-import Head from "next/head";
-import "../styles/globals.css";
-import type { AppProps } from "next/app";
-import Footer from "../components/Footer";
-import NavBar from "../components/NavBar";
+import type { AppProps } from "next/app"
+import Head from "next/head"
+import Footer from "../components/Footer"
+import NavBar from "../components/NavBar"
+import "../styles/globals.css"
 
 function MyApp({ Component, pageProps, router }: AppProps) {
   return (
@@ -21,7 +21,7 @@ function MyApp({ Component, pageProps, router }: AppProps) {
       </div>
       <Footer location={router.asPath} />
     </div>
-  );
+  )
 }
 
-export default MyApp;
+export default MyApp

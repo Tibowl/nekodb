@@ -1,11 +1,9 @@
-import { GetStaticProps, InferGetStaticPropsType } from "next";
-import { translate } from "../../utils/localization";
-import { cats, getSmallCat } from "../../utils/tables";
-import { SmallCat } from "./[catId]";
-import FormattedLink from "../../components/FormattedLink";
-import CatLink from "../../components/CatLink";
-import { CatType, getCatType } from "../../utils/cat_utils";
-import Head from "next/head";
+import { GetStaticProps, InferGetStaticPropsType } from "next"
+import Head from "next/head"
+import CatLink from "../../components/CatLink"
+import { CatType, getCatType } from "../../utils/cat_utils"
+import { cats, getSmallCat } from "../../utils/tables"
+import { SmallCat } from "./[catId]"
 
 type CatList = {
   cats: SmallCat[];
@@ -16,8 +14,8 @@ export const getStaticProps = (async () => {
     props: {
       cats: cats.map(cat => getSmallCat(cat)),
     },
-  };
-}) satisfies GetStaticProps<CatList>;
+  }
+}) satisfies GetStaticProps<CatList>
 
 export default function CatList({
   cats,
@@ -55,5 +53,5 @@ export default function CatList({
         ))}
       </div>
     </main>
-  );
+  )
 }

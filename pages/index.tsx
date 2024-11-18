@@ -1,9 +1,9 @@
-import type { NextPage } from "next";
-import Head from "next/head";
-import Image, { StaticImageData } from "next/image";
-import FormattedLink from "../components/FormattedLink";
-import Snowball from "../public/cat/SpriteAtlas/icon_cat.spriteatlas/00.png";
-import CatTree from "../public/cat/SpriteAtlas/icon_goods_big.spriteatlas/04tower_2dan.png";
+import type { NextPage } from "next"
+import Head from "next/head"
+import Image, { StaticImageData } from "next/image"
+import FormattedLink from "../components/FormattedLink"
+import Snowball from "../public/cat/SpriteAtlas/icon_cat.spriteatlas/00.png"
+import CatTree from "../public/cat/SpriteAtlas/icon_goods_big.spriteatlas/04tower_2dan.png"
 
 const Home: NextPage = () => {
   const desc = "NekoDB is a database of Neko Atsume 2's data."
@@ -21,7 +21,7 @@ const Home: NextPage = () => {
         <h1 className="text-6xl font-bold mt-6">
           Welcome to NekoDB
         </h1>
-      
+
         <p className="m-3 text-2xl">
           A Neko Atsume 2 database site
         </p>
@@ -33,10 +33,10 @@ const Home: NextPage = () => {
         </div>
       </div>
     </main>
-  );
-};
+  )
+}
 
-export default Home;
+export default Home
 
 function Card({ href, src, title, desc, location, colors = "bg-slate-300 dark:bg-slate-800" }: { href?: string, src: StaticImageData, title: string, desc: string, colors?: string, location: string }) {
   const className = `px-6 py-1.5 m-1.5 h-full text-left border max-w-full items-start justify-center flex flex-col rounded-2xl ${colors}`

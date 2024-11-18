@@ -1,16 +1,15 @@
-import { GetStaticProps, InferGetStaticPropsType } from "next";
-import { useState } from "react";
-import { CheckboxInput } from "../../components/CheckboxInput";
-import FoodIcon from "../../components/FoodIcon";
-import FormattedLink from "../../components/FormattedLink";
-import GoodieLink from "../../components/GoodieLink";
-import { getCatIconLink, getCatIconURL } from "../../utils/cat_utils";
-import { translate } from "../../utils/localization";
-import { cats, catVsFood, getCat, getCatVsFood, getGoodie, getPlaySpace, getSmallGoodie, playSpaceVsCat } from "../../utils/tables";
-import { SmallGoodie } from "../goodies/[goodieId]";
-import { Main } from "next/document";
-import Head from "next/head";
-import { RenderText } from "../../components/TextRenderer";
+import { GetStaticProps, InferGetStaticPropsType } from "next"
+import Head from "next/head"
+import { useState } from "react"
+import { CheckboxInput } from "../../components/CheckboxInput"
+import FoodIcon from "../../components/FoodIcon"
+import FormattedLink from "../../components/FormattedLink"
+import GoodieLink from "../../components/GoodieLink"
+import { RenderText } from "../../components/TextRenderer"
+import { getCatIconLink, getCatIconURL } from "../../utils/cat_utils"
+import { translate } from "../../utils/localization"
+import { cats, catVsFood, getCat, getCatVsFood, getGoodie, getPlaySpace, getSmallGoodie, playSpaceVsCat } from "../../utils/tables"
+import { SmallGoodie } from "../goodies/[goodieId]"
 
 export type SmallCat = {
   id: number;
@@ -53,13 +52,13 @@ export const getStaticProps = (async (context) => {
   if (!cat) {
     return {
       notFound: true,
-    };
+    }
   }
 
   let mementoComment = translate("Cat", `TakaraComment${cat.MementoId}`, "en")
   if (cat.MementoId == 62) {
     mementoComment = mementoComment.replace(
-      "{0}", 
+      "{0}",
       translate("Cat", `TakaraComment${cat.MementoId}_2`, "en").replace("{0}", "X").replace("{1}", "Y")
     )
   }
@@ -103,36 +102,36 @@ export const getStaticProps = (async (context) => {
       cat: {
         id: cat.Id,
         name: translate("Cat", `CatName${cat.Id}`, "en"),
-  
+
         power: cat.Power,
         weatherImpact: cat.WeatherImpact,
         niboshi: cat.Niboshi,
         gomenneRate: cat.GomenneRate,
         groomingRate: cat.GroomingRate,
-  
+
         color: translate("Cat", `CatColor${cat.Id}`, "en"),
         personality: translate("Cat", `CatChar${cat.Id}`, "en"),
         mementoId: cat.MementoId,
         mementoName: translate("Cat", `TakaraName${cat.MementoId}`, "en"),
         mementoComment,
-  
+
         food: food?.Dict ?? null,
         playSpaces
       },
       goodies
     },
-  };
-}) satisfies GetStaticProps<Props>;
+  }
+}) satisfies GetStaticProps<Props>
 
 export const getStaticPaths = (async () => {
   return {
     paths: cats.map((cat) => ({ params: { catId: cat.Id.toString() } })),
     fallback: false,
-  };
+  }
 })
 
 
-export default function Cat({cat, goodies}: InferGetStaticPropsType<typeof getStaticProps>) {
+export default function Cat({ cat, goodies }: InferGetStaticPropsType<typeof getStaticProps>) {
   const [upcomingGoodies, setUpcomingGoodies] = useState(false)
 
   return (
@@ -145,11 +144,11 @@ export default function Cat({cat, goodies}: InferGetStaticPropsType<typeof getSt
         <meta property="description" content={`Discover ${cat.name}'s favorite goodies and snacks in Neko Atsume 2! ${cat.name} is a ${cat.color.toLowerCase()} cat with a ${cat.personality.toLowerCase()} personality and a power level of ${cat.power}.`} />
         <meta property="og:image" content={getCatIconLink(cat)} />
       </Head>
-    
+
       <div className="flex flex-col gap-2 w-full">
         <div className="flex flex-row items-center gap-2">
           <div className="w-24 h-24 flex flex-col items-center justify-center">
-            <img src={getCatIconLink(cat)} className="max-h-full max-w-full" />
+            <img src={getCatIconLink(cat)} alt={cat.name} className="max-h-full max-w-full" />
           </div>
           <div className="flex flex-col">
             <h1 className="text-4xl font-bold">{cat.name}</h1>
@@ -167,7 +166,7 @@ export default function Cat({cat, goodies}: InferGetStaticPropsType<typeof getSt
           <h2 className="text-xl font-bold" id="memento">Memento</h2>
           <div className="flex flex-row items-center gap-2">
             <div className="w-16 h-16 flex flex-col items-center justify-center">
-              <img src={getCatIconURL(`takara_${cat.mementoId.toString().padStart(3, "0")}`)} className="max-h-full max-w-full" />
+              <img src={getCatIconURL(`takara_${cat.mementoId.toString().padStart(3, "0")}`)} alt={cat.mementoName} className="max-h-full max-w-full" />
             </div>
             <div className="flex flex-col">
               <div className="text-xl font-bold">{cat.mementoName}</div>
@@ -181,7 +180,7 @@ export default function Cat({cat, goodies}: InferGetStaticPropsType<typeof getSt
         <div className="grid grid-cols-[auto_1fr] w-fit ml-4 gap-x-2">
             <div className="font-semibold">Seasonal modifier factor</div>
             <div className="text-right">{cat.weatherImpact}</div>
-            
+
             <div className="font-semibold">Fish gift factor</div>
             <div className="text-right">{cat.niboshi}</div>
 
@@ -195,7 +194,7 @@ export default function Cat({cat, goodies}: InferGetStaticPropsType<typeof getSt
         {cat.food && <>
           <h2 className="text-xl font-bold" id="food-modifiers">Food modifiers</h2>
           <div className="flex flex-row flex-wrap gap-2">
-            {(["1", "2", "3", "4", "5", "6", "7"] as (keyof CatVsFood)[]).map(foodId => 
+            {(["1", "2", "3", "4", "5", "6", "7"] as (keyof CatVsFood)[]).map(foodId =>
               <div key={foodId} className="bg-gray-100 dark:bg-slate-800 rounded-md">
                 <FoodIcon food={foodId} gray={!cat.food![foodId]}>{cat.food![foodId] ?? "❌"}</FoodIcon>
               </div>
@@ -222,7 +221,7 @@ export default function Cat({cat, goodies}: InferGetStaticPropsType<typeof getSt
                         :
                           <span>Space #{playSpace.playSpaceId}:</span>
 
-                        if (weights.length == 1 || weights.every(weight => weight == weights[0])) 
+                        if (weights.length == 1 || weights.every(weight => weight == weights[0]))
                           return <div key={playSpace.playSpaceId}>{link} {weights[0]}</div>
                         else if (weights.length == 3)
                           return <div key={playSpace.playSpaceId} className="flex flex-row items-center gap-2">
@@ -245,5 +244,5 @@ export default function Cat({cat, goodies}: InferGetStaticPropsType<typeof getSt
         </>}
     </div>
   </main>
-  );
+  )
 }

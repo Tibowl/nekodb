@@ -1,4 +1,4 @@
-export function RenderText({text}: {text: string}) {
+export function RenderText({ text }: {text: string}) {
   const nodes = parse(text)
   return <RenderList nodes={nodes} />
 }
@@ -102,17 +102,17 @@ function parse(text: string): NodeItem[] {
           case "TAG": {
             if (c == "=") {
               current.state = "VALUE"
-              break;
+              break
             }
             // Append to tag creation
             current.tag = current.tag + c
-            break;
+            break
           }
           case "VALUE": {
             // Append to value parsing
-            if (c == "\"") break;
+            if (c == "\"") break
             current.value = (current.value ?? "") + c
-            break;
+            break
           }
         }
       }
