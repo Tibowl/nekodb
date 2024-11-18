@@ -62,13 +62,12 @@ export const getStaticProps = (async (context) => {
   const spaces = playSpaces.filter(ps => ps.ItemId == goodie.Id)
     .map(ps => {
       const psVsCat = getPlaySpaceVsCat(ps)
-      if (!psVsCat) throw new Error(`No play space vs cat for ${ps.Id}`)
+      if (!psVsCat) return null // Myneko spaces don't have a play space vs cat
 
       const catWeights: Record<string, number[]> = {}
       Object.entries(psVsCat.Dict).forEach(([catId, weight]) => {
         if (cats.every(cat => cat.id != Number(catId))) {
           const cat = getCat(+catId)
-          console.log(catId, cat)
           if (cat)
             cats.push(getSmallCat(cat))
         }
@@ -85,7 +84,7 @@ export const getStaticProps = (async (context) => {
         catWeights,
         weatherWeights: {}, // TODO
       }
-    })
+    }).filter(ps => ps) as PlaySpaceInfo[]
 
   return {
     props: {
