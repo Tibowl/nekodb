@@ -2,8 +2,8 @@ import type { NextPage } from "next"
 import Head from "next/head"
 import Image, { StaticImageData } from "next/image"
 import FormattedLink from "../components/FormattedLink"
-import Snowball from "../public/cat/SpriteAtlas/icon_cat.spriteatlas/00.png"
-import CatTree from "../public/cat/SpriteAtlas/icon_goods_big.spriteatlas/04tower_2dan.png"
+import Snowball from "../public/na2-assets/SpriteAtlas/icon_cat.spriteatlas/00.png"
+import CatTree from "../public/na2-assets/SpriteAtlas/icon_goods_big.spriteatlas/04tower_2dan.png"
 
 const Home: NextPage = () => {
   const desc = "NekoDB is a database of Neko Atsume 2's data."
