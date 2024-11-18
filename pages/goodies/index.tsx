@@ -8,6 +8,7 @@ import GoodieLink from "../../components/GoodieLink";
 import { parseBitMap } from "../../utils/bit_math";
 import { useState } from "react";
 import { CheckboxInput } from "../../components/CheckboxInput";
+import Head from "next/head";
 
 type GoodieList = {
   goodies: (SmallGoodie & { categories: string[] })[];
@@ -47,7 +48,14 @@ export default function GoodiesList({
   const [groupByCategory, setGroupByCategory] = useState(false);
 
   return (
-    <div>
+    <main className="w-full">
+      <Head>
+        <title>Goodies - NekoDB</title>
+        <meta name="twitter:card" content="summary" />
+        <meta property="og:title" content="Goodies - NekoDB" />
+        <meta property="og:description" content={`Discover all ${goodies.length} goodies in Neko Atsume 2!`} />
+        <meta property="description" content={`Discover all ${goodies.length} goodies in Neko Atsume 2!`} />
+      </Head>
       <h1 className="text-4xl font-bold">Goodies</h1>
       <CheckboxInput label="Group by category" set={setGroupByCategory} value={groupByCategory} />
 
@@ -74,6 +82,6 @@ export default function GoodiesList({
           ))}
         </div>
       </div>}
-    </div>
+    </main>
   );
 }

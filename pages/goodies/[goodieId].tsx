@@ -3,6 +3,7 @@ import { getGoodieIconLink } from "../../utils/goodie_utils";
 import { getGoodie, getSmallGoodie, goodies } from "../../utils/tables";
 import { translate } from "../../utils/localization";
 import { parseBitMap } from "../../utils/bit_math";
+import Head from "next/head";
 
 export type SmallGoodie = {
   id: number;
@@ -63,29 +64,39 @@ export const getStaticPaths = (async () => {
 
 export default function Goodie(goodie: InferGetStaticPropsType<typeof getStaticProps>) {
   return (
-    <div className="flex flex-col gap-2 w-full">
-      <div className="flex flex-row items-center gap-2">
-        <div className="w-24 h-24 flex flex-col items-center justify-center">
-          <img src={getGoodieIconLink(goodie)} className="max-h-full max-w-full" />
-        </div>
-        <div className="flex flex-col">
-          <h1 className="text-4xl font-bold">{goodie.name}</h1>
-          <div className="flex flex-row items-center gap-2">
-            <div className="text-sm">{goodie.attributes == 0 ? "Small" : "Large"}</div>
-            <div>&middot;</div>
-            <div className="text-sm">{goodie.category.join(",")}</div>
+    <main className="w-full">
+      <Head>
+        <title>{goodie.name} - NekoDB</title>
+        <meta name="twitter:card" content="summary" />
+        <meta property="og:title" content={`${goodie.name} - NekoDB`} />
+        <meta property="og:description" content={`Discover all the cats that can visit ${goodie.name} in Neko Atsume 2!`} />
+        <meta property="description" content={`Discover all the cats that can visit ${goodie.name} in Neko Atsume 2!`} />
+        <meta property="og:image" content={getGoodieIconLink(goodie)} />
+      </Head>
+      <div className="flex flex-col gap-2 w-full">
+        <div className="flex flex-row items-center gap-2">
+          <div className="w-24 h-24 flex flex-col items-center justify-center">
+            <img src={getGoodieIconLink(goodie)} className="max-h-full max-w-full" />
+          </div>
+          <div className="flex flex-col">
+            <h1 className="text-4xl font-bold">{goodie.name}</h1>
+            <div className="flex flex-row items-center gap-2">
+              <div className="text-sm">{goodie.attributes == 0 ? "Small" : "Large"}</div>
+              <div>&middot;</div>
+              <div className="text-sm">{goodie.category.join(",")}</div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <h2 className="text-xl font-bold" id="description">Description</h2>
-      <div className="grid grid-cols-2 w-fit ml-4 gap-y-2">
-        <div className="font-semibold">Shop description</div>
-        <div className="text-sm whitespace-pre">{goodie.shopDesc}</div>
+        <h2 className="text-xl font-bold" id="description">Description</h2>
+        <div className="grid grid-cols-2 w-fit ml-4 gap-y-2">
+          <div className="font-semibold">Shop description</div>
+          <div className="text-sm whitespace-pre">{goodie.shopDesc}</div>
 
-        <div className="font-semibold">Yard description</div>
-        <div className="text-sm whitespace-pre">{goodie.yardDesc}</div>
-      </div>
-  </div>
+          <div className="font-semibold">Yard description</div>
+          <div className="text-sm whitespace-pre">{goodie.yardDesc}</div>
+        </div>
+    </div>
+  </main>
   );
 }

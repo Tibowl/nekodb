@@ -5,6 +5,7 @@ import { SmallCat } from "./[catId]";
 import FormattedLink from "../../components/FormattedLink";
 import CatLink from "../../components/CatLink";
 import { CatType, getCatType } from "../../utils/cat_utils";
+import Head from "next/head";
 
 type CatList = {
   cats: SmallCat[];
@@ -25,7 +26,15 @@ export default function CatList({
   cats,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
   return (
-    <div>
+    <main className="w-full">
+      <Head>
+        <title>Cats - NekoDB</title>
+        <meta name="twitter:card" content="summary" />
+        <meta property="og:title" content="Cats - NekoDB" />
+        <meta property="og:description" content={`Discover all ${cats.length} cats in Neko Atsume 2!`} />
+        <meta property="description" content={`Discover all ${cats.length} cats in Neko Atsume 2!`} />
+      </Head>
+
       <h1 className="text-4xl font-bold">Cats</h1>
 
       <h2 className="text-xl font-bold">Normal cats</h2>
@@ -48,6 +57,6 @@ export default function CatList({
           <CatLink key={cat.id} cat={cat}></CatLink>
         ))}
       </div>
-    </div>
+    </main>
   );
 }
