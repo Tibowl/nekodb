@@ -1,13 +1,13 @@
 import { GetStaticProps, InferGetStaticPropsType } from "next";
+import { useState } from "react";
+import { CheckboxInput } from "../../components/CheckboxInput";
 import FoodIcon from "../../components/FoodIcon";
+import FormattedLink from "../../components/FormattedLink";
+import GoodieLink from "../../components/GoodieLink";
 import { getCatIconLink, getCatIconURL } from "../../utils/cat_utils";
 import { translate } from "../../utils/localization";
 import { cats, catVsFood, getCat, getCatVsFood, getGoodie, getPlaySpace, getSmallGoodie, playSpaceVsCat } from "../../utils/tables";
 import { SmallGoodie } from "../goodies/[goodieId]";
-import GoodieLink from "../../components/GoodieLink";
-import { CheckboxInput } from "../../components/CheckboxInput";
-import { useState } from "react";
-import FormattedLink from "../../components/FormattedLink";
 
 export type SmallCat = {
   id: number;

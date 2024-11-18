@@ -1,9 +1,8 @@
 import { GetStaticProps, InferGetStaticPropsType } from "next";
-import FoodIcon from "../../components/FoodIcon";
-import { getCatIconLink, getCatIconURL } from "../../utils/cat_utils";
+import { getGoodieIconLink } from "../../utils/goodie_utils";
+import { getGoodie, getSmallGoodie, goodies } from "../../utils/tables";
 import { translate } from "../../utils/localization";
-import { cats, catVsFood, getCat, getCatVsFood, getGoodie, getSmallGoodie, goodies } from "../../utils/tables";
-import { getGoodieIconLink, getGoodieIconURL } from "../../utils/goodie_utils";
+import { parseBitMap } from "../../utils/bit_math";
 
 export type SmallGoodie = {
   id: number;
@@ -12,6 +11,16 @@ export type SmallGoodie = {
 };
 
 export type Goodie = SmallGoodie & {
+  shopDesc: string
+  yardDesc: string
+
+  attributes: number
+  category: string[]
+  toughness: number
+  repairPattern: number
+
+  silver: number
+  gold: number
 };
 
 export const getStaticProps = (async (context) => {
@@ -23,8 +32,24 @@ export const getStaticProps = (async (context) => {
     };
   }
 
+  const catgories = parseBitMap(goodie.Category).map(id => translate("Program", `Category${id+1}`, "en"))
+
   return {
-    props: getSmallGoodie(goodie),
+    props: {
+      ...getSmallGoodie(goodie),
+
+      shopDesc: translate("Goods", `GoodsShop${goodie.Id}`, "en"),
+      yardDesc: translate("Goods", `GoodsYard${goodie.Id}`, "en"),
+
+      attributes: goodie.Attribute,
+      category: catgories,
+
+      toughness: goodie.Toughness,
+      repairPattern: goodie.RepairPattern,
+
+      silver: goodie.Silver,
+      gold: goodie.Gold,
+    },
   };
 }) satisfies GetStaticProps<Goodie>;
 
@@ -46,9 +71,20 @@ export default function Goodie(goodie: InferGetStaticPropsType<typeof getStaticP
         <div className="flex flex-col">
           <h1 className="text-4xl font-bold">{goodie.name}</h1>
           <div className="flex flex-row items-center gap-2">
-            <div className="text-sm">TODO {goodie.id}</div>
+            <div className="text-sm">{goodie.attributes == 0 ? "Small" : "Large"}</div>
+            <div>&middot;</div>
+            <div className="text-sm">{goodie.category.join(",")}</div>
           </div>
         </div>
+      </div>
+
+      <h2 className="text-xl font-bold" id="description">Description</h2>
+      <div className="grid grid-cols-2 w-fit ml-4 gap-y-2">
+        <div className="font-semibold">Shop description</div>
+        <div className="text-sm whitespace-pre">{goodie.shopDesc}</div>
+
+        <div className="font-semibold">Yard description</div>
+        <div className="text-sm whitespace-pre">{goodie.yardDesc}</div>
       </div>
   </div>
   );
