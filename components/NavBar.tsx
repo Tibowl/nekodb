@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import FormattedLink from "./FormattedLink"
 
-const pages = ["Cats"]//, "Goods", "Wallpapers"]
+const pages = ["Cats", "Goodies"]//, "Wallpapers"]
 
 export default function NavBar({ location }: {location: string}) {
   const [menuOpen, setMenuOpen] = useState(false)

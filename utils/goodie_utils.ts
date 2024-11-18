@@ -1,6 +1,6 @@
-type SmallGoodie = { id: number, anime: string }
+import { SmallGoodie } from "../pages/goodies/[goodieId]"
 
-export function getGoodieIconLink(goodie: SmallGoodie) {
+export function getGoodieIconLink(goodie: SmallGoodie | { anime: string }) {
     return getGoodieIconURL(goodie.anime)
 }
 
