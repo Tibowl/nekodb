@@ -1,6 +1,7 @@
 import { GetStaticProps, InferGetStaticPropsType } from "next"
 import Head from "next/head"
 import { useState } from "react"
+import CatLink from "../../components/CatLink"
 import { CheckboxInput } from "../../components/CheckboxInput"
 import FoodIcon from "../../components/FoodIcon"
 import FormattedLink from "../../components/FormattedLink"
@@ -8,7 +9,7 @@ import GoodieLink from "../../components/GoodieLink"
 import { RenderText } from "../../components/TextRenderer"
 import { getCatIconLink, getCatIconURL } from "../../utils/cat_utils"
 import { translate } from "../../utils/localization"
-import { cats, catVsFood, getCat, getCatVsFood, getGoodie, getPlaySpace, getSmallGoodie, playSpaceVsCat } from "../../utils/tables"
+import { cats, catVsCat, catVsFood, getCat, getCatVsCat, getCatVsFood, getGoodie, getPlaySpace, getSmallCat, getSmallGoodie, playSpaceVsCat } from "../../utils/tables"
 import { SmallGoodie } from "../goodies/[goodieId]"
 
 export type SmallCat = {
@@ -31,6 +32,7 @@ export type Cat = SmallCat & {
   mementoComment: string
 
   food: CatVsFood | null
+  catVsCat: CatVsCat | null
   playSpaces: PlaySpaceWeight[] | null
 }
 
@@ -45,6 +47,7 @@ type Props = {
 }
 
 export type CatVsFood = typeof catVsFood[number]["Dict"]
+export type CatVsCat = typeof catVsCat[number]["Dict"]
 
 export const getStaticProps = (async (context) => {
   const cat = getCat(Number(context.params?.catId))
@@ -64,6 +67,9 @@ export const getStaticProps = (async (context) => {
   }
 
   const food = getCatVsFood(cat)
+  const catVsCat = getCatVsCat(cat) ?? null
+  const cats = catVsCat ? Object.keys(catVsCat.Dict).map(id => getSmallCat(getCat(Number(id))!)) : []
+
   const playSpaces = playSpaceVsCat.map(playSpaceVsCat => {
     if (playSpaceVsCat.Dict[cat.Id]) return {
       playSpaceId: playSpaceVsCat.Id,
@@ -116,9 +122,11 @@ export const getStaticProps = (async (context) => {
         mementoComment,
 
         food: food?.Dict ?? null,
-        playSpaces
+        playSpaces,
+        catVsCat: catVsCat?.Dict ?? null
       },
-      goodies
+      goodies,
+      cats
     },
   }
 }) satisfies GetStaticProps<Props>
@@ -131,7 +139,7 @@ export const getStaticPaths = (async () => {
 })
 
 
-export default function Cat({ cat, goodies }: InferGetStaticPropsType<typeof getStaticProps>) {
+export default function Cat({ cat, cats, goodies }: InferGetStaticPropsType<typeof getStaticProps>) {
   const [upcomingGoodies, setUpcomingGoodies] = useState(false)
 
   return (
@@ -240,6 +248,21 @@ export default function Cat({ cat, goodies }: InferGetStaticPropsType<typeof get
                 </div>
               })
             }
+          </div>
+        </>}
+
+        {cat.catVsCat && Object.entries(cat.catVsCat).length > 0 && <>
+          <h2 className="text-xl font-bold" id="food-modifiers">Cat vs cat weights</h2>
+          <div className="flex flex-row flex-wrap gap-2">
+            {Object.entries(cat.catVsCat).map(([catId, weight]) => {
+              const cat = cats.find(cat => cat.id == Number(catId))
+              const link = cat ? <CatLink cat={cat}></CatLink> : <div className="text-sm">Unknown cat #{catId}</div>
+
+              return <div key={catId} className="bg-gray-100 dark:bg-slate-800 rounded-md flex flex-row items-center pr-2">
+                <div>{link}</div>
+                <div>{weight}</div>
+              </div>
+            })}
           </div>
         </>}
     </div>

@@ -1,4 +1,5 @@
 import CatRecordTable from "../NekoAtsume2Data/tables/CatRecordTable.json"
+import CatVsCatTable from "../NekoAtsume2Data/tables/CatVsCatTable.json"
 import CatVsFoodTable from "../NekoAtsume2Data/tables/CatVsFoodTable.json"
 import GoodsRecordTable from "../NekoAtsume2Data/tables/GoodsRecordTable.json"
 import PlaySpaceRecordTable from "../NekoAtsume2Data/tables/PlaySpaceRecordTable.json"
@@ -23,7 +24,15 @@ export const catVsFood = CatVsFoodTable as {
     Dict: Partial<Record<"1" | "2" | "3" | "4" | "5" | "6" | "7" | "99", number>>
 }[]
 export function getCatVsFood(cat: typeof cats[number]) {
-    return catVsFood.find(food => food.Id == cat.Id)
+    return catVsFood.find(entry => entry.Id == cat.Id)
+}
+
+export const catVsCat = CatVsCatTable as {
+    Id: number
+    Dict: Partial<Record<number, number>>
+}[]
+export function getCatVsCat(cat: typeof cats[number]) {
+    return catVsCat.find(entry => entry.Id == cat.Id)
 }
 
 
