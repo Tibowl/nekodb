@@ -138,7 +138,7 @@ export default function Cat({cat, goodies}: InferGetStaticPropsType<typeof getSt
   return (
     <main className="w-full">
       <Head>
-        <title>{cat.name} - NekoDB</title>
+        <title>{`${cat.name} - NekoDB`}</title>
         <meta name="twitter:card" content="summary" />
         <meta property="og:title" content={`${cat.name} - NekoDB`} />
         <meta property="og:description" content={`Discover ${cat.name}'s favorite goodies and snacks in Neko Atsume 2! ${cat.name} is a ${cat.color.toLowerCase()} cat with a ${cat.personality.toLowerCase()} personality and a power level of ${cat.power}.`} />
@@ -178,7 +178,7 @@ export default function Cat({cat, goodies}: InferGetStaticPropsType<typeof getSt
 
 
         <h2 className="text-xl font-bold" id="base-stats">Base stats</h2>
-        <div className="grid grid-cols-2 w-fit ml-4">
+        <div className="grid grid-cols-[auto_1fr] w-fit ml-4 gap-x-2">
             <div className="font-semibold">Seasonal modifier factor</div>
             <div className="text-right">{cat.weatherImpact}</div>
             
@@ -218,7 +218,7 @@ export default function Cat({cat, goodies}: InferGetStaticPropsType<typeof getSt
                       {playSpaces.map(playSpace => {
                         const weights = playSpace.weight
                         const link = goodie.anime ?
-                          <FormattedLink href={`/goodies/${goodie.id}#space-${playSpace.playSpaceId}`}>Space #{playSpace.playSpaceId}:</FormattedLink>
+                          <FormattedLink href={`/goodies/${goodie.id}#play-space-${playSpace.playSpaceId}`}>Space #{playSpace.playSpaceId}:</FormattedLink>
                         :
                           <span>Space #{playSpace.playSpaceId}:</span>
 

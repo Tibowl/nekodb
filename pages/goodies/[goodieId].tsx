@@ -1,10 +1,12 @@
 import { GetStaticProps, InferGetStaticPropsType } from "next";
-import { getGoodieIconLink } from "../../utils/goodie_utils";
-import { getGoodie, getSmallGoodie, goodies } from "../../utils/tables";
-import { translate } from "../../utils/localization";
-import { parseBitMap } from "../../utils/bit_math";
 import Head from "next/head";
 import { RenderText } from "../../components/TextRenderer";
+import { parseBitMap } from "../../utils/bit_math";
+import { getGoodieIconLink, getGoodieIconURL } from "../../utils/goodie_utils";
+import { translate } from "../../utils/localization";
+import { getCat, getGoodie, getPlaySpaceVsCat, getSmallCat, getSmallGoodie, goodies, playSpaces } from "../../utils/tables";
+import { SmallCat } from "../cats/[catId]";
+import CatLink from "../../components/CatLink";
 
 export type SmallGoodie = {
   id: number;
@@ -19,11 +21,31 @@ export type Goodie = SmallGoodie & {
   attributes: number
   category: string[]
   toughness: number
-  repairPattern: number
 
   silver: number
   gold: number
+
+  gallery: string[]
+  playSpaces: PlaySpaceInfo[]
 };
+
+type PlaySpaceInfo = {
+  playSpaceId: number
+  conflicts: number[]
+
+  charm: number
+  niboshi: number
+  gomenne: boolean
+  grooming: boolean
+
+  catWeights: Record<number, number[]>
+  weatherWeights: Record<string, number>
+}
+
+type GoodieInfo = {
+  goodie: Goodie
+  cats: SmallCat[]
+}
 
 export const getStaticProps = (async (context) => {
   const goodie = getGoodie(Number(context.params?.goodieId))
@@ -36,24 +58,87 @@ export const getStaticProps = (async (context) => {
 
   const catgories = parseBitMap(goodie.Category).map(id => translate("Program", `Category${id+1}`, "en"))
 
+  const cats: SmallCat[] = []
+  const spaces = playSpaces.filter(ps => ps.ItemId == goodie.Id)
+    .map(ps => {
+      const psVsCat = getPlaySpaceVsCat(ps)
+      if (!psVsCat) throw new Error(`No play space vs cat for ${ps.Id}`)
+
+      const catWeights: Record<string, number[]> = {}
+      Object.entries(psVsCat.Dict).forEach(([catId, weight]) => {
+        if (cats.every(cat => cat.id != Number(catId))) {
+          const cat = getCat(+catId)
+          console.log(catId, cat)
+          if (cat)
+            cats.push(getSmallCat(cat))
+        }
+        catWeights[catId] = weight!
+      })
+
+      return {
+        playSpaceId: ps.Id,
+        conflicts: ps.ConflictIndices,
+        charm: ps.Charm,
+        niboshi: ps.Niboshi,
+        gomenne: ps.Gomenne,
+        grooming: ps.Grooming,
+        catWeights,
+        weatherWeights: {}, // TODO
+      }
+    })
+
   return {
     props: {
-      ...getSmallGoodie(goodie),
+      goodie: {
+        ...getSmallGoodie(goodie),
+  
+        shopDesc: translate("Goods", `GoodsShop${goodie.Id}`, "en"),
+        yardDesc: translate("Goods", `GoodsYard${goodie.Id}`, "en"),
+  
+        attributes: goodie.Attribute,
+        category: catgories,
+        toughness: goodie.Toughness,
+  
+        silver: goodie.Silver,
+        gold: goodie.Gold,
+  
+        gallery: getGallery(goodie),
 
-      shopDesc: translate("Goods", `GoodsShop${goodie.Id}`, "en"),
-      yardDesc: translate("Goods", `GoodsYard${goodie.Id}`, "en"),
-
-      attributes: goodie.Attribute,
-      category: catgories,
-
-      toughness: goodie.Toughness,
-      repairPattern: goodie.RepairPattern,
-
-      silver: goodie.Silver,
-      gold: goodie.Gold,
+        playSpaces: spaces,
+      },
+      cats
     },
   };
-}) satisfies GetStaticProps<Goodie>;
+}) satisfies GetStaticProps<GoodieInfo>;
+
+function getGallery(goodie: typeof goodies[number]) {
+  const baseKey = goodie.AnimePngs[0]
+  if (goodie.Toughness == 0) return [baseKey]
+  if (goodie.RepairPattern == 0) return [
+    baseKey, 
+    `${baseKey}_break`,
+    `${baseKey}_repair`,
+  ]
+
+  if (goodie.RepairPattern == 1) return [
+    baseKey, 
+    `${baseKey}_break`,
+    `${baseKey}_repair`,
+    `${baseKey}_repair_break`,
+  ]
+
+  const patterns = [
+    baseKey, 
+    `${baseKey}_break`,
+  ]
+
+  for (let i = 1; i < goodie.RepairPattern; i++) {
+    patterns.push(`${baseKey}_repair_${i}`)
+    patterns.push(`${baseKey}_repair_${i}_break`)
+  }
+
+  return patterns
+}
 
 export const getStaticPaths = (async () => {
   return {
@@ -63,11 +148,11 @@ export const getStaticPaths = (async () => {
 })
 
 
-export default function Goodie(goodie: InferGetStaticPropsType<typeof getStaticProps>) {
+export default function Goodie({goodie, cats}: InferGetStaticPropsType<typeof getStaticProps>) {
   return (
     <main className="w-full">
       <Head>
-        <title>{goodie.name} - NekoDB</title>
+        <title>{`${goodie.name} - NekoDB`}</title>
         <meta name="twitter:card" content="summary" />
         <meta property="og:title" content={`${goodie.name} - NekoDB`} />
         <meta property="og:description" content={`Discover all the cats that can visit ${goodie.name} in Neko Atsume 2!`} />
@@ -84,19 +169,99 @@ export default function Goodie(goodie: InferGetStaticPropsType<typeof getStaticP
             <div className="flex flex-row items-center gap-2">
               <div className="text-sm">{goodie.attributes == 0 ? "Small" : "Large"}</div>
               <div>&middot;</div>
-              <div className="text-sm">{goodie.category.join(",")}</div>
+              {goodie.category.map((cat, i) => {
+                if (i > 0) return <div className="flex flex-row items-center gap-2">
+                  <div>&middot;</div>
+                  <div key={i} className="text-sm">{cat}</div>
+                </div>
+                return <div key={i} className="text-sm">{cat}</div>
+              })}
             </div>
           </div>
         </div>
 
         <h2 className="text-xl font-bold" id="description">Description</h2>
-        <div className="grid grid-cols-2 w-fit ml-4 gap-y-2">
+        <div className="grid grid-cols-[auto_1fr] w-fit ml-4 gap-2">
           <div className="font-semibold">Shop description</div>
           <div className="text-sm whitespace-pre-wrap"><RenderText text={goodie.shopDesc} /></div>
 
           <div className="font-semibold">Yard description</div>
           <div className="text-sm whitespace-pre-wrap"><RenderText text={goodie.yardDesc} /></div>
         </div>
+
+        <h2 className="text-xl font-bold" id="base-stats">Base stats</h2>
+        <div className="grid grid-cols-[auto_1fr] w-fit ml-4 gap-x-2">
+            <div className="font-semibold">Toughness</div>
+            <div className="text-right">{goodie.toughness == 0 ? "Unbreakable" : goodie.toughness}</div>
+
+            {/* <div className="font-semibold">Repair cost</div>
+            <div className="text-right">{goodie.repairCost == -1 ? "Free" : goodie.repairCost}</div> */}
+
+            <div className="font-semibold">Silver</div>
+            <div className="text-right">{goodie.silver}</div>
+            
+            <div className="font-semibold">Gold</div>
+            <div className="text-right">{goodie.gold}</div>
+        </div>
+
+        {goodie.gallery.length > 0 &&<>
+          <h2 className="text-xl font-bold" id="gallery">Icon gallery</h2>
+          <div className="flex flex-row flex-wrap gap-2">
+            {goodie.gallery.map((gallery, i) => <div key={i}>
+              <div className="bg-gray-100 dark:bg-slate-800 rounded-md p-1">
+                <img src={getGoodieIconURL(gallery)} className="max-h-full max-w-full" />
+                <div className="text-sm p-2 pt-0 flex flex-col gap-1 text-center">{gallery}</div>
+              </div>
+            </div>)}
+          </div>
+        </>}
+        
+        <h2 className="text-xl font-bold" id="animations">Animation gallery</h2>
+        <div className="text-sm">Coming soon</div>
+
+        <h2 className="text-xl font-bold" id="play-spaces">Play spaces</h2>
+        {goodie.playSpaces.map((ps, i) => <div key={i} className="bg-gray-100 dark:bg-slate-800 rounded-md p-1">
+          <h3 className="text-lg font-semibold" id={`play-space-${ps.playSpaceId}`}>Play space #{ps.playSpaceId}</h3>
+          <div className="grid grid-cols-[auto_1fr] w-fit ml-4 gap-x-2">
+            <div className="font-medium">Conflicts</div>
+            <div className="text-right">{ps.conflicts.length == 0 ? "None" : ps.conflicts.join(", ")}</div>
+
+            <div className="font-medium">Charm</div>
+            <div className="text-right">{ps.charm}</div>
+
+            <div className="font-medium">Fish gift factor</div>
+            <div className="text-right">{ps.niboshi}</div>
+
+            
+            <div className="font-medium">Gommenne</div>
+            <div className="text-right">{ps.gomenne ? "✅" : "❌"}</div>
+            
+            <div className="font-medium">Grooming</div>
+            <div className="text-right">{ps.grooming ? "✅" : "❌"}</div>
+          </div>
+
+          <h4 className="text-lg font-thin">Cat weights</h4>
+          <div className="flex flex-row flex-wrap gap-x-2">
+            {Object.entries(ps.catWeights).map(([catId, weights]) => {
+              const cat = cats.find(cat => cat.id == Number(catId))
+              const link = cat ? <CatLink cat={cat}></CatLink> : <div className="text-sm">Unknown cat #{catId}</div>
+
+              if (weights.length == 1 || weights.every(weight => weight == weights[0])) 
+                return <div key={catId} className="flex flex-row items-center">{link} {weights[0]}</div>
+              else if (weights.length == 3)
+                return <div key={catId} className="flex flex-row items-center gap-2">
+                  {link}
+                  <div className="flex flex-col">
+                    <div>{weights[0]} (intact)</div>
+                    <div>{weights[1]} (broken)</div>
+                    <div>{weights[2]} (fixed)</div>
+                  </div>
+                </div>
+              else
+                return <div key={catId} className="flex flex-row items-center">{link} {weights.join(" / ")}</div>
+            })}
+          </div>
+        </div>)}
     </div>
   </main>
   );

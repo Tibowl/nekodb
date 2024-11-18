@@ -8,7 +8,6 @@ function RenderList({ nodes }: { nodes: NodeItem[] }) {
 }
 
 function Render({ node }: { node: NodeItem }) {
-  console.log(node)
   switch (node.type) {
     case "element": {
       // All tags in use in English textmap for 1.0

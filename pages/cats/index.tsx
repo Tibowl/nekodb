@@ -1,6 +1,6 @@
 import { GetStaticProps, InferGetStaticPropsType } from "next";
 import { translate } from "../../utils/localization";
-import { cats } from "../../utils/tables";
+import { cats, getSmallCat } from "../../utils/tables";
 import { SmallCat } from "./[catId]";
 import FormattedLink from "../../components/FormattedLink";
 import CatLink from "../../components/CatLink";
@@ -14,10 +14,7 @@ type CatList = {
 export const getStaticProps = (async () => {
   return {
     props: {
-      cats: cats.map((cat) => ({
-        id: cat.Id,
-        name: translate("Cat", `CatName${cat.Id}`, "en"),
-      })),
+      cats: cats.map(cat => getSmallCat(cat)),
     },
   };
 }) satisfies GetStaticProps<CatList>;

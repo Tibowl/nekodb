@@ -9,6 +9,12 @@ export const cats = CatRecordTable
 export function getCat(id: number) {
     return cats.find(cat => cat.Id == id)   
 }
+export function getSmallCat(cat: typeof cats[number]) {
+    return {
+        id: cat.Id,
+        name: translate("Cat", `CatName${cat.Id}`, "en"),
+    }   
+}
 
 export const catVsFood = CatVsFoodTable as {
     Id: number
@@ -41,5 +47,5 @@ export const playSpaceVsCat = PlaySpaceVsCatTable as {
     Dict: Partial<Record<number, number[]>>
 }[]
 export function getPlaySpaceVsCat(playSpace: typeof playSpaces[number]) {
-    return playSpaceVsCat.find(playSpace => playSpace.Id == playSpace.Id)
+    return playSpaceVsCat.find(ps => ps.Id == playSpace.Id)
 }
