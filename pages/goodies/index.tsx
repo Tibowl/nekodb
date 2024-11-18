@@ -48,7 +48,7 @@ export default function GoodiesList({
   const [groupByCategory, setGroupByCategory] = useState(false);
 
   return (
-    <main className="w-full">
+    <main className="w-full max-w-7xl">
       <Head>
         <title>Goodies - NekoDB</title>
         <meta name="twitter:card" content="summary" />

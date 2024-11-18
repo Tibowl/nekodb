@@ -150,7 +150,7 @@ export const getStaticPaths = (async () => {
 
 export default function Goodie({goodie, cats}: InferGetStaticPropsType<typeof getStaticProps>) {
   return (
-    <main className="w-full">
+    <main className="w-full max-w-7xl">
       <Head>
         <title>{`${goodie.name} - NekoDB`}</title>
         <meta name="twitter:card" content="summary" />

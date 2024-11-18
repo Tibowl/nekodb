@@ -136,7 +136,7 @@ export default function Cat({cat, goodies}: InferGetStaticPropsType<typeof getSt
   const [upcomingGoodies, setUpcomingGoodies] = useState(false)
 
   return (
-    <main className="w-full">
+    <main className="w-full max-w-7xl">
       <Head>
         <title>{`${cat.name} - NekoDB`}</title>
         <meta name="twitter:card" content="summary" />
