@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react"
-import { drawSequence, xmlParser } from "../utils/animation_utils"
+import { useEffect, useMemo, useRef, useState } from "react"
+import { drawSequence, getRecommendedSize, xmlParser } from "../utils/animation_utils"
 
 export type AnimationMeta = {
   name: string;
@@ -8,14 +8,17 @@ export type AnimationMeta = {
   actions: number;
 };
 
-export default function AnimationViewer({ animation, actionIndex }: {
+export default function AnimationViewer({ animation, actionIndex, showAction = false }: {
   animation: AnimationMeta;
   actionIndex: number;
+  showAction?: boolean;
 }) {
   const [xml, setXml] = useState<any>(undefined)
   const [img, setImg] = useState<HTMLImageElement | null>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [sequenceIndex, setSequenceIndex] = useState(0)
+
+  const { width, height, x, y } = useMemo(() => getRecommendedSize(xml), [xml])
 
   useEffect(() => {
     fetch(animation.url_xml)
@@ -52,26 +55,26 @@ export default function AnimationViewer({ animation, actionIndex }: {
     const frame = sequence[sequenceIndex]
 
     // console.log("clear", frame)
+    ctx.resetTransform()
     ctx.clearRect(0, 0, canvas.width, canvas.height)
-    drawSequence(ctx, img, xml, frame.id)
+    drawSequence(ctx, img, xml, frame.id, x, y)
 
     const timeout = setTimeout(() => setSequenceIndex(sequenceIndex + 1), frame.duration * 1000/30)
-
     return () => clearTimeout(timeout)
-  }, [img, xml, canvasRef, actionIndex, sequenceIndex])
+  }, [img, xml, canvasRef, actionIndex, sequenceIndex, x, y])
 
   if (!xml || !img) return <div>Loading...</div>
 
-  const sequence = xml.Animation.Actions.Action[actionIndex]?.Sequence
+  const actions = xml.Animation.Actions.Action
+  const sequence = actions[actionIndex]?.Sequence
   if (!sequence) return <div>Sequence #{actionIndex} not found</div>
-
 
   return (
     <div>
-      <div className="flex flex-row">
-        <div className="text-sm">Sequence #{sequenceIndex}/{sequence.length}</div>
+      <div className="flex flex-row justify-end gap-2">
+        <div className="text-sm">{sequenceIndex + 1}/{sequence.length}</div>
       </div>
-      <canvas width={1024} height={512} ref={canvasRef}></canvas>
+      <canvas width={width} height={height} ref={canvasRef}></canvas>
     </div>
   )
 }

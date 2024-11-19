@@ -9,6 +9,9 @@ import { translate } from "../../utils/localization"
 import { getCat, getGoodie, getPlaySpaceVsCat, getSmallCat, getSmallGoodie, goodies, playSpaces } from "../../utils/tables"
 import { SmallCat } from "../cats/[catId]"
 import getImageInfo from "../../utils/image_util"
+import { AnimationMeta } from "../../components/AnimationViewer"
+import { getAnimation } from "../../utils/other_animation_utils"
+import AnimationGallery from "../../components/AnimationGallery"
 
 export type SmallGoodie = {
   id: number
@@ -86,6 +89,20 @@ export const getStaticProps = (async (context) => {
       }
     }).filter(ps => ps) as PlaySpaceInfo[]
 
+  const animations: AnimationMeta[] = []
+  const suffixes = getSuffixes(goodie)
+  for (const anime of goodie.AnimeXmls) {
+    const img = goodie.AnimePngs[0]
+    for (const suffix of suffixes) {
+      const imgPath = `/na2-assets/goods/${img}${suffix}.png`
+      const xmlPath = `/na2-assets/goods/${anime}${suffix}.xml`
+      const animation = await getAnimation(`${anime}${suffix}`, imgPath, xmlPath)
+      if (animation) {
+        animations.push(animation)
+      }
+    }
+  }
+
   return {
     props: {
       goodie: {
@@ -101,12 +118,18 @@ export const getStaticProps = (async (context) => {
         silver: goodie.Silver,
         gold: goodie.Gold,
 
-        gallery: await Promise.all(getGallery(goodie).map(async g => ({
-          name: g,
-          ...await getImageInfo(getGoodieIconURL(g))
-        }))),
+        gallery: await Promise.all(
+          suffixes
+            .map(x => `${goodie.AnimePngs[0]}${x}`)
+            .filter(x => x != "90ground")
+            .map(async g => ({
+              name: g,
+              ...await getImageInfo(getGoodieIconURL(g))
+            }))
+        ),
 
         playSpaces: spaces,
+        animations
       },
       cats: await Promise.all(catIds.map(id => {
         const cat = getCat(id)
@@ -116,31 +139,29 @@ export const getStaticProps = (async (context) => {
   }
 }) satisfies GetStaticProps<GoodieInfo>
 
-function getGallery(goodie: typeof goodies[number]) {
-  const baseKey = goodie.AnimePngs[0]
-  if (baseKey == "90ground") return []
-  if (goodie.Toughness == 0) return [baseKey]
+function getSuffixes(goodie: typeof goodies[number]) {
+  if (goodie.Toughness == 0) return [""]
   if (goodie.RepairPattern == 0) return [
-    baseKey,
-    `${baseKey}_break`,
-    `${baseKey}_repair`,
+    "",
+    "_break",
+    "_repair",
   ]
 
   if (goodie.RepairPattern == 1) return [
-    baseKey,
-    `${baseKey}_break`,
-    `${baseKey}_repair`,
-    `${baseKey}_repair_break`,
+    "",
+    "_break",
+    "_repair",
+    "_repair_break",
   ]
 
   const patterns = [
-    baseKey,
-    `${baseKey}_break`,
+    "",
+    "_break",
   ]
 
   for (let i = 1; i < goodie.RepairPattern; i++) {
-    patterns.push(`${baseKey}_repair_${i}`)
-    patterns.push(`${baseKey}_repair_${i}_break`)
+    patterns.push(`_repair_${i}`)
+    patterns.push(`_repair_${i}_break`)
   }
 
   return patterns
@@ -222,8 +243,7 @@ export default function Goodie({ goodie, cats }: InferGetStaticPropsType<typeof 
           </div>
         </>}
 
-        <h2 className="text-xl font-bold" id="animations">Animation gallery</h2>
-        <div className="text-sm">Coming soon</div>
+        <AnimationGallery animations={goodie.animations} />
 
         <h2 className="text-xl font-bold" id="play-spaces">Play spaces</h2>
         {goodie.playSpaces.map((ps, i) => <div key={i} className="bg-gray-100 dark:bg-slate-800 rounded-md p-1">
