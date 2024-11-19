@@ -1,14 +1,19 @@
+import { readdir, readFile } from "fs/promises"
 import { GetStaticProps, InferGetStaticPropsType } from "next"
 import Head from "next/head"
-import { useState } from "react"
+import { useEffect, useMemo, useState } from "react"
+import AnimationViewer, { AnimationMeta } from "../../components/AnimationViewer"
 import CatLink from "../../components/CatLink"
 import { CheckboxInput } from "../../components/CheckboxInput"
 import DisplayImage, { ImageMetaData } from "../../components/DisplayImage"
 import FoodIcon from "../../components/FoodIcon"
 import FormattedLink from "../../components/FormattedLink"
 import GoodieLink from "../../components/GoodieLink"
+import SelectInput from "../../components/SelectInput"
 import { RenderText } from "../../components/TextRenderer"
-import { getCatIconLink, getCatIconURL } from "../../utils/cat_utils"
+import { xmlParser } from "../../utils/animation_utils"
+import { CatType, getCatIconId, getCatIconLink, getCatIconURL, getCatType } from "../../utils/cat_utils"
+import createRange from "../../utils/create-range"
 import getImageInfo from "../../utils/image_util"
 import { translate } from "../../utils/localization"
 import { cats, catVsCat, catVsFood, getCat, getCatVsCat, getCatVsFood, getGoodie, getPlaySpace, getSmallCat, getSmallGoodie, playSpaceVsCat } from "../../utils/tables"
@@ -35,6 +40,8 @@ export type Cat = SmallCat & {
   food: CatVsFood | null
   catVsCat: CatVsCat | null
   playSpaces: PlaySpaceWeight[] | null
+
+  animations: AnimationMeta[]
 }
 
 type PlaySpaceWeight = {
@@ -59,6 +66,7 @@ export const getStaticProps = (async (context) => {
     }
   }
 
+  const smallCat = await getSmallCat(cat)
   const food = getCatVsFood(cat)
   const catVsCat = getCatVsCat(cat) ?? null
   const cats = await Promise.all(catVsCat ? Object.keys(catVsCat.Dict).map(id => getSmallCat(getCat(Number(id))!)) : [])
@@ -96,10 +104,35 @@ export const getStaticProps = (async (context) => {
     }
   }))
 
+  const animations: AnimationMeta[] = []
+  const type = getCatType(smallCat)
+  if (type == CatType.Normal) {
+    const normalCats = await readdir("public/na2-assets/neko/normal")
+    const match = normalCats.find(f => f.startsWith(getCatIconId({ id: cat.Id }) + "_"))
+    if (!match) throw new Error("No animations found for " + smallCat.name)
+    const images = await readdir(`public/na2-assets/neko/normal/${match}`)
+
+    animations.push(...(await Promise.all(images.map(async image => {
+      const imagePath = `/na2-assets/neko/normal/${match}/${image}`
+      const xmlPath = `/na2-assets/neko/normal/master_xml/${image.replace(".png", ".xml")}`
+      return await getAnimation(image, imagePath, xmlPath)
+    }))).filter(x => x != null))
+  } else if (type == CatType.Rare) {
+    const rareCats = await readdir("public/na2-assets/neko/special/png")
+    const match = rareCats.filter(f => f.startsWith(getCatIconId({ id: cat.Id }).replace("s", "sp") + "_"))
+    if (match.length == 0) throw new Error("No animations found for " + smallCat.name)
+
+    animations.push(...(await Promise.all(match.map(async image => {
+      const imagePath = `/na2-assets/neko/special/png/${image}`
+      const xmlPath = `/na2-assets/neko/special/xml/${image.replace(".png", ".xml")}`
+      return await getAnimation(image, imagePath, xmlPath)
+    }))).filter(x => x != null))
+  }
+
   return {
     props: {
       cat: {
-        ...await getSmallCat(cat),
+        ...smallCat,
 
         power: cat.Power,
         weatherImpact: cat.WeatherImpact,
@@ -113,7 +146,9 @@ export const getStaticProps = (async (context) => {
 
         food: food?.Dict ?? null,
         playSpaces,
-        catVsCat: catVsCat?.Dict ?? null
+        catVsCat: catVsCat?.Dict ?? null,
+
+        animations
       },
       goodies,
       cats
@@ -147,6 +182,24 @@ type Memento = {
   img: ImageMetaData
 }
 
+async function getAnimation(image: string, imagePath: string, xmlPath: string) {
+  try {
+    const xmlData = await readFile(`public/${xmlPath}`)
+    const parsed = xmlParser.parse(xmlData)
+
+    return {
+      name: image.replace(".png", ""),
+      url_img: imagePath,
+      url_xml: xmlPath,
+      actions: parsed.Animation.Actions.Action.length
+    }
+  } catch (error) {
+    console.error(error)
+    console.error("Failed to parse " + imagePath)
+  }
+  return null
+}
+
 export const getStaticPaths = (async () => {
   return {
     paths: cats.map((cat) => ({ params: { catId: cat.Id.toString() } })),
@@ -157,6 +210,18 @@ export const getStaticPaths = (async () => {
 
 export default function Cat({ cat, cats, goodies }: InferGetStaticPropsType<typeof getStaticProps>) {
   const [upcomingGoodies, setUpcomingGoodies] = useState(false)
+  const [animationName, setAnimationName] = useState(cat.animations[0]?.name)
+  const [actionIndex, setActionIndex] = useState(0)
+
+  const animation = useMemo(() => cat.animations.find(a => a.name == animationName), [animationName, cat])
+  useEffect(() => {
+    if (animation && actionIndex >= animation.actions) {
+      setActionIndex(0)
+    }
+    if (!animation && cat.animations.length > 0) {
+      setAnimationName(cat.animations[0].name)
+    }
+  }, [animation, animationName, actionIndex])
 
   return (
     <main className="w-full max-w-7xl">
@@ -199,8 +264,16 @@ export default function Cat({ cat, cats, goodies }: InferGetStaticPropsType<type
           </div>
         </>}
 
-        <h2 className="text-xl font-bold" id="animations">Animation gallery</h2>
-        <div className="text-sm">Coming soon</div>
+        {cat.animations.length > 0 && <>
+          <h2 className="text-xl font-bold" id="animations">Animation gallery</h2>
+          <div className="flex flex-row justify-between items-center gap-2">
+            <SelectInput label="Animation" value={animationName} set={setAnimationName} options={cat.animations.map(a => a.name)} />
+            {animation && <FormattedLink href={animation.url_img} className="text-sm" target="_blank">View raw image</FormattedLink> }
+          </div>
+          <SelectInput label="Action" value={`${actionIndex}`} set={x => setActionIndex(+x)} options={createRange(animation?.actions ?? 0).map(i => i.toString())} />
+
+          {animation && <AnimationViewer animation={animation} actionIndex={actionIndex} />}
+        </>}
 
         <h2 className="text-xl font-bold" id="base-stats">Base stats</h2>
         <div className="grid grid-cols-[auto_1fr] w-fit ml-4 gap-x-2">

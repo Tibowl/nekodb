@@ -1,8 +1,6 @@
-import Image from "next/image"
 import { SmallCat } from "../pages/cats/[catId]"
-import { getCatIconLink } from "../utils/cat_utils"
-import FormattedLink from "./FormattedLink"
 import DisplayImage from "./DisplayImage"
+import FormattedLink from "./FormattedLink"
 
 export default function CatLink({ cat }: {cat: SmallCat}) {
 

@@ -10,7 +10,7 @@ function FormattedLink({ children, href, className = "", style = {}, location, t
     colors = "text-blue-700 dark:text-blue-300 hover:text-blue-400 dark:hover:text-blue-400"
 
   return (
-    <Link href={href} prefetch={prefetch} className={`${className} no-underline transition-all duration-200 ${colors}`}>
+    <Link href={href} prefetch={prefetch} className={`${className} no-underline transition-all duration-200 ${colors}`} style={style} target={target}>
       {children}
     </Link>
   )
