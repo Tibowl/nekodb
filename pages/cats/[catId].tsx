@@ -199,6 +199,8 @@ export default function Cat({ cat, cats, goodies }: InferGetStaticPropsType<type
           </div>
         </>}
 
+        <h2 className="text-xl font-bold" id="animations">Animation gallery</h2>
+        <div className="text-sm">Coming soon</div>
 
         <h2 className="text-xl font-bold" id="base-stats">Base stats</h2>
         <div className="grid grid-cols-[auto_1fr] w-fit ml-4 gap-x-2">
