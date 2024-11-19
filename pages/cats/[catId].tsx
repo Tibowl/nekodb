@@ -216,7 +216,7 @@ export default function Cat({ cat, cats, goodies }: InferGetStaticPropsType<type
         </div>
 
         {cat.food && <>
-          <h2 className="text-xl font-bold" id="food-modifiers">Food modifiers</h2>
+          <h2 className="text-xl font-bold" id="food-modifiers">Food staying power</h2>
           <div className="flex flex-row flex-wrap gap-2">
             {(["1", "2", "3", "4", "5", "6", "7"] as (keyof CatVsFood)[]).map(foodId =>
               <div key={foodId} className="bg-gray-100 dark:bg-slate-800 rounded-md">
