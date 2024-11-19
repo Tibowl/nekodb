@@ -6,6 +6,7 @@ export type AnimationMeta = {
   url_img: string;
   url_xml: string;
   actions: number;
+  defaultAction: number;
 };
 
 export default function AnimationViewer({ animation, actionIndex, showAction = false }: {

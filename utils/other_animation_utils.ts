@@ -1,16 +1,22 @@
 import { readFile } from "fs/promises"
 import { xmlParser } from "./animation_utils"
+import { AnimationMeta } from "../components/AnimationViewer"
 
-export async function getAnimation(image: string, imagePath: string, xmlPath: string) {
+export async function getAnimation(image: string, imagePath: string, xmlPath: string): Promise<AnimationMeta | null> {
   try {
     const xmlData = await readFile(`public/${xmlPath}`)
     const parsed = xmlParser.parse(xmlData)
+
+    const actions = parsed.Animation.Actions.Action
+    const maxFrames = actions.reduce((max: any, action: any) => Math.max(max, action.Sequence.length), 0)
+    const index = actions.findIndex((action: any) => action.Sequence.length == maxFrames)
 
     return {
       name: image.replace(".png", ""),
       url_img: imagePath,
       url_xml: xmlPath,
-      actions: parsed.Animation.Actions.Action.length
+      actions: actions.length,
+      defaultAction: index,
     }
   } catch (error) {
     console.error("Failed to parse " + imagePath)

@@ -5,13 +5,13 @@ import { CheckboxInput } from "./CheckboxInput"
 import FormattedLink from "./FormattedLink"
 import SelectInput from "./SelectInput"
 
-const checkers: [string, number][] = [
-  ["00kihon_grooming", 1],
-  ["00kihon_tsume_tate", 0],
-  ["00kihon_tsume_yoko", 0],
-  ["06jarashi_mushi", 0],
-  ["06jarashi_the", 0],
-  ["neko_walk", 0],
+const defaultAnimations: string[] = [
+  "00kihon_grooming",
+  "00kihon_tsume_tate",
+  "00kihon_tsume_yoko",
+  "06jarashi_mushi",
+  "06jarashi_the",
+  "neko_walk"
 ]
 
 export default function AnimationGallery({ animations }: { animations: AnimationMeta[] }) {
@@ -22,19 +22,20 @@ export default function AnimationGallery({ animations }: { animations: Animation
   </>
 }
 
-function getDefault(animations: AnimationMeta[]): [string, number] {
-  if (animations.length == 0) return ["undefined", 0]
+function getDefault(animations: AnimationMeta[]): AnimationMeta {
+  if (animations.length == 0) throw new Error("No animations")
 
-  const found: [string, number][] = []
-  for (const [name, actionIndex] of checkers) {
-    if (animations.some(a => a.name == name))
-      found.push([name, Math.min(actionIndex, animations.length - 1)])
+  const found: AnimationMeta[] = []
+  for (const name of defaultAnimations) {
+    const animation = animations.find(a => a.name == name)
+    if (animation)
+      found.push(animation)
   }
 
   if (found.length > 0)
     return found[Math.floor(Math.random() * found.length)]
 
-  return [animations[0].name, 0]
+  return animations[0]
 }
 
 function AnimationGalleryInternal({ animations }: { animations: AnimationMeta[] }) {
@@ -46,13 +47,18 @@ function AnimationGalleryInternal({ animations }: { animations: AnimationMeta[] 
     () => animations.find((a) => a.name == animationName),
     [animationName, animations]
   )
+
+  useEffect(() => {
+    setActionIndex(animation?.defaultAction ?? 0)
+  }, [animation])
+
   useEffect(() => {
     if (animation && actionIndex >= animation.actions)
-      setActionIndex(0)
+      setActionIndex(animation.defaultAction)
     if (!animation && animations.length > 0) {
-      const [defaultName, defaultActionIndex] = getDefault(animations)
-      setAnimationName(defaultName)
-      setActionIndex(defaultActionIndex)
+      const animation = getDefault(animations)
+      setAnimationName(animation.name)
+      setActionIndex(animation.defaultAction)
     }
   }, [animation, animationName, actionIndex, animations])
 
