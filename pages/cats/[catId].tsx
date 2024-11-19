@@ -121,7 +121,7 @@ export const getStaticProps = (async (context) => {
       const match = myNekoCats.find(f => f.startsWith(cat.Id.toString().slice(1) + "_"))
       if (!match) throw new Error("No animations found for " + smallCat.name)
       const images = await readdir(`public/na2-assets/neko/myneko/${match}`)
-  
+
       animations.push(...(await Promise.all(images.map(async image => {
         const imagePath = `/na2-assets/neko/myneko/${match}/${image}`
         const xmlPath = `/na2-assets/neko/normal/master_xml/${image.replace(".png", ".xml")}`
