@@ -1,17 +1,17 @@
 import { GetStaticProps, InferGetStaticPropsType } from "next"
 import Head from "next/head"
+import AnimationGallery from "../../components/AnimationGallery"
+import { AnimationMeta } from "../../components/AnimationViewer"
 import CatLink from "../../components/CatLink"
 import DisplayImage, { ImageMetaData } from "../../components/DisplayImage"
 import { RenderText } from "../../components/TextRenderer"
 import { parseBitMap } from "../../utils/bit_math"
 import { getGoodieIconURL } from "../../utils/goodie_utils"
+import getImageInfo from "../../utils/image_util"
 import { translate } from "../../utils/localization"
+import { getAnimation } from "../../utils/other_animation_utils"
 import { getCat, getGoodie, getPlaySpaceVsCat, getSmallCat, getSmallGoodie, goodies, playSpaces } from "../../utils/tables"
 import { SmallCat } from "../cats/[catId]"
-import getImageInfo from "../../utils/image_util"
-import { AnimationMeta } from "../../components/AnimationViewer"
-import { getAnimation } from "../../utils/other_animation_utils"
-import AnimationGallery from "../../components/AnimationGallery"
 
 export type SmallGoodie = {
   id: number

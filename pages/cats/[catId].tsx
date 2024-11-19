@@ -1,24 +1,22 @@
 import { readdir } from "fs/promises"
 import { GetStaticProps, InferGetStaticPropsType } from "next"
 import Head from "next/head"
-import { useEffect, useMemo, useState } from "react"
-import AnimationViewer, { AnimationMeta } from "../../components/AnimationViewer"
+import { useState } from "react"
+import AnimationGallery from "../../components/AnimationGallery"
+import { AnimationMeta } from "../../components/AnimationViewer"
 import CatLink from "../../components/CatLink"
 import { CheckboxInput } from "../../components/CheckboxInput"
 import DisplayImage, { ImageMetaData } from "../../components/DisplayImage"
 import FoodIcon from "../../components/FoodIcon"
 import FormattedLink from "../../components/FormattedLink"
 import GoodieLink from "../../components/GoodieLink"
-import SelectInput from "../../components/SelectInput"
 import { RenderText } from "../../components/TextRenderer"
 import { CatType, getCatIconId, getCatIconLink, getCatIconURL, getCatType } from "../../utils/cat_utils"
-import createRange from "../../utils/create-range"
 import getImageInfo from "../../utils/image_util"
 import { translate } from "../../utils/localization"
+import { getAnimation } from "../../utils/other_animation_utils"
 import { cats, catVsCat, catVsFood, getCat, getCatVsCat, getCatVsFood, getGoodie, getPlaySpace, getSmallCat, getSmallGoodie, playSpaceVsCat } from "../../utils/tables"
 import { SmallGoodie } from "../goodies/[goodieId]"
-import { getAnimation } from "../../utils/other_animation_utils"
-import AnimationGallery from "../../components/AnimationGallery"
 
 export type SmallCat = {
   id: number
@@ -236,8 +234,6 @@ export default function Cat({ cat, cats, goodies }: InferGetStaticPropsType<type
           </div>
         </>}
 
-        <AnimationGallery animations={cat.animations} />
-
         <h2 className="text-xl font-bold" id="base-stats">Base stats</h2>
         <div className="grid grid-cols-[auto_1fr] w-fit ml-4 gap-x-2">
             <div className="font-semibold">Seasonal modifier factor</div>
@@ -252,6 +248,8 @@ export default function Cat({ cat, cats, goodies }: InferGetStaticPropsType<type
             <div className="font-semibold">Grooming Rate</div>
             <div className="text-right">{cat.groomingRate}</div>
         </div>
+
+        <AnimationGallery animations={cat.animations} />
 
         {cat.food && <>
           <h2 className="text-xl font-bold" id="food-modifiers">Food staying power</h2>

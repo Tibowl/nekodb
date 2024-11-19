@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import { useState } from "react"
 import FormattedLink from "./FormattedLink"
 
 const pages = ["Cats", "Goodies", "Wallpapers"]

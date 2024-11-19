@@ -10,7 +10,6 @@ import { SmallGoodie } from "../pages/goodies/[goodieId]"
 import { getCatIconLink } from "./cat_utils"
 import { getGoodieIconURL } from "./goodie_utils"
 import getImageInfo from "./image_util"
-
 import { translate } from "./localization"
 
 export const cats = CatRecordTable

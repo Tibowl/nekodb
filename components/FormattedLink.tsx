@@ -1,5 +1,4 @@
 import Link from "next/link"
-import React from "react"
 
 
 function FormattedLink({ children, href, className = "", style = {}, location, target = undefined, prefetch = undefined }: any) {
