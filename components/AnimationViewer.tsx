@@ -59,7 +59,7 @@ export default function AnimationViewer({ animation, actionIndex, showAction = f
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     drawSequence(ctx, img, xml, frame.id, x, y)
 
-    const timeout = setTimeout(() => setSequenceIndex(sequenceIndex + 1), frame.duration * 1000/30)
+    const timeout = setTimeout(() => setSequenceIndex(sequenceIndex + 1), frame.duration * 1000 / 16) // HpLib.Anime.fps
     return () => clearTimeout(timeout)
   }, [img, xml, canvasRef, actionIndex, sequenceIndex, x, y])
 
