@@ -19,15 +19,16 @@ export const getStaticProps = (async () => {
     allCategories.push(translate("Program", `Category${i + 1}`, "en"))
   }
 
-  const mappedGoodies = goodies
+  const mappedGoodies = await Promise.all(goodies
     .filter((goodie) => goodie.Category != 0)
     .sort((a, b) => a.DisplayOrderInShop - b.DisplayOrderInShop)
-    .map((goodie) => {
+    .map(async (goodie) => {
       const categories = parseBitMap(goodie.Category).map((id) =>
         translate("Program", `Category${id + 1}`, "en")
       )
-      return { ...getSmallGoodie(goodie), categories }
+      return { ...await getSmallGoodie(goodie), categories }
     })
+  )
 
   return {
     props: {

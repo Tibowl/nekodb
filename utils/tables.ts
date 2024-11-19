@@ -5,6 +5,11 @@ import GoodsRecordTable from "../NekoAtsume2Data/tables/GoodsRecordTable.json"
 import PlaySpaceRecordTable from "../NekoAtsume2Data/tables/PlaySpaceRecordTable.json"
 import PlaySpaceVsCatTable from "../NekoAtsume2Data/tables/PlaySpaceVsCatTable.json"
 import WallpaperRecordTable from "../NekoAtsume2Data/tables/WallpaperRecordTable.json"
+import { SmallCat } from "../pages/cats/[catId]"
+import { SmallGoodie } from "../pages/goodies/[goodieId]"
+import { getCatIconLink } from "./cat_utils"
+import { getGoodieIconURL } from "./goodie_utils"
+import getImageInfo from "./image_util"
 
 import { translate } from "./localization"
 
@@ -12,10 +17,11 @@ export const cats = CatRecordTable
 export function getCat(id: number) {
     return cats.find(cat => cat.Id == id)   
 }
-export function getSmallCat(cat: typeof cats[number]) {
+export async function getSmallCat(cat: typeof cats[number]): Promise<SmallCat> {
     return {
         id: cat.Id,
         name: translate("Cat", `CatName${cat.Id}`, "en"),
+        image: await getImageInfo(getCatIconLink({ id: cat.Id }))
     }   
 }
 
@@ -40,11 +46,12 @@ export const goodies = GoodsRecordTable
 export function getGoodie(id: number) {
     return goodies.find(goodie => goodie.Id == id)   
 }
-export function getSmallGoodie(goodie: typeof goodies[number]) {
+export async function getSmallGoodie(goodie: typeof goodies[number]): Promise<SmallGoodie> {
+    const anime = goodie.AnimePngs[0]
     return {
         id: goodie.Id,
         name: translate("Goods", `GoodsName${goodie.Id}`, "en"),
-        anime: goodie.AnimePngs[0]
+        image: anime && anime != "90ground" ? await getImageInfo(getGoodieIconURL(anime)) : null
     }
 }
 

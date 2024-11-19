@@ -29,7 +29,7 @@ catIconOverrides.set(107, "s06")
 catIconOverrides.set(108, "s07")
 catIconOverrides.set(109, "s08")
 
-export function getCatIconId(cat: SmallCat): string {
+export function getCatIconId(cat: Pick<SmallCat, "id">): string {
     if (catIconOverrides.has(cat.id)) {
         return catIconOverrides.get(cat.id)!
     }
@@ -41,7 +41,7 @@ export function getCatIconId(cat: SmallCat): string {
     return iconId
 }
 
-export function getCatIconLink(cat: SmallCat) {
+export function getCatIconLink(cat: Pick<SmallCat, "id">) {
     return getCatIconURL(getCatIconId(cat))
 }
 

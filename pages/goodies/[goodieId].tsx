@@ -1,17 +1,19 @@
 import { GetStaticProps, InferGetStaticPropsType } from "next"
 import Head from "next/head"
 import CatLink from "../../components/CatLink"
+import DisplayImage, { ImageMetaData } from "../../components/DisplayImage"
 import { RenderText } from "../../components/TextRenderer"
 import { parseBitMap } from "../../utils/bit_math"
-import { getGoodieIconLink, getGoodieIconURL } from "../../utils/goodie_utils"
+import { getGoodieIconURL } from "../../utils/goodie_utils"
 import { translate } from "../../utils/localization"
 import { getCat, getGoodie, getPlaySpaceVsCat, getSmallCat, getSmallGoodie, goodies, playSpaces } from "../../utils/tables"
 import { SmallCat } from "../cats/[catId]"
+import getImageInfo from "../../utils/image_util"
 
 export type SmallGoodie = {
-  id: number;
-  name: string;
-  anime: string;
+  id: number
+  name: string
+  image: ImageMetaData | null
 };
 
 export type Goodie = SmallGoodie & {
@@ -25,7 +27,7 @@ export type Goodie = SmallGoodie & {
   silver: number
   gold: number
 
-  gallery: string[]
+  gallery: ({name: string} & ImageMetaData)[]
   playSpaces: PlaySpaceInfo[]
 };
 
@@ -58,7 +60,7 @@ export const getStaticProps = (async (context) => {
 
   const catgories = parseBitMap(goodie.Category).map(id => translate("Program", `Category${id+1}`, "en"))
 
-  const cats: SmallCat[] = []
+  const catIds: number[] = []
   const spaces = playSpaces.filter(ps => ps.ItemId == goodie.Id)
     .map(ps => {
       const psVsCat = getPlaySpaceVsCat(ps)
@@ -66,10 +68,8 @@ export const getStaticProps = (async (context) => {
 
       const catWeights: Record<string, number[]> = {}
       Object.entries(psVsCat.Dict).forEach(([catId, weight]) => {
-        if (cats.every(cat => cat.id != Number(catId))) {
-          const cat = getCat(+catId)
-          if (cat)
-            cats.push(getSmallCat(cat))
+        if (catIds.every(cat => cat != Number(catId))) {
+          catIds.push(+catId)
         }
         catWeights[catId] = weight!
       })
@@ -89,7 +89,7 @@ export const getStaticProps = (async (context) => {
   return {
     props: {
       goodie: {
-        ...getSmallGoodie(goodie),
+        ...await getSmallGoodie(goodie),
 
         shopDesc: translate("Goods", `GoodsShop${goodie.Id}`, "en"),
         yardDesc: translate("Goods", `GoodsYard${goodie.Id}`, "en"),
@@ -101,17 +101,24 @@ export const getStaticProps = (async (context) => {
         silver: goodie.Silver,
         gold: goodie.Gold,
 
-        gallery: getGallery(goodie),
+        gallery: await Promise.all(getGallery(goodie).map(async g => ({
+          name: g,
+          ...await getImageInfo(getGoodieIconURL(g))
+        }))),
 
         playSpaces: spaces,
       },
-      cats
+      cats: await Promise.all(catIds.map(id => {
+        const cat = getCat(id)
+        return getSmallCat(cat!)
+      }))
     },
   }
 }) satisfies GetStaticProps<GoodieInfo>
 
 function getGallery(goodie: typeof goodies[number]) {
   const baseKey = goodie.AnimePngs[0]
+  if (baseKey == "90ground") return []
   if (goodie.Toughness == 0) return [baseKey]
   if (goodie.RepairPattern == 0) return [
     baseKey,
@@ -156,12 +163,12 @@ export default function Goodie({ goodie, cats }: InferGetStaticPropsType<typeof 
         <meta property="og:title" content={`${goodie.name} - NekoDB`} />
         <meta property="og:description" content={`Discover all the cats that can visit ${goodie.name} in Neko Atsume 2!`} />
         <meta property="description" content={`Discover all the cats that can visit ${goodie.name} in Neko Atsume 2!`} />
-        <meta property="og:image" content={getGoodieIconLink(goodie)} />
+        <meta property="og:image" content={goodie.image?.url} />
       </Head>
       <div className="flex flex-col gap-2 w-full">
         <div className="flex flex-row items-center gap-2">
           <div className="w-24 h-24 flex flex-col items-center justify-center">
-            <img src={getGoodieIconLink(goodie)} alt={goodie.name} className="max-h-full max-w-full" />
+            {goodie.image && <DisplayImage img={goodie.image} alt={goodie.name} className="max-h-full max-w-full" />}
           </div>
           <div className="flex flex-col">
             <h1 className="text-4xl font-bold">{goodie.name}</h1>
@@ -208,8 +215,8 @@ export default function Goodie({ goodie, cats }: InferGetStaticPropsType<typeof 
           <div className="flex flex-row flex-wrap gap-2">
             {goodie.gallery.map((gallery, i) => <div key={i}>
               <div className="bg-gray-100 dark:bg-slate-800 rounded-md p-1">
-                <img src={getGoodieIconURL(gallery)} alt={gallery} className="max-h-full max-w-full" />
-                <div className="text-sm p-2 pt-0 flex flex-col gap-1 text-center">{gallery}</div>
+                <DisplayImage img={gallery} alt={gallery.name} className="max-h-full max-w-full" />
+                <div className="text-sm p-2 pt-0 flex flex-col gap-1 text-center">{gallery.name}</div>
               </div>
             </div>)}
           </div>

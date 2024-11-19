@@ -3,6 +3,8 @@ import Head from "next/head"
 import { wallpapers } from "../../utils/tables"
 import { getWallpaperLink } from "../../utils/wallpaper_utils"
 import Image from "next/image"
+import getImageInfo from "../../utils/image_util"
+import DisplayImage from "../../components/DisplayImage"
 
 type Wallpapers = {
   wallpapers: Wallpaper[];
@@ -17,13 +19,14 @@ type Wallpaper = {
 export const getStaticProps = (async () => {
   return {
     props: {
-      wallpapers: wallpapers.map(wallpaper => {
+      wallpapers: await Promise.all(wallpapers.map(async wallpaper => {
         return {
             id: wallpaper.Id,
+            img: await getImageInfo(getWallpaperLink(wallpaper.Id)),
             gold: wallpaper.Gold,
             silver: wallpaper.Silver
         }
-      })
+      }))
     },
   }
 }) satisfies GetStaticProps<Wallpapers>
@@ -43,11 +46,11 @@ export default function CatList({
 
       <h1 className="text-4xl font-bold">Wallpapers</h1>
       <div className="flex flex-row flex-wrap gap-2">
-        {wallpapers.map((wallpaper) => (
+        {wallpapers.map((wallpaper, index) => (
           <div key={wallpaper.id} className="bg-gray-100 dark:bg-slate-800 rounded-md flex flex-col items-center justify-center gap-2 p-2">
             <div className="max-w-96">
-                <a href={getWallpaperLink(wallpaper)} target="_blank" rel="noreferrer">
-                    <Image src={getWallpaperLink(wallpaper)} alt={`Wallpaper #${wallpaper.id}`} width={1382} height={2048}  className="rounded-md"/>
+                <a href={wallpaper.img.url} target="_blank" rel="noreferrer">
+                    <DisplayImage img={wallpaper.img} alt={`Wallpaper #${wallpaper.id}`} className="rounded-md" loading={index < 2 ? "eager" : "lazy"}/>
                 </a>
             </div>
             <div className="text-sm">

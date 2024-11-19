@@ -3,18 +3,21 @@ import Head from "next/head"
 import { useState } from "react"
 import CatLink from "../../components/CatLink"
 import { CheckboxInput } from "../../components/CheckboxInput"
+import DisplayImage, { ImageMetaData } from "../../components/DisplayImage"
 import FoodIcon from "../../components/FoodIcon"
 import FormattedLink from "../../components/FormattedLink"
 import GoodieLink from "../../components/GoodieLink"
 import { RenderText } from "../../components/TextRenderer"
 import { getCatIconLink, getCatIconURL } from "../../utils/cat_utils"
+import getImageInfo from "../../utils/image_util"
 import { translate } from "../../utils/localization"
 import { cats, catVsCat, catVsFood, getCat, getCatVsCat, getCatVsFood, getGoodie, getPlaySpace, getSmallCat, getSmallGoodie, playSpaceVsCat } from "../../utils/tables"
 import { SmallGoodie } from "../goodies/[goodieId]"
 
 export type SmallCat = {
-  id: number;
-  name: string;
+  id: number
+  name: string
+  image: ImageMetaData
 };
 
 export type Cat = SmallCat & {
@@ -27,9 +30,7 @@ export type Cat = SmallCat & {
   color: string
   personality: string
 
-  mementoId: number
-  mementoName: string
-  mementoComment: string
+  memento: Memento | null
 
   food: CatVsFood | null
   catVsCat: CatVsCat | null
@@ -58,17 +59,9 @@ export const getStaticProps = (async (context) => {
     }
   }
 
-  let mementoComment = translate("Cat", `TakaraComment${cat.MementoId}`, "en")
-  if (cat.MementoId == 62) {
-    mementoComment = mementoComment.replace(
-      "{0}",
-      translate("Cat", `TakaraComment${cat.MementoId}_2`, "en").replace("{0}", "X").replace("{1}", "Y")
-    )
-  }
-
   const food = getCatVsFood(cat)
   const catVsCat = getCatVsCat(cat) ?? null
-  const cats = catVsCat ? Object.keys(catVsCat.Dict).map(id => getSmallCat(getCat(Number(id))!)) : []
+  const cats = await Promise.all(catVsCat ? Object.keys(catVsCat.Dict).map(id => getSmallCat(getCat(Number(id))!)) : [])
 
   const playSpaces = playSpaceVsCat.map(playSpaceVsCat => {
     if (playSpaceVsCat.Dict[cat.Id]) return {
@@ -88,26 +81,25 @@ export const getStaticProps = (async (context) => {
     goodieMap.get(playSpace.ItemId)!.push(info.playSpaceId)
   })
 
-  const goodies = [...goodieMap.entries()].map(([goodieId, playSpaceIds]) => {
+  const goodies = await Promise.all([...goodieMap.entries()].map(async ([goodieId, playSpaceIds]) => {
     const goodie = getGoodie(goodieId)
     if (!goodie) return {
       id: goodieId,
       name: `Upcoming #${goodieId}`,
-      anime: "",
+      image: null,
       playSpaces: playSpaceIds
     }
-    const smallGoodie = getSmallGoodie(goodie)
+    const smallGoodie = await getSmallGoodie(goodie)
     return {
       ...smallGoodie,
       playSpaces: playSpaceIds
     }
-  }).filter(goodie => goodie)
+  }))
 
   return {
     props: {
       cat: {
-        id: cat.Id,
-        name: translate("Cat", `CatName${cat.Id}`, "en"),
+        ...await getSmallCat(cat),
 
         power: cat.Power,
         weatherImpact: cat.WeatherImpact,
@@ -117,9 +109,7 @@ export const getStaticProps = (async (context) => {
 
         color: translate("Cat", `CatColor${cat.Id}`, "en"),
         personality: translate("Cat", `CatChar${cat.Id}`, "en"),
-        mementoId: cat.MementoId,
-        mementoName: translate("Cat", `TakaraName${cat.MementoId}`, "en"),
-        mementoComment,
+        memento: await getMemento(cat.MementoId),
 
         food: food?.Dict ?? null,
         playSpaces,
@@ -130,6 +120,32 @@ export const getStaticProps = (async (context) => {
     },
   }
 }) satisfies GetStaticProps<Props>
+
+async function getMemento(mementoId: number): Promise<Memento | null> {
+  if (mementoId == 0) return null
+
+  let mementoComment = translate("Cat", `TakaraComment${mementoId}`, "en")
+  if (mementoId == 62) {
+    mementoComment = mementoComment.replace(
+      "{0}",
+      translate("Cat", `TakaraComment${mementoId}_2`, "en").replace("{0}", "X").replace("{1}", "Y")
+    )
+  }
+
+  return {
+    id: mementoId,
+    name: translate("Cat", `TakaraName${mementoId}`, "en"),
+    comment: mementoComment,
+    img: await getImageInfo(getCatIconURL(`takara_${mementoId.toString().padStart(3, "0")}`))
+  }
+}
+
+type Memento = {
+  id: number
+  name: string
+  comment: string
+  img: ImageMetaData
+}
 
 export const getStaticPaths = (async () => {
   return {
@@ -156,7 +172,7 @@ export default function Cat({ cat, cats, goodies }: InferGetStaticPropsType<type
       <div className="flex flex-col gap-2 w-full">
         <div className="flex flex-row items-center gap-2">
           <div className="w-24 h-24 flex flex-col items-center justify-center">
-            <img src={getCatIconLink(cat)} alt={cat.name} className="max-h-full max-w-full" />
+            <DisplayImage img={cat.image} alt={cat.name} loading="eager" className="max-h-full max-w-full" />
           </div>
           <div className="flex flex-col">
             <h1 className="text-4xl font-bold">{cat.name}</h1>
@@ -170,15 +186,15 @@ export default function Cat({ cat, cats, goodies }: InferGetStaticPropsType<type
           </div>
         </div>
 
-        {cat.mementoId > 0 && <>
+        {cat.memento && <>
           <h2 className="text-xl font-bold" id="memento">Memento</h2>
           <div className="flex flex-row items-center gap-2">
             <div className="w-16 h-16 flex flex-col items-center justify-center">
-              <img src={getCatIconURL(`takara_${cat.mementoId.toString().padStart(3, "0")}`)} alt={cat.mementoName} className="max-h-full max-w-full" />
+              <DisplayImage img={cat.memento.img} alt={cat.memento.name} className="max-h-full max-w-full" />
             </div>
             <div className="flex flex-col">
-              <div className="text-xl font-bold">{cat.mementoName}</div>
-              <div className="text-sm whitespace-pre-wrap"><RenderText text={cat.mementoComment} /></div>
+              <div className="text-xl font-bold">{cat.memento.name}</div>
+              <div className="text-sm whitespace-pre-wrap"><RenderText text={cat.memento.comment} /></div>
             </div>
           </div>
         </>}
@@ -212,10 +228,10 @@ export default function Cat({ cat, cats, goodies }: InferGetStaticPropsType<type
 
         {!!cat.playSpaces?.length && <>
           <h2 className="text-xl font-bold" id="play-spaces">Goodies</h2>
-          {goodies.some(x => !x.anime) && <CheckboxInput label="Show upcoming" set={setUpcomingGoodies} value={upcomingGoodies} />}
+          {goodies.some(x => !x.image) && <CheckboxInput label="Show upcoming" set={setUpcomingGoodies} value={upcomingGoodies} />}
 
           <div className="flex flex-row flex-wrap gap-2">
-            {goodies.filter(goodie => cat.playSpaces.some(playSpace => goodie.playSpaces.includes(playSpace.playSpaceId)) && (upcomingGoodies || goodie.anime))
+            {goodies.filter(goodie => cat.playSpaces.some(playSpace => goodie.playSpaces.includes(playSpace.playSpaceId)) && (upcomingGoodies || goodie.image))
               .map(goodie => {
                 const playSpaces = cat.playSpaces.filter(playSpace => goodie.playSpaces.includes(playSpace.playSpaceId))
                 return <div key={goodie.id}>
@@ -224,7 +240,7 @@ export default function Cat({ cat, cats, goodies }: InferGetStaticPropsType<type
                     <div className="text-sm p-2 pt-0 flex flex-col gap-1">
                       {playSpaces.map(playSpace => {
                         const weights = playSpace.weight
-                        const link = goodie.anime ?
+                        const link = goodie.image ?
                           <FormattedLink href={`/goodies/${goodie.id}#play-space-${playSpace.playSpaceId}`}>Space #{playSpace.playSpaceId}:</FormattedLink>
                         :
                           <span>Space #{playSpace.playSpaceId}:</span>

@@ -12,7 +12,7 @@ type CatList = {
 export const getStaticProps = (async () => {
   return {
     props: {
-      cats: cats.map(cat => getSmallCat(cat)),
+      cats: await Promise.all(cats.map(cat => getSmallCat(cat))),
     },
   }
 }) satisfies GetStaticProps<CatList>
