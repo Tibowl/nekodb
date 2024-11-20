@@ -159,7 +159,7 @@ function getSuffixes(goodie: typeof goodies[number]) {
     "_break",
   ]
 
-  for (let i = 1; i < goodie.RepairPattern; i++) {
+  for (let i = 1; i < goodie.RepairPattern + 1; i++) {
     patterns.push(`_repair_${i}`)
     patterns.push(`_repair_${i}_break`)
   }
