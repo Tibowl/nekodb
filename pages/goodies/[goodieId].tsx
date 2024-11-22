@@ -268,7 +268,7 @@ export default function Goodie({ goodie, cats }: InferGetStaticPropsType<typeof 
             {goodie.toughness > 0 && <>
               <div className="font-semibold">Repair cost</div>
               {getRepairCost(goodie) == 0 ?
-                <div className="text-right">Free!</div> : 
+                <div className="text-right">Free!</div> :
                 <div className="text-right"><Cost count={getRepairCost(goodie)} type="silver" /></div>
               }
             </>}

@@ -1,4 +1,4 @@
-import DisplayImage from "./DisplayImage";
+import DisplayImage from "./DisplayImage"
 
 export default function Cost({ count, type }: { count: number, type: "gold" | "silver" | "stamp" | "tickets"}) {
   return (
