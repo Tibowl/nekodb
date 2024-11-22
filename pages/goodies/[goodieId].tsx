@@ -3,14 +3,15 @@ import Head from "next/head"
 import AnimationGallery from "../../components/AnimationGallery"
 import { AnimationMeta } from "../../components/AnimationViewer"
 import CatLink from "../../components/CatLink"
+import Cost from "../../components/Cost"
 import DisplayImage, { ImageMetaData } from "../../components/DisplayImage"
 import { RenderText } from "../../components/TextRenderer"
 import { parseBitMap } from "../../utils/bit_math"
-import { getGoodieIconURL } from "../../utils/goodie_utils"
+import { getGoodieIconURL, getRepairCost } from "../../utils/goodie_utils"
 import getImageInfo from "../../utils/image_util"
 import { translate } from "../../utils/localization"
 import { getAnimation } from "../../utils/other_animation_utils"
-import { getCat, getGoodie, getPlaySpaceVsCat, getSmallCat, getSmallGoodie, goodies, playSpaces } from "../../utils/tables"
+import { getCat, getFood, getGoodie, getPlaySpaceVsCat, getSmallCat, getSmallGoodie, goodies, playSpaces } from "../../utils/tables"
 import { SmallCat } from "../cats/[catId]"
 
 export type SmallGoodie = {
@@ -22,16 +23,22 @@ export type SmallGoodie = {
 export type Goodie = SmallGoodie & {
   shopDesc: string
   yardDesc: string
+  warning: string | null
 
   attributes: number
   category: string[]
   toughness: number
+  foodInfo: FoodInfo | null
 
   silver: number
   gold: number
+  stampcard: number
+  repairCost: number
 
   gallery: ({name: string} & ImageMetaData)[]
   playSpaces: PlaySpaceInfo[]
+
+  animations: AnimationMeta[]
 };
 
 type PlaySpaceInfo = {
@@ -45,6 +52,11 @@ type PlaySpaceInfo = {
 
   catWeights: Record<number, number[]>
   weatherWeights: Record<string, number>
+}
+
+type FoodInfo = {
+  duration: number
+  mementoRate: number
 }
 
 type GoodieInfo = {
@@ -103,6 +115,12 @@ export const getStaticProps = (async (context) => {
     }
   }
 
+  const food = getFood(goodie.Id)
+  const foodInfo = food && {
+    duration: food.DurationMinutes,
+    mementoRate: food.MementoRate
+  } || null
+
   return {
     props: {
       goodie: {
@@ -110,6 +128,7 @@ export const getStaticProps = (async (context) => {
 
         shopDesc: translate("Goods", `GoodsShop${goodie.Id}`, "en"),
         yardDesc: translate("Goods", `GoodsYard${goodie.Id}`, "en"),
+        warning: goodie.WarningKey == null ? null : translate("Goods", goodie.WarningKey, "en"),
 
         attributes: goodie.Attribute,
         category: catgories,
@@ -117,6 +136,11 @@ export const getStaticProps = (async (context) => {
 
         silver: goodie.Silver,
         gold: goodie.Gold,
+        stampcard: goodie.StampCard,
+
+        repairCost: goodie.RepairSilver,
+
+        foodInfo,
 
         gallery: await Promise.all(
           suffixes
@@ -214,21 +238,48 @@ export default function Goodie({ goodie, cats }: InferGetStaticPropsType<typeof 
 
           <div className="font-semibold">Yard description</div>
           <div className="text-sm whitespace-pre-wrap"><RenderText text={goodie.yardDesc} /></div>
+
+          {goodie.warning && <>
+            <div className="font-semibold">Warning</div>
+            <div className="text-sm whitespace-pre-wrap"><RenderText text={goodie.warning} /></div>
+          </>}
         </div>
 
         <h2 className="text-xl font-bold" id="base-stats">Base stats</h2>
         <div className="grid grid-cols-[auto_1fr] w-fit ml-4 gap-x-2">
+            {goodie.silver > 0 && <>
+              <div className="font-semibold">Silver cost</div>
+              <div className="text-right"><Cost count={goodie.silver} type="silver" /></div>
+            </>}
+
+            {goodie.gold > 0 && <>
+              <div className="font-semibold">Gold cost</div>
+              <div className="text-right"><Cost count={goodie.gold} type="gold" /></div>
+            </>}
+
+            {goodie.stampcard > 0 && <>
+              <div className="font-semibold">Stampcard cost</div>
+              <div className="text-right"><Cost count={goodie.stampcard} type="stamp" /></div>
+            </>}
+
             <div className="font-semibold">Toughness</div>
             <div className="text-right">{goodie.toughness == 0 ? "Unbreakable" : goodie.toughness}</div>
 
-            {/* <div className="font-semibold">Repair cost</div>
-            <div className="text-right">{goodie.repairCost == -1 ? "Free" : goodie.repairCost}</div> */}
+            {goodie.toughness > 0 && <>
+              <div className="font-semibold">Repair cost</div>
+              {getRepairCost(goodie) == 0 ?
+                <div className="text-right">Free!</div> : 
+                <div className="text-right"><Cost count={getRepairCost(goodie)} type="silver" /></div>
+              }
+            </>}
 
-            <div className="font-semibold">Silver</div>
-            <div className="text-right">{goodie.silver}</div>
+            {goodie.foodInfo && <>
+              <div className="font-semibold">Duration</div>
+              <div className="text-right">{goodie.foodInfo.duration / 60} {goodie.foodInfo.duration / 60 > 1 ? "hours" : "hour"}</div>
 
-            <div className="font-semibold">Gold</div>
-            <div className="text-right">{goodie.gold}</div>
+              <div className="font-semibold">Memento rate</div>
+              <div className="text-right">{goodie.foodInfo.mementoRate}</div>
+            </>}
         </div>
 
         {goodie.gallery.length > 0 &&<>

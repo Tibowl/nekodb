@@ -5,6 +5,7 @@ import { getWallpaperLink } from "../../utils/wallpaper_utils"
 import Image from "next/image"
 import getImageInfo from "../../utils/image_util"
 import DisplayImage from "../../components/DisplayImage"
+import Cost from "../../components/Cost"
 
 type Wallpapers = {
   wallpapers: Wallpaper[];
@@ -53,10 +54,8 @@ export default function CatList({
                     <DisplayImage img={wallpaper.img} alt={`Wallpaper #${wallpaper.id}`} className="rounded-md" loading={index < 2 ? "eager" : "lazy"}/>
                 </a>
             </div>
-            <div className="text-sm">
-                {wallpaper.silver > 0 && <><span className="font-bold">{wallpaper.silver}</span> silver fish</>}
-                {wallpaper.gold > 0 && <><span className="font-bold">{wallpaper.gold}</span> gold fish</>}
-            </div>
+              {wallpaper.silver > 0 && <Cost count={wallpaper.silver} type="silver" />}
+              {wallpaper.gold > 0 && <Cost count={wallpaper.gold} type="gold" />}
         </div>
         ))}
       </div>

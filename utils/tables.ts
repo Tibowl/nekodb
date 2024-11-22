@@ -1,6 +1,7 @@
 import CatRecordTable from "../NekoAtsume2Data/tables/CatRecordTable.json"
 import CatVsCatTable from "../NekoAtsume2Data/tables/CatVsCatTable.json"
 import CatVsFoodTable from "../NekoAtsume2Data/tables/CatVsFoodTable.json"
+import FoodRecordTable from "../NekoAtsume2Data/tables/FoodRecordTable.json"
 import GoodsRecordTable from "../NekoAtsume2Data/tables/GoodsRecordTable.json"
 import PlaySpaceRecordTable from "../NekoAtsume2Data/tables/PlaySpaceRecordTable.json"
 import PlaySpaceVsCatTable from "../NekoAtsume2Data/tables/PlaySpaceVsCatTable.json"
@@ -52,6 +53,11 @@ export async function getSmallGoodie(goodie: typeof goodies[number]): Promise<Sm
         name: translate("Goods", `GoodsName${goodie.Id}`, "en"),
         image: anime && anime != "90ground" ? await getImageInfo(getGoodieIconURL(anime)) : null
     }
+}
+
+export const foods = FoodRecordTable
+export function getFood(id: number) {
+    return foods.find(food => food.Id == id)   
 }
 
 export const playSpaces = PlaySpaceRecordTable

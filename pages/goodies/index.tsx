@@ -1,6 +1,6 @@
 import { GetStaticProps, InferGetStaticPropsType } from "next"
 import Head from "next/head"
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { CheckboxInput } from "../../components/CheckboxInput"
 import GoodieLink from "../../components/GoodieLink"
 import { parseBitMap } from "../../utils/bit_math"
@@ -21,12 +21,12 @@ export const getStaticProps = (async () => {
 
   const mappedGoodies = await Promise.all(goodies
     .filter((goodie) => goodie.Category != 0)
-    .sort((a, b) => a.DisplayOrderInShop - b.DisplayOrderInShop)
+    .sort((a, b) => a.DisplayOrderInShop - b.DisplayOrderInShop || a.DisplayOrderInTrade - b.DisplayOrderInTrade)
     .map(async (goodie) => {
       const categories = parseBitMap(goodie.Category).map((id) =>
         translate("Program", `Category${id + 1}`, "en")
       )
-      return { ...await getSmallGoodie(goodie), categories }
+      return { ...await getSmallGoodie(goodie), categories, shopSort: goodie.DisplayOrderInShop, tradeSort: goodie.DisplayOrderInTrade }
     })
   )
 
@@ -45,6 +45,8 @@ export default function GoodiesList({
   categories,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
   const [groupByCategory, setGroupByCategory] = useState(false)
+  const shopGoodies = useMemo(() => goodies.filter((goodie) => goodie.shopSort > 0), [goodies])
+  const tradeGoodies = useMemo(() => goodies.filter((goodie) => goodie.tradeSort > 0), [goodies])
 
   return (
     <main className="w-full max-w-7xl">
@@ -74,12 +76,21 @@ export default function GoodiesList({
       })}
 
       {!groupByCategory && <div>
-        <h2 className="text-xl font-bold" id="goodies">All goodies ({goodies.length})</h2>
+        <h2 className="text-xl font-bold" id="goodies">Store goodies ({shopGoodies.length})</h2>
         <div className="flex flex-row flex-wrap">
-          {goodies.map((goodie) => (
+          {shopGoodies.map((goodie) => (
             <GoodieLink key={goodie.id} goodie={goodie}></GoodieLink>
           ))}
         </div>
+
+        {tradeGoodies.length > 0 && <>
+          <h2 className="text-xl font-bold" id="goodies">Trade goodies ({tradeGoodies.length})</h2>
+          <div className="flex flex-row flex-wrap">
+            {tradeGoodies.map((goodie) => (
+              <GoodieLink key={goodie.id} goodie={goodie}></GoodieLink>
+            ))}
+          </div>
+        </>}
       </div>}
     </main>
   )
