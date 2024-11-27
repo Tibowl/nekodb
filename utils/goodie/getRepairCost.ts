@@ -1,8 +1,5 @@
-import { Goodie } from "../pages/goodies/[goodieId]"
+import { Goodie } from "../../pages/goodies/[goodieId]"
 
-export function getGoodieIconURL(id: string) {
-    return `/na2-assets/SpriteAtlas/icon_goods_big.spriteatlas/${id}.png`
-}
 
 export function getRepairCost(goodie: Goodie) {
     if (goodie.repairCost !== -1) return goodie.repairCost

@@ -8,15 +8,16 @@ import PlaySpaceVsCatTable from "../NekoAtsume2Data/tables/PlaySpaceVsCatTable.j
 import WallpaperRecordTable from "../NekoAtsume2Data/tables/WallpaperRecordTable.json"
 import { SmallCat } from "../pages/cats/[catId]"
 import { SmallGoodie } from "../pages/goodies/[goodieId]"
-import { getCatIconLink } from "./cat_utils"
-import { getGoodieIconURL } from "./goodie_utils"
-import getImageInfo from "./image_util"
-import { translate } from "./localization"
+import { getCatIconLink } from "./cat/getCatIconLink"
+import { getGoodieIconURL } from "./goodie/getGoodieIconURL"
+import getImageInfo from "./image/getImageInfo"
+import { translate } from "./localization/translate"
 
 export const cats = CatRecordTable
 export function getCat(id: number) {
     return cats.find(cat => cat.Id == id)   
 }
+export type CatRecord = typeof cats[number]
 export async function getSmallCat(cat: typeof cats[number]): Promise<SmallCat> {
     return {
         id: cat.Id,
@@ -46,6 +47,7 @@ export const goodies = GoodsRecordTable
 export function getGoodie(id: number) {
     return goodies.find(goodie => goodie.Id == id)   
 }
+export type GoodieRecord = typeof goodies[number]
 export async function getSmallGoodie(goodie: typeof goodies[number]): Promise<SmallGoodie> {
     const anime = goodie.AnimePngs[0]
     return {

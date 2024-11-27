@@ -6,6 +6,6 @@ export function translate(tableName: string, key: string, lang: Language) {
 }
 
 function getTable(tableName: string, lang: Language) {
-  const file = require(`../NekoAtsume2Data/localization/${lang}/${tableName}.json`)
+  const file = require(`../../NekoAtsume2Data/localization/${lang}/${tableName}.json`)
   return file as Record<string, string>
 }

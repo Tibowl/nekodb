@@ -1,6 +1,6 @@
 import { readFile } from "fs/promises"
-import { xmlParser } from "./animation_utils"
-import { AnimationMeta } from "../components/AnimationViewer"
+import { AnimationMeta } from "../../../components/AnimationViewer"
+import { xmlParser } from "../xmlParser"
 
 export async function getAnimation(image: string, imagePath: string, xmlPath: string): Promise<AnimationMeta | null> {
   try {

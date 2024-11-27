@@ -2,9 +2,9 @@ import { GetStaticProps, InferGetStaticPropsType } from "next"
 import Head from "next/head"
 import Cost from "../../components/Cost"
 import DisplayImage from "../../components/DisplayImage"
-import getImageInfo from "../../utils/image_util"
+import getImageInfo from "../../utils/image/getImageInfo"
 import { wallpapers } from "../../utils/tables"
-import { getWallpaperLink } from "../../utils/wallpaper_utils"
+import { getWallpaperLink } from "../../utils/wallpaper/getWallpaperLink"
 
 type Wallpapers = {
   wallpapers: Wallpaper[];

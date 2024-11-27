@@ -1,7 +1,8 @@
 import { GetStaticProps, InferGetStaticPropsType } from "next"
 import Head from "next/head"
 import CatLink from "../../components/CatLink"
-import { CatType, getCatType } from "../../utils/cat_utils"
+import { CatType } from "../../utils/cat/catType"
+import { getCatType } from "../../utils/cat/getCatType"
 import { cats, getSmallCat } from "../../utils/tables"
 import { SmallCat } from "./[catId]"
 

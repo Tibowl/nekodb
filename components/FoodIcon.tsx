@@ -1,4 +1,4 @@
-import { getGoodieIconURL } from "../utils/goodie_utils"
+import { getGoodieIconURL } from "../utils/goodie/getGoodieIconURL"
 import DisplayImage from "./DisplayImage"
 
 const foodMapping: Record<string, {name: string, texture: string, width: number, height: number}> = {

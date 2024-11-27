@@ -1,23 +1,4 @@
-import { SmallCat } from "../pages/cats/[catId]"
-
-export enum CatType {
-    Normal,
-    Rare,
-    Myneko,
-    Other,
-}
-
-export function getCatType(cat: SmallCat): CatType {
-    if (cat.id < 100)
-        return CatType.Normal
-    if (cat.id == 122)
-        return CatType.Other
-    if (cat.id < 200)
-        return CatType.Rare
-    if (cat.id > 700)
-        return CatType.Myneko
-    throw new Error("Unknown cat type")
-}
+import { SmallCat } from "../../pages/cats/[catId]"
 
 const catIconOverrides = new Map<number, string>()
 catIconOverrides.set(101, "s05")
@@ -39,12 +20,4 @@ export function getCatIconId(cat: Pick<SmallCat, "id">): string {
         iconId = `s${(cat.id - 100).toString().padStart(2, "0")}`
     }
     return iconId
-}
-
-export function getCatIconLink(cat: Pick<SmallCat, "id">) {
-    return getCatIconURL(getCatIconId(cat))
-}
-
-export function getCatIconURL(id: string) {
-    return `/na2-assets/SpriteAtlas/icon_cat.spriteatlas/${id}.png`
 }

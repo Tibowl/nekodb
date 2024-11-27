@@ -6,11 +6,13 @@ import CatLink from "../../components/CatLink"
 import Cost from "../../components/Cost"
 import DisplayImage, { ImageMetaData } from "../../components/DisplayImage"
 import { RenderText } from "../../components/TextRenderer"
-import { parseBitMap } from "../../utils/bit_math"
-import { getGoodieIconURL, getRepairCost } from "../../utils/goodie_utils"
-import getImageInfo from "../../utils/image_util"
-import { translate } from "../../utils/localization"
-import { getAnimation } from "../../utils/other_animation_utils"
+import { getGoodieAnimations } from "../../utils/animation/server/getGoodieAnimations"
+import { getGoodieIconURL } from "../../utils/goodie/getGoodieIconURL"
+import { getRepairCost } from "../../utils/goodie/getRepairCost"
+import { getSuffixes } from "../../utils/goodie/getSuffixes"
+import getImageInfo from "../../utils/image/getImageInfo"
+import { translate } from "../../utils/localization/translate"
+import { parseBitMap } from "../../utils/math/parseBitMap"
 import { getCat, getFood, getGoodie, getPlaySpaceVsCat, getSmallCat, getSmallGoodie, goodies, playSpaces } from "../../utils/tables"
 import { SmallCat } from "../cats/[catId]"
 
@@ -60,6 +62,7 @@ type Action = {
   name: string
   actionIndex: number
   weight: number | null
+  goodieAction: number | null
 }
 
 type FoodInfo = {
@@ -105,25 +108,14 @@ export const getStaticProps = (async (context) => {
         gomenne: ps.Gomenne,
         grooming: ps.Grooming,
         catWeights,
-        catAnimations: createActions(ps.ActionNames, ps.ActionIds, ps.ActionWeights),
-        altAnimations: createActions(ps.ActionNames2, ps.ActionIds2, ps.ActionWeights2),
+        catAnimations: createActions(ps.ActionNames, ps.ActionIds, ps.ActionWeights, ps.GoodsAnimeId),
+        altAnimations: createActions(ps.ActionNames2, ps.ActionIds2, ps.ActionWeights2, ps.GoodsAnimeId2),
         weatherWeights: {}, // TODO
       }
     }).filter(ps => ps) as PlaySpaceInfo[]
 
-  const animations: AnimationMeta[] = []
   const suffixes = getSuffixes(goodie)
-  for (const anime of goodie.AnimeXmls) {
-    const img = goodie.AnimePngs[0]
-    for (const suffix of suffixes) {
-      const imgPath = `/na2-assets/goods/${img}${suffix}.png`
-      const xmlPath = `/na2-assets/goods/${anime}${suffix}.xml`
-      const animation = await getAnimation(`${anime}${suffix}`, imgPath, xmlPath)
-      if (animation) {
-        animations.push(animation)
-      }
-    }
-  }
+  const animations: AnimationMeta[] = await getGoodieAnimations(goodie, suffixes)
 
   const food = getFood(goodie.Id)
   const foodInfo = food && {
@@ -173,7 +165,7 @@ export const getStaticProps = (async (context) => {
   }
 }) satisfies GetStaticProps<GoodieInfo>
 
-function createActions(names: string[] | null, ids: number[] | null, weights: number[] | null) {
+function createActions(names: string[] | null, ids: number[] | null, weights: number[] | null, goodieActions: number[] | null = null): Action[] {
   if (!names || !ids) return []
 
   if (names.length != ids.length) throw new Error("names and ids must be the same length")
@@ -182,37 +174,10 @@ function createActions(names: string[] | null, ids: number[] | null, weights: nu
     return {
       name,
       actionIndex: ids[index],
-      weight: weights ? weights[index] : null
+      weight: weights ? weights[index] : null,
+      goodieAction: goodieActions ? goodieActions[index] : null,
     }
   })
-}
-
-function getSuffixes(goodie: typeof goodies[number]) {
-  if (goodie.Toughness == 0) return [""]
-  if (goodie.RepairPattern == 0) return [
-    "",
-    "_break",
-    "_repair",
-  ]
-
-  if (goodie.RepairPattern == 1) return [
-    "",
-    "_break",
-    "_repair",
-    "_repair_break",
-  ]
-
-  const patterns = [
-    "",
-    "_break",
-  ]
-
-  for (let i = 1; i < goodie.RepairPattern + 1; i++) {
-    patterns.push(`_repair_${i}`)
-    patterns.push(`_repair_${i}_break`)
-  }
-
-  return patterns
 }
 
 export const getStaticPaths = (async () => {
@@ -379,14 +344,16 @@ export default function Goodie({ goodie, cats }: InferGetStaticPropsType<typeof 
 
 
 function CatAnimations({ actions }: { actions: Action[] }) {
-  return <div className="grid grid-cols-[auto_1fr_1fr] w-fit ml-4 gap-x-4">
+  return <div className="grid grid-cols-[auto_auto_auto_auto] w-fit ml-4 gap-x-4">
+    <div className="font-bold">Animation</div>
     <div className="font-bold">Action</div>
-    <div className="font-bold">Index</div>
     <div className="font-bold">Weight</div>
+    <div className="font-bold">Goodie pose override</div>
     {actions.map((action, i) => <div key={i} className="contents">
       <div>{action.name}</div>
-      <div>{action.actionIndex}</div>
-      {action.weight ? <div>{action.weight}</div> : <div></div>}
+      <div>{action.actionIndex + 1}</div>
+      {action.weight !== null ? <div>{action.weight}</div> : <div>/</div>}
+      {action.goodieAction !== null ? <div>{action.goodieAction}</div> : <div>/</div>}
     </div>)}
   </div>
 }

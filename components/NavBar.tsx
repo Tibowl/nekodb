@@ -1,11 +1,11 @@
 import { useState } from "react"
 import FormattedLink from "./FormattedLink"
 
-const pages = ["Cats", "Goodies", "Wallpapers"]
+const pages = ["Cats", "Goodies", "Wallpapers", "Animation playground"]
 
 export default function NavBar({ location }: {location: string}) {
   const [menuOpen, setMenuOpen] = useState(false)
-  const navLinks = pages.map(page => <FormattedLink key={page} href={`/${page.toLowerCase()}`} location={location}>{page}</FormattedLink>)
+  const navLinks = pages.map(page => <FormattedLink key={page} href={`/${page.toLowerCase().replace(/ /g, "-")}`} location={location}>{page}</FormattedLink>)
 
   return (
     <div className="text-xl bg-gradient-to-r from-blue-200 to-blue-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-between lg:justify-start p-4 w-full top-0">

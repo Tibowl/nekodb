@@ -1,18 +1,11 @@
 import { useEffect, useMemo, useState } from "react"
-import createRange from "../utils/create-range"
+import { getDefaultAnimation } from "../utils/animation/getDefaultAnimation"
+import createRange from "../utils/math/createRange"
 import AnimationViewer, { AnimationMeta } from "./AnimationViewer"
 import { CheckboxInput } from "./CheckboxInput"
 import FormattedLink from "./FormattedLink"
 import SelectInput from "./SelectInput"
 
-const defaultAnimations: string[] = [
-  "00kihon_grooming",
-  "00kihon_tsume_tate",
-  "00kihon_tsume_yoko",
-  "06jarashi_mushi",
-  "06jarashi_the",
-  "neko_walk"
-]
 
 export default function AnimationGallery({ animations }: { animations: AnimationMeta[] }) {
   if (animations.length == 0) return null
@@ -20,22 +13,6 @@ export default function AnimationGallery({ animations }: { animations: Animation
     <h2 className="text-xl font-bold" id="animations">Animation gallery</h2>
     <AnimationGalleryInternal animations={animations} />
   </>
-}
-
-function getDefault(animations: AnimationMeta[]): AnimationMeta {
-  if (animations.length == 0) throw new Error("No animations")
-
-  const found: AnimationMeta[] = []
-  for (const name of defaultAnimations) {
-    const animation = animations.find(a => a.name == name)
-    if (animation)
-      found.push(animation)
-  }
-
-  if (found.length > 0)
-    return found[Math.floor(Math.random() * found.length)]
-
-  return animations[0]
 }
 
 function AnimationGalleryInternal({ animations }: { animations: AnimationMeta[] }) {
@@ -56,7 +33,7 @@ function AnimationGalleryInternal({ animations }: { animations: AnimationMeta[] 
     if (animation && actionIndex >= animation.actions)
       setActionIndex(animation.defaultAction)
     if (!animation && animations.length > 0) {
-      const animation = getDefault(animations)
+      const animation = getDefaultAnimation(animations)
       setAnimationName(animation.name)
       setActionIndex(animation.defaultAction)
     }
@@ -76,7 +53,7 @@ function AnimationGalleryInternal({ animations }: { animations: AnimationMeta[] 
             </div>
             <div className="flex flex-wrap gap-2">
               {createRange(animation.actions).map(action => <div key={action} className="bg:gray-200 bg-opacity-50 dark:bg-slate-900 dark:bg-opacity-50 rounded-md p-1">
-                <AnimationViewer animation={animation} actionIndex={action} showAction={true} />
+                <AnimationViewer animations={[{ animation, actionIndex: action }]} />
               </div>)}
             </div>
           </div>
@@ -106,7 +83,7 @@ function AnimationGalleryInternal({ animations }: { animations: AnimationMeta[] 
 
       <div className="flex flex-wrap gap-2">
         <div className="bg-gray-100 dark:bg-slate-800 rounded-md p-1">
-          {animation && <AnimationViewer animation={animation} actionIndex={actionIndex} />}
+          {animation && <AnimationViewer animations={[{ animation, actionIndex }]} />}
         </div>
       </div>
     </>

@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react"
-import { drawSequence, getRecommendedSize, xmlParser } from "../utils/animation_utils"
+import { drawSequence } from "../utils/animation/drawSequence"
+import { getRecommendedSize } from "../utils/animation/getRecommendedSize"
+import { xmlParser } from "../utils/animation/xmlParser"
 
 export type AnimationMeta = {
   name: string;
@@ -9,32 +11,56 @@ export type AnimationMeta = {
   defaultAction: number;
 };
 
-export default function AnimationViewer({ animation, actionIndex, showAction = false }: {
+export type PlayingAnimation = {
   animation: AnimationMeta;
   actionIndex: number;
-  showAction?: boolean;
+  xOffset?: number;
+  yOffset?: number;
+}
+
+export default function AnimationViewer({ animations }: {
+  animations: PlayingAnimation[];
 }) {
-  const [xml, setXml] = useState<any>(undefined)
-  const [img, setImg] = useState<HTMLImageElement | null>(null)
+  const [xmls, setXmls] = useState<any[]>([])
+  const [imgs, setImgs] = useState<(HTMLImageElement | null)[]>([])
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [sequenceIndex, setSequenceIndex] = useState(0)
 
-  const { width, height, x, y } = useMemo(() => getRecommendedSize(xml), [xml])
+  const { width, height, x, y } = useMemo(() => getRecommendedSize(animations, xmls), [animations, xmls])
+  const isLoading = imgs.some(x => x == null) || xmls.some(x => x == null) || imgs.length !== animations.length || xmls.length !== animations.length || animations.length === 0
 
   useEffect(() => {
-    fetch(animation.url_xml)
-      .then((response) => response.text())
-      .then((text) => setXml(xmlParser.parse(text)))
-      .catch((error) => console.error(error))
+    const newXmls: any[] = animations.map(a => null)
+    const newImgs: (HTMLImageElement | null)[] = animations.map(a => null)
 
-    const img = new Image()
-    img.src = animation.url_img
-    img.onload = () => setImg(img)
-  }, [animation])
+    console.log("animations", animations)
+
+    animations.forEach((pa, i) => {
+      const { animation } = pa
+      fetch(animation.url_xml)
+        .then((response) => response.text())
+        .then((text) => {
+          const xml = xmlParser.parse(text)
+          newXmls[i] = xml
+          if (newXmls.every(x => x != null))
+            setXmls(newXmls)
+        })
+        .catch((error) => console.error(error))
+
+      const img = new Image()
+      img.src = animation.url_img
+      img.onload = () => {
+        newImgs[i] = img
+        if (newImgs.every(x => x != null))
+          setImgs(newImgs)
+      }
+    })
+  }, [animations])
+
+  const maxSequenceLength = Math.max(...animations.map((animation, ind) => xmls[ind]?.Animation?.Actions?.Action[animation.actionIndex]?.Sequence?.length ?? 0))
 
   useEffect(() => {
-    if (!img) return
-    if (!xml) return
+    if (isLoading) return
 
     const canvas = canvasRef.current
     if (!canvas) return
@@ -42,38 +68,49 @@ export default function AnimationViewer({ animation, actionIndex, showAction = f
     const ctx = canvas.getContext("2d")
     if (!ctx) return
 
-    const action = xml.Animation.Actions.Action[actionIndex]
-    if (!action) return
-
-    const sequence = action.Sequence
-    if (!sequence) return
-
-    if (sequenceIndex >= sequence.length) {
+    if (sequenceIndex >= maxSequenceLength) {
       setSequenceIndex(0)
       return
     }
 
-    const frame = sequence[sequenceIndex]
+    let frame
 
-    // console.log("clear", frame)
     ctx.resetTransform()
     ctx.clearRect(0, 0, canvas.width, canvas.height)
-    drawSequence(ctx, img, xml, frame.id, x, y)
+    for(let i = 0; i < animations.length; i++) {
+      const img = imgs[i]
+      const xml = xmls[i]
+      const animation = animations[i]
+
+      if (!img || !xml || !animation) continue
+
+      const action = xml.Animation.Actions.Action[animation.actionIndex]
+      if (!action) continue
+
+      const sequence = action.Sequence
+      if (!sequence) continue
+
+      if (sequenceIndex >= sequence.length) {
+        frame = sequence[0]
+      } else {
+        frame = sequence[sequenceIndex]
+      }
+
+      // console.log("clear", frame)
+      drawSequence(ctx, img, xml, frame.id, x - (animation.xOffset ?? 0), y - (animation.yOffset ?? 0))
+    }
 
     const timeout = setTimeout(() => setSequenceIndex(sequenceIndex + 1), frame.duration * 1000 / 16) // HpLib.Anime.fps
     return () => clearTimeout(timeout)
-  }, [img, xml, canvasRef, actionIndex, sequenceIndex, x, y])
+  }, [imgs, xmls, canvasRef, animations, sequenceIndex, x, y, isLoading, maxSequenceLength])
 
-  if (!xml || !img) return <div>Loading...</div>
+  if (isLoading) return <div>Loading...</div>
 
-  const actions = xml.Animation.Actions.Action
-  const sequence = actions[actionIndex]?.Sequence
-  if (!sequence) return <div>Sequence #{actionIndex} not found</div>
 
   return (
     <div>
       <div className="flex flex-row justify-end gap-2">
-        <div className="text-sm">{sequenceIndex + 1}/{sequence.length}</div>
+        <div className="text-sm">{sequenceIndex + 1}/{maxSequenceLength}</div>
       </div>
       <canvas width={width} height={height} ref={canvasRef}></canvas>
     </div>
