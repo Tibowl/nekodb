@@ -77,14 +77,23 @@ export default function AnimationPlayground({
   goodieAnimations,
   catAnimations,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
-  const [layers, setLayers] = useState<AnimationLayer[]>([])
+  const [layers, setLayers] = useState<AnimationLayer[]>([
+    { "type":"Goodie", "index":41, "actionIndex":2,                               "animation":{ "name":"06jarashi_rail", "url_img":"/na2-assets/goods/06jarashi_rail.png", "url_xml":"/na2-assets/goods/06jarashi_rail.xml", "actions":5, "defaultAction":2 } },
+    { "type":"Cat",    "index": 1, "actionIndex":0, "xOffset": -6, "yOffset": 51, "animation":{ "name":"06jarashi_rail", "url_img":"/na2-assets/neko/normal/01_kuroneko_san/06jarashi_rail.png", "url_xml":"/na2-assets/neko/normal/master_xml/06jarashi_rail.xml", "actions":1, "defaultAction":0 } },
+    { "type":"Cat",    "index": 0, "actionIndex":0, "xOffset":300, "yOffset":-15, "animation":{ "name":"01ball_pingpong", "url_img":"/na2-assets/neko/normal/00_sironeko_san/01ball_pingpong.png", "url_xml":"/na2-assets/neko/normal/master_xml/01ball_pingpong.xml", "actions":1, "defaultAction":0 } },
+    { "type":"Goodie", "index":10, "actionIndex":3, "xOffset":300, "yOffset":-15, "animation":{ "name":"01ball_pingpong", "url_img":"/na2-assets/goods/01ball_pingpong.png", "url_xml":"/na2-assets/goods/01ball_pingpong.xml", "actions":5, "defaultAction":3 } },
+    { "type":"Cat",    "index":24, "actionIndex":0, "xOffset":350, "yOffset":135, "animation":{ "name":"01ball_soccer", "url_img":"/na2-assets/neko/normal/24_cream_san/01ball_soccer.png", "url_xml":"/na2-assets/neko/normal/master_xml/01ball_soccer.xml", "actions":1, "defaultAction":0 } },
+    { "type":"Goodie", "index":14, "actionIndex":3, "xOffset":350, "yOffset":135, "animation":{ "name":"01ball_soccer_mari", "url_img":"/na2-assets/goods/01ball_soccer_mari.png", "url_xml":"/na2-assets/goods/01ball_soccer_mari.xml", "actions":5, "defaultAction":3 } }
+  ])
 
   useEffect(() => {
+    console.log("layers", layers)
+
     let needChange = false
     for (const layer of layers) {
       const availableEntries =
         layer.type == "Cat" ? catAnimations : goodieAnimations
-      const { thing, animations } = availableEntries[layer.index]
+      const { animations } = availableEntries[layer.index]
       const { animation } = layer
 
       if (
@@ -95,9 +104,12 @@ export default function AnimationPlayground({
         needChange = true
       }
       if (!animations.includes(layer.animation) && animations.length > 0) {
-        const animation = animations.find(x => x.name == layer.animation.name) || getDefaultAnimation(animations)
-        layer.animation = animation
-        layer.actionIndex = animation.defaultAction
+        const animation = animations.find(x => x.name == layer.animation.name)
+        if (!animation) {
+          layer.animation = getDefaultAnimation(animations)
+          layer.actionIndex = layer.animation.defaultAction
+        } else
+          layer.animation = animation
         needChange = true
       }
     }

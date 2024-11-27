@@ -33,7 +33,7 @@ export function getRecommendedSize(animations: PlayingAnimation[], xmls: any[]) 
           const x = corner[0] * +sprite.m00 + corner[1] * +sprite.m01 + +sprite.m02
           const y = corner[0] * +sprite.m10 + corner[1] * +sprite.m11 + +sprite.m12
 
-          console.log(corner, x, y)
+          // console.log(corner, x, y)
 
           if (x < response.minX) response.minX = x
           if (x > response.maxX) response.maxX = x

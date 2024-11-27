@@ -24,7 +24,7 @@ export default function AnimationViewer({ animations }: {
   const [xmls, setXmls] = useState<any[]>([])
   const [imgs, setImgs] = useState<(HTMLImageElement | null)[]>([])
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const [sequenceIndex, setSequenceIndex] = useState(0)
+  const [sequenceIndices, setSequenceIndices] = useState<number[]>([])
 
   const { width, height, x, y } = useMemo(() => getRecommendedSize(animations, xmls), [animations, xmls])
   const isLoading = imgs.some(x => x == null) || xmls.some(x => x == null) || imgs.length !== animations.length || xmls.length !== animations.length || animations.length === 0
@@ -32,6 +32,7 @@ export default function AnimationViewer({ animations }: {
   useEffect(() => {
     const newXmls: any[] = animations.map(a => null)
     const newImgs: (HTMLImageElement | null)[] = animations.map(a => null)
+    setSequenceIndices(animations.map(a => 0))
 
     console.log("animations", animations)
 
@@ -57,8 +58,6 @@ export default function AnimationViewer({ animations }: {
     })
   }, [animations])
 
-  const maxSequenceLength = Math.max(...animations.map((animation, ind) => xmls[ind]?.Animation?.Actions?.Action[animation.actionIndex]?.Sequence?.length ?? 0))
-
   useEffect(() => {
     if (isLoading) return
 
@@ -68,19 +67,20 @@ export default function AnimationViewer({ animations }: {
     const ctx = canvas.getContext("2d")
     if (!ctx) return
 
-    if (sequenceIndex >= maxSequenceLength) {
-      setSequenceIndex(0)
-      return
-    }
-
-    let frame
-
+    const timeout = setTimeout(() => setSequenceIndices(prev => prev.map((x, ind) => {
+      const action = xmls[ind].Animation.Actions.Action[animations[ind].actionIndex]
+      const sequence = action.Sequence
+      const maxSequenceLength = sequence.length
+      const next = (x + 1) % maxSequenceLength
+      return next
+    })), 1000 / 16) // HpLib.Anime.fps, not including frame.duration!
     ctx.resetTransform()
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     for(let i = 0; i < animations.length; i++) {
       const img = imgs[i]
       const xml = xmls[i]
       const animation = animations[i]
+      const sequenceIndex = sequenceIndices[i]
 
       if (!img || !xml || !animation) continue
 
@@ -90,6 +90,7 @@ export default function AnimationViewer({ animations }: {
       const sequence = action.Sequence
       if (!sequence) continue
 
+      let frame
       if (sequenceIndex >= sequence.length) {
         frame = sequence[0]
       } else {
@@ -100,9 +101,8 @@ export default function AnimationViewer({ animations }: {
       drawSequence(ctx, img, xml, frame.id, x - (animation.xOffset ?? 0), y - (animation.yOffset ?? 0))
     }
 
-    const timeout = setTimeout(() => setSequenceIndex(sequenceIndex + 1), frame.duration * 1000 / 16) // HpLib.Anime.fps
     return () => clearTimeout(timeout)
-  }, [imgs, xmls, canvasRef, animations, sequenceIndex, x, y, isLoading, maxSequenceLength])
+  }, [imgs, xmls, canvasRef, animations, sequenceIndices, x, y, isLoading])
 
   if (isLoading) return <div>Loading...</div>
 
@@ -110,7 +110,14 @@ export default function AnimationViewer({ animations }: {
   return (
     <div>
       <div className="flex flex-row justify-end gap-2">
-        <div className="text-sm">{sequenceIndex + 1}/{maxSequenceLength}</div>
+        {xmls.map((xml, i) => {
+          if (!xml) return null
+          const sequenceIndex = sequenceIndices[i]
+          const action = xml.Animation.Actions.Action[animations[i].actionIndex]
+          const sequence = action.Sequence
+          const maxSequenceLength = sequence.length
+          return <div className="text-sm w-10 text-right" key={i}>{sequenceIndex + 1}/{maxSequenceLength}</div>
+        })}
       </div>
       <canvas width={width} height={height} ref={canvasRef}></canvas>
     </div>
