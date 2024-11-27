@@ -1,11 +1,10 @@
 import { GetStaticProps, InferGetStaticPropsType } from "next"
 import Head from "next/head"
+import Cost from "../../components/Cost"
+import DisplayImage from "../../components/DisplayImage"
+import getImageInfo from "../../utils/image_util"
 import { wallpapers } from "../../utils/tables"
 import { getWallpaperLink } from "../../utils/wallpaper_utils"
-import Image from "next/image"
-import getImageInfo from "../../utils/image_util"
-import DisplayImage from "../../components/DisplayImage"
-import Cost from "../../components/Cost"
 
 type Wallpapers = {
   wallpapers: Wallpaper[];

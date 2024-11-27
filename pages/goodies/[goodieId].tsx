@@ -51,7 +51,15 @@ type PlaySpaceInfo = {
   grooming: boolean
 
   catWeights: Record<number, number[]>
+  catAnimations: Action[]
+  altAnimations: Action[]
   weatherWeights: Record<string, number>
+}
+
+type Action = {
+  name: string
+  actionIndex: number
+  weight: number | null
 }
 
 type FoodInfo = {
@@ -97,6 +105,8 @@ export const getStaticProps = (async (context) => {
         gomenne: ps.Gomenne,
         grooming: ps.Grooming,
         catWeights,
+        catAnimations: createActions(ps.ActionNames, ps.ActionIds, ps.ActionWeights),
+        altAnimations: createActions(ps.ActionNames2, ps.ActionIds2, ps.ActionWeights2),
         weatherWeights: {}, // TODO
       }
     }).filter(ps => ps) as PlaySpaceInfo[]
@@ -162,6 +172,20 @@ export const getStaticProps = (async (context) => {
     },
   }
 }) satisfies GetStaticProps<GoodieInfo>
+
+function createActions(names: string[] | null, ids: number[] | null, weights: number[] | null) {
+  if (!names || !ids) return []
+
+  if (names.length != ids.length) throw new Error("names and ids must be the same length")
+  if (weights && weights.length != ids.length) throw new Error("weights and ids must be the same length")
+  return names.map((name, index) => {
+    return {
+      name,
+      actionIndex: ids[index],
+      weight: weights ? weights[index] : null
+    }
+  })
+}
 
 function getSuffixes(goodie: typeof goodies[number]) {
   if (goodie.Toughness == 0) return [""]
@@ -338,8 +362,31 @@ export default function Goodie({ goodie, cats }: InferGetStaticPropsType<typeof 
                 return <div key={catId} className="flex flex-row items-center">{link} {weights.join(" / ")}</div>
             })}
           </div>
+
+          {ps.catAnimations.length > 0 && <>
+            <h4 className="text-lg font-thin">Cat animations</h4>
+            <CatAnimations actions={ps.catAnimations} />
+          </>}
+          {ps.altAnimations.length > 0 && <>
+            <h4 className="text-lg font-thin">Broken animations</h4>
+            <CatAnimations actions={ps.altAnimations} />
+          </>}
         </div>)}
     </div>
   </main>
   )
+}
+
+
+function CatAnimations({ actions }: { actions: Action[] }) {
+  return <div className="grid grid-cols-[auto_1fr_1fr] w-fit ml-4 gap-x-4">
+    <div className="font-bold">Action</div>
+    <div className="font-bold">Index</div>
+    <div className="font-bold">Weight</div>
+    {actions.map((action, i) => <div key={i} className="contents">
+      <div>{action.name}</div>
+      <div>{action.actionIndex}</div>
+      {action.weight ? <div>{action.weight}</div> : <div></div>}
+    </div>)}
+  </div>
 }
