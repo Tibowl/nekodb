@@ -127,7 +127,7 @@ export const getStaticProps = (async (context) => {
     }
   })
 
-  const parsedView = view.areas as ViewConfig[]
+  const parsedView = [...(view.areas as ViewConfig[])].reverse()
 
   return {
     props: {
@@ -245,7 +245,7 @@ export default function Goodie({ yard }: InferGetStaticPropsType<typeof getStati
       <h2 className="text-xl font-bold" id="places">Places</h2>
       <div className="bg-gray-100 dark:bg-slate-800 rounded-md p-1">
         <svg viewBox={`${largestView.x} ${largestView.y} ${largestView.width} ${largestView.height}`} className="w-full h-full">
-          {yard.view.reverse().map((view, i) => <g key={i}>
+          {yard.view.map((view, i) => <g key={i}>
             <rect x={view.x} y={view.y} width={view.width} height={view.height}
               vectorEffect="non-scaling-stroke" fill={viewFillColors(yard.view.length - 1 - i)} stroke={viewColors(yard.view.length - 1 - i)} strokeWidth="5"/>
           </g>)}
