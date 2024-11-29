@@ -50,11 +50,11 @@ export default function CatList({
           <div key={wallpaper.id} className="bg-gray-100 dark:bg-slate-800 rounded-md flex flex-col items-center justify-center gap-2 p-2">
             <div className="max-w-96">
                 <a href={wallpaper.img.url} target="_blank" rel="noreferrer">
-                    <DisplayImage img={wallpaper.img} alt={`Wallpaper #${wallpaper.id}`} className="rounded-md" loading={index < 2 ? "eager" : "lazy"}/>
+                  <DisplayImage img={wallpaper.img} alt={`Wallpaper #${wallpaper.id}`} className="rounded-md" loading={index < 2 ? "eager" : "lazy"}/>
                 </a>
             </div>
-              {wallpaper.silver > 0 && <Cost count={wallpaper.silver} type="silver" />}
-              {wallpaper.gold > 0 && <Cost count={wallpaper.gold} type="gold" />}
+            {wallpaper.silver > 0 && <Cost count={wallpaper.silver} type="silver" />}
+            {wallpaper.gold > 0 && <Cost count={wallpaper.gold} type="gold" />}
         </div>
         ))}
       </div>

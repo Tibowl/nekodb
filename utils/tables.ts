@@ -6,8 +6,10 @@ import GoodsRecordTable from "../NekoAtsume2Data/tables/GoodsRecordTable.json"
 import PlaySpaceRecordTable from "../NekoAtsume2Data/tables/PlaySpaceRecordTable.json"
 import PlaySpaceVsCatTable from "../NekoAtsume2Data/tables/PlaySpaceVsCatTable.json"
 import WallpaperRecordTable from "../NekoAtsume2Data/tables/WallpaperRecordTable.json"
+import YardRecordTable from "../NekoAtsume2Data/tables/YardRecordTable.json"
 import { SmallCat } from "../pages/cats/[catId]"
 import { SmallGoodie } from "../pages/goodies/[goodieId]"
+import { SmallYard } from "../pages/yards/[yardId]"
 import { getCatIconLink } from "./cat/getCatIconLink"
 import { getGoodieIconURL } from "./goodie/getGoodieIconURL"
 import getImageInfo from "./image/getImageInfo"
@@ -15,7 +17,7 @@ import { translate } from "./localization/translate"
 
 export const cats = CatRecordTable
 export function getCat(id: number) {
-    return cats.find(cat => cat.Id == id)   
+    return cats.findLast(cat => cat.Id == id)   
 }
 export type CatRecord = typeof cats[number]
 export async function getSmallCat(cat: typeof cats[number]): Promise<SmallCat> {
@@ -31,7 +33,7 @@ export const catVsFood = CatVsFoodTable as {
     Dict: Partial<Record<"1" | "2" | "3" | "4" | "5" | "6" | "7" | "99", number>>
 }[]
 export function getCatVsFood(cat: typeof cats[number]) {
-    return catVsFood.find(entry => entry.Id == cat.Id)
+    return catVsFood.findLast(entry => entry.Id == cat.Id)
 }
 
 export const catVsCat = CatVsCatTable as {
@@ -39,7 +41,7 @@ export const catVsCat = CatVsCatTable as {
     Dict: Partial<Record<number, number>>
 }[]
 export function getCatVsCat(cat: typeof cats[number]) {
-    return catVsCat.find(entry => entry.Id == cat.Id)
+    return catVsCat.findLast(entry => entry.Id == cat.Id)
 }
 
 
@@ -59,12 +61,12 @@ export async function getSmallGoodie(goodie: typeof goodies[number]): Promise<Sm
 
 export const foods = FoodRecordTable
 export function getFood(id: number) {
-    return foods.find(food => food.Id == id)   
+    return foods.findLast(food => food.Id == id)   
 }
 
 export const playSpaces = PlaySpaceRecordTable
 export function getPlaySpace(id: number) {
-    return playSpaces.find(playSpace => playSpace.Id == id)   
+    return playSpaces.findLast(playSpace => playSpace.Id == id)   
 }
 
 export const playSpaceVsCat = PlaySpaceVsCatTable as {
@@ -72,7 +74,19 @@ export const playSpaceVsCat = PlaySpaceVsCatTable as {
     Dict: Partial<Record<number, number[]>>
 }[]
 export function getPlaySpaceVsCat(playSpace: typeof playSpaces[number]) {
-    return playSpaceVsCat.find(ps => ps.Id == playSpace.Id)
+    return playSpaceVsCat.findLast(ps => ps.Id == playSpace.Id)
 }
 
 export const wallpapers = WallpaperRecordTable
+
+export const yards = YardRecordTable.filter((yard, index, self) => self.findLastIndex(predicate => predicate.Id == yard.Id) == index)
+export function getYard(id: number) {
+    return yards.findLast(yard => yard.Id == id)   
+}
+export type YardRecord = typeof yards[number]
+export function getSmallYard(yard: YardRecord): SmallYard {
+    return {
+        id: yard.Id,
+        name: translate("Yard", `YardName${yard.Id}`, "en")
+    }
+}
