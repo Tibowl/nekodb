@@ -169,6 +169,7 @@ export const getStaticPaths = (async () => {
 
 export default function Cat({ cat, cats, goodies }: InferGetStaticPropsType<typeof getStaticProps>) {
   const [upcomingGoodies, setUpcomingGoodies] = useState(false)
+  const [memento, setMemento] = useState(false)
 
   return (
     <main className="w-full max-w-7xl">
@@ -200,7 +201,8 @@ export default function Cat({ cat, cats, goodies }: InferGetStaticPropsType<type
 
         {cat.memento && <>
           <h2 className="text-xl font-bold" id="memento">Memento</h2>
-          <div className="flex flex-row items-center gap-2">
+          <CheckboxInput label="Show memento" set={setMemento} value={memento} />
+          {memento && <div className="flex flex-row items-center gap-2">
             <div className="w-16 h-16 flex flex-col items-center justify-center">
               <DisplayImage img={cat.memento.img} alt={cat.memento.name} className="max-h-full max-w-full" />
             </div>
@@ -208,7 +210,7 @@ export default function Cat({ cat, cats, goodies }: InferGetStaticPropsType<type
               <div className="text-xl font-bold">{cat.memento.name}</div>
               <div className="text-sm whitespace-pre-wrap"><RenderText text={cat.memento.comment} /></div>
             </div>
-          </div>
+          </div>}
         </>}
 
         <h2 className="text-xl font-bold" id="base-stats">Base stats</h2>
