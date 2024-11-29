@@ -199,6 +199,7 @@ function otherPlaceColor(place: ParsedOtherPlace) {
 const nameReplacements: Record<string, string|undefined> = {
   "RemodelPreviewSlot": "RPS",
   "RemodelPreviewOrigin": "RPO",
+  // "MynekoGoodsPos": "MGP",
 }
 export default function Goodie({ yard }: InferGetStaticPropsType<typeof getStaticProps>) {
   const largestView = yard.view.reduce((prev, current) => {
@@ -267,8 +268,8 @@ export default function Goodie({ yard }: InferGetStaticPropsType<typeof getStati
             <rect x={view.x} y={view.y} width={view.width} height={view.height} visibility={!hasExpansion && i == 2 ? "hidden" : "visible"}
               vectorEffect="non-scaling-stroke" fill={viewFillColors(yard.view.length - 1 - i)} stroke={viewColors(yard.view.length - 1 - i)} strokeWidth="5"/>
           </g>)}
+          {yard.otherPlaces.map((place, i) => <YardOtherPlace key={i} place={place} places={yard.places} showText={showText} />)}
           <YardPlaces places={yard.places} showText={showText} />
-          {yard.otherPlaces.filter(place => !place.attributes.includes("MynekoGoodsPos")).map((place, i) => <YardOtherPlace key={i} place={place} showText={showText} />)}
         </svg>
       </div>
 
@@ -319,7 +320,12 @@ function YardPlace({ place, showText }: { place: ParsedPlace, showText: boolean 
   </g>
 }
 
-function YardOtherPlace({ place, showText }: { place: ParsedOtherPlace, showText: boolean }) {
+function YardOtherPlace({ place, places, showText }: { place: ParsedOtherPlace, places: ParsedPlace[], showText: boolean }) {
+  if (place.attributes.includes("MynekoGoodsPos")) {
+    const target = places.find(predicate => predicate.id == place.state)
+    if (target)
+      return <path d={`M ${place.position.x} ${-place.position.y} L ${target.position.x} ${-target.position.y}`} vectorEffect="non-scaling-stroke" stroke="gray" strokeWidth="1" strokeLinecap="round"/>
+  }
   return <g>
     <path d={`M ${place.position.x} ${-place.position.y} l 0.0001 0`} vectorEffect="non-scaling-stroke" stroke={otherPlaceColor(place)} strokeWidth="10" strokeLinecap="round"/>
     {showText && <text x={place.position.x} y={-place.position.y + 0.75} textAnchor="middle" alignmentBaseline="middle" fill="white" fontSize="0.5px">{mappedAttributes(place.attributes)}: {place.state}</text>}
