@@ -1,6 +1,8 @@
 import { readdir } from "fs/promises"
 import { GetStaticProps, InferGetStaticPropsType } from "next"
 import Head from "next/head"
+import { useState } from "react"
+import { CheckboxInput } from "../../components/CheckboxInput"
 import Cost from "../../components/Cost"
 import DisplayImage, { ImageMetaData } from "../../components/DisplayImage"
 import getImageInfo from "../../utils/image/getImageInfo"
@@ -47,7 +49,7 @@ enum PlaceAttribute {
 }
 type ParsedPlace = {
   id: number
-  attributes: string[]
+  attributes: (keyof typeof PlaceAttribute)[]
   foodPlaceId: number
   position: Vector3
   cleanupPlaceIds: number[]
@@ -76,7 +78,7 @@ enum OtherPlaceAttribute {
 }
 type ParsedOtherPlace = {
   id: number
-  attributes: string[]
+  attributes: (keyof typeof OtherPlaceAttribute)[]
   position: Vector3
   state: number
 }
@@ -107,7 +109,7 @@ export const getStaticProps = (async (context) => {
   const view = require(`../../public/na2-assets/Scenes/Yard/Data/${idPrefix}_view.json`)
 
   const parsedPlaces: ParsedPlace[] = (places.places as PlaceConfig[]).map(place => {
-    const attributes = parseBitMap(place["<Attribute>k__BackingField"]).map(attribute => PlaceAttribute[1 << attribute])
+    const attributes = parseBitMap(place["<Attribute>k__BackingField"]).map(attribute => PlaceAttribute[1 << attribute]) as (keyof typeof PlaceAttribute)[]
     return {
       id: place["<Id>k__BackingField"],
       attributes,
@@ -118,7 +120,7 @@ export const getStaticProps = (async (context) => {
   })
 
   const parsedOtherPlaces: ParsedOtherPlace[] = (yardOtherPlaces.places as OtherPlaceConfig[]).map(place => {
-    const attributes = parseBitMap(place["<Attribute>k__BackingField"]).map(attribute => OtherPlaceAttribute[1 << attribute])
+    const attributes = parseBitMap(place["<Attribute>k__BackingField"]).map(attribute => OtherPlaceAttribute[1 << attribute]) as (keyof typeof OtherPlaceAttribute)[]
     return {
       id: place["<Id>k__BackingField"],
       attributes,
@@ -194,11 +196,17 @@ function otherPlaceColor(place: ParsedOtherPlace) {
 }
 
 
+const nameReplacements: Record<string, string|undefined> = {
+  "RemodelPreviewSlot": "RPS",
+  "RemodelPreviewOrigin": "RPO",
+}
 export default function Goodie({ yard }: InferGetStaticPropsType<typeof getStaticProps>) {
-
   const largestView = yard.view.reduce((prev, current) => {
     return (prev.width * prev.height) > (current.width * current.height) ? prev : current
   })
+  const hasExpansion = yard.places.some(predicate => predicate.attributes.includes("Expanded"))
+
+  const [showText, setShowText] = useState(true)
 
   const misc = yard.assets.filter(asset => !asset.name.match(/^[0-9]+/))
   const assetsGroupedByType = yard.assets.reduce((prev, current) => {
@@ -244,13 +252,23 @@ export default function Goodie({ yard }: InferGetStaticPropsType<typeof getStati
 
       <h2 className="text-xl font-bold" id="places">Places</h2>
       <div className="bg-gray-100 dark:bg-slate-800 rounded-md p-1">
+        <CheckboxInput label="Show text" set={setShowText} value={showText} />
+        <div className={showText ? "": "opacity-50"}>
+          <h3 className="font-bold">Legend</h3>
+          <div className="flex flex-row flex-wrap gap-4">
+            {Object.entries(nameReplacements).map(([key, value], i) => <div key={i} className="flex flex-row gap-2 items-center">
+              <div className="font-semibold">{value ?? key}</div>
+              <div className="text-right">{key}</div>
+            </div>)}
+          </div>
+        </div>
         <svg viewBox={`${largestView.x} ${largestView.y} ${largestView.width} ${largestView.height}`} className="w-full h-full">
           {yard.view.map((view, i) => <g key={i}>
-            <rect x={view.x} y={view.y} width={view.width} height={view.height}
+            <rect x={view.x} y={view.y} width={view.width} height={view.height} visibility={!hasExpansion && i == 2 ? "hidden" : "visible"}
               vectorEffect="non-scaling-stroke" fill={viewFillColors(yard.view.length - 1 - i)} stroke={viewColors(yard.view.length - 1 - i)} strokeWidth="5"/>
           </g>)}
-          <YardPlaces places={yard.places} />
-          {yard.otherPlaces.filter(place => !place.attributes.includes("MynekoGoodsPos")).map((place, i) => <YardOtherPlace key={i} place={place} />)}
+          <YardPlaces places={yard.places} showText={showText} />
+          {yard.otherPlaces.filter(place => !place.attributes.includes("MynekoGoodsPos")).map((place, i) => <YardOtherPlace key={i} place={place} showText={showText} />)}
         </svg>
       </div>
 
@@ -277,10 +295,10 @@ export default function Goodie({ yard }: InferGetStaticPropsType<typeof getStati
   )
 }
 
-function YardPlaces({ places }: { places: ParsedPlace[] }) {
+function YardPlaces({ places, showText }: { places: ParsedPlace[], showText: boolean }) {
   return <g>
     {places.map((place, i) => <YardPlaceLines key={i} place={place} places={places} />)}
-    {places.map((place, i) => <YardPlace key={i} place={place} />)}
+    {places.map((place, i) => <YardPlace key={i} place={place} showText={showText} />)}
   </g>
 }
 
@@ -294,16 +312,20 @@ function YardPlaceLines({ place, places }: { place: ParsedPlace, places: ParsedP
   </g>
 }
 
-function YardPlace({ place }: { place: ParsedPlace }) {
+function YardPlace({ place, showText }: { place: ParsedPlace, showText: boolean }) {
   return <g>
     <path d={`M ${place.position.x} ${-place.position.y} l 0.0001 0`} vectorEffect="non-scaling-stroke" stroke={placeColor(place)} strokeWidth="10" strokeLinecap="round"/>
-    <text x={place.position.x} y={-place.position.y + 0.75} textAnchor="middle" alignmentBaseline="middle" fill="white" fontSize="0.5px">{place.attributes.join(", ")}</text>
+    {showText && <text x={place.position.x} y={-place.position.y + 0.75} textAnchor="middle" alignmentBaseline="middle" fill="white" fontSize="0.5px">{mappedAttributes(place.attributes)}</text>}
   </g>
 }
 
-function YardOtherPlace({ place }: { place: ParsedOtherPlace }) {
+function YardOtherPlace({ place, showText }: { place: ParsedOtherPlace, showText: boolean }) {
   return <g>
     <path d={`M ${place.position.x} ${-place.position.y} l 0.0001 0`} vectorEffect="non-scaling-stroke" stroke={otherPlaceColor(place)} strokeWidth="10" strokeLinecap="round"/>
-    <text x={place.position.x} y={-place.position.y + 0.75} textAnchor="middle" alignmentBaseline="middle" fill="white" fontSize="0.5px">{place.attributes.join(", ")}: {place.state}</text>
+    {showText && <text x={place.position.x} y={-place.position.y + 0.75} textAnchor="middle" alignmentBaseline="middle" fill="white" fontSize="0.5px">{mappedAttributes(place.attributes)}: {place.state}</text>}
   </g>
+}
+
+function mappedAttributes(attributes: string[]) {
+  return attributes.map(attribute => nameReplacements[attribute] ?? attribute).join(", ")
 }
