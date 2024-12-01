@@ -68,28 +68,23 @@ export default function AnimationViewer({ animations }: {
     if (!ctx) return
 
     const timeout = setTimeout(() => setSequenceIndices(prev => prev.map((x, ind) => {
-      const action = xmls[ind].Animation.Actions.Action[animations[ind].actionIndex]
-      const sequence = action.Sequence
-      const maxSequenceLength = sequence.length
+      const maxSequenceLength = getMaxSequenceLength(xmls[ind], animations[ind].actionIndex)
       const next = (x + 1) % maxSequenceLength
       return next
-    })), 1000 / 16) // HpLib.Anime.fps, not including frame.duration!
+    })), 1000 / 16) // HpLib.Anime.fps
     ctx.resetTransform()
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     for(let i = 0; i < animations.length; i++) {
       const img = imgs[i]
       const xml = xmls[i]
       const animation = animations[i]
-      const sequenceIndex = sequenceIndices[i]
 
       if (!img || !xml || !animation) continue
 
-      const action = xml.Animation.Actions.Action[animation.actionIndex]
-      if (!action) continue
-
-      const sequence = action.Sequence
+      const sequence = xml.Animation.Actions.Action[animation.actionIndex]?.Sequence
       if (!sequence) continue
 
+      const sequenceIndex = getSequenceIndex(xml, animation.actionIndex, sequenceIndices[i])
       let frame
       if (sequenceIndex >= sequence.length) {
         frame = sequence[0]
@@ -112,14 +107,33 @@ export default function AnimationViewer({ animations }: {
       <div className="flex flex-row justify-end gap-2">
         {xmls.map((xml, i) => {
           if (!xml) return null
-          const sequenceIndex = sequenceIndices[i]
-          const action = xml.Animation.Actions.Action[animations[i].actionIndex]
-          const sequence = action.Sequence
-          const maxSequenceLength = sequence.length
-          return <div className="text-sm w-10 text-right" key={i}>{sequenceIndex + 1}/{maxSequenceLength}</div>
+          const maxSequenceLength = getMaxSequenceLength(xml, animations[i].actionIndex)
+          const maxSequenceDirectLength = xml.Animation.Actions.Action[animations[i].actionIndex].Sequence.length
+          if (maxSequenceLength !== maxSequenceDirectLength) {
+            const sequenceIndex = getSequenceIndex(xml, animations[i].actionIndex, sequenceIndices[i])
+            return <div className="text-sm w-28 text-right" key={i}>{sequenceIndices[i] + 1}/{maxSequenceLength} [{sequenceIndex + 1}/{maxSequenceDirectLength}]</div>
+          }
+          return <div className="text-sm w-10 text-right" key={i}>{sequenceIndices[i] + 1}/{maxSequenceLength}</div>
         })}
       </div>
       <canvas width={width} height={height} ref={canvasRef}></canvas>
     </div>
   )
+}
+
+function getMaxSequenceLength(xml: any, actionIndex: number) {
+  const sequence = xml.Animation.Actions.Action[actionIndex].Sequence
+  return sequence.reduce((acc: number, frame: any) => acc + +frame.duration, 0)
+}
+
+function getSequenceIndex(xml: any, actionIndex: number, sequenceIndex: number) {
+  const sequence = xml.Animation.Actions.Action[actionIndex].Sequence
+  let acc = 0
+  for (let i = 0; i < sequence.length; i++) {
+    acc += +sequence[i].duration
+    if (acc > sequenceIndex) {
+      return i
+    }
+  }
+  return 0
 }
