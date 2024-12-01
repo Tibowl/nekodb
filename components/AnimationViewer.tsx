@@ -33,6 +33,7 @@ export default function AnimationViewer({ animations }: {
     const newXmls: any[] = animations.map(a => null)
     const newImgs: (HTMLImageElement | null)[] = animations.map(a => null)
     setSequenceIndices(animations.map(a => 0))
+    setXmls([])
 
     console.log("animations", animations)
 
@@ -68,6 +69,7 @@ export default function AnimationViewer({ animations }: {
     if (!ctx) return
 
     const timeout = setTimeout(() => setSequenceIndices(prev => prev.map((x, ind) => {
+      if (!xmls[ind]) return x
       const maxSequenceLength = getMaxSequenceLength(xmls[ind], animations[ind].actionIndex)
       const next = (x + 1) % maxSequenceLength
       return next
