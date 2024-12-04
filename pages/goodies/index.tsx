@@ -26,7 +26,7 @@ export const getStaticProps = (async () => {
       const categories = parseBitMap(goodie.Category).map((id) =>
         translate("Program", `Category${id + 1}`, "en")
       )
-      return { ...await getSmallGoodie(goodie), categories, shopSort: goodie.DisplayOrderInShop, tradeSort: goodie.DisplayOrderInTrade }
+      return { ...await getSmallGoodie(goodie), categories, shopSort: goodie.DisplayOrderInShop, tradeSort: goodie.DisplayOrderInTrade, new: goodie.IsNew }
     })
   )
 
@@ -47,6 +47,7 @@ export default function GoodiesList({
   const [groupByCategory, setGroupByCategory] = useState(false)
   const shopGoodies = useMemo(() => goodies.filter((goodie) => goodie.shopSort > 0), [goodies])
   const tradeGoodies = useMemo(() => goodies.filter((goodie) => goodie.tradeSort > 0), [goodies])
+  const newGoodies = useMemo(() => goodies.filter((goodie) => goodie.new), [goodies])
 
   return (
     <main className="w-full max-w-7xl">
@@ -58,6 +59,14 @@ export default function GoodiesList({
         <meta property="description" content={`Discover all ${goodies.length} goodies in Neko Atsume 2!`} />
       </Head>
       <h1 className="text-4xl font-bold">Goodies</h1>
+      {newGoodies.length > 0 && <div>
+        <h2 className="text-xl font-bold" id="new">New goodies ({newGoodies.length})</h2>
+        <div className="flex flex-row flex-wrap">
+          {newGoodies.map((goodie) => (
+            <GoodieLink key={goodie.id} goodie={goodie}></GoodieLink>
+          ))}
+        </div>
+      </div>}
       <CheckboxInput label="Group by category" set={setGroupByCategory} value={groupByCategory} />
 
       {groupByCategory && categories.map((category) => {
