@@ -20,7 +20,7 @@ export function getRepairCost(goodie: Goodie) {
     }]
 
     // effective shop price in silver   
-    const cost = (goodie.silver) 
+    const cost = (goodie.gold < 1)
         ? (goodie.silver)
         : (goodie.gold * 25)
 
