@@ -15,7 +15,7 @@ import { getCatIconLink } from "../../utils/cat/getCatIconLink"
 import { getCatIconURL } from "../../utils/cat/getCatIconURL"
 import getImageInfo from "../../utils/image/getImageInfo"
 import { translate } from "../../utils/localization/translate"
-import { cats, catVsCat, catVsFood, getCat, getCatVsCat, getCatVsFood, getGoodie, getPlaySpace, getSmallCat, getSmallGoodie, playSpaceVsCat } from "../../utils/tables"
+import { cats, catVsCat, catVsFood, getCat, getCatVsCat, getCatVsFood, getGoodie, getGoodieName, getPlaySpace, getSmallCat, getSmallGoodie, playSpaceVsCat } from "../../utils/tables"
 import { SmallGoodie } from "../goodies/[goodieId]"
 
 export type SmallCat = {
@@ -92,7 +92,7 @@ export const getStaticProps = (async (context) => {
     const goodie = getGoodie(goodieId)
     if (!goodie) return {
       id: goodieId,
-      name: `Upcoming #${goodieId}`,
+      name: getGoodieName(goodieId),
       image: null,
       playSpaces: playSpaceIds
     }
@@ -118,7 +118,7 @@ export const getStaticProps = (async (context) => {
 
         color: translate("Cat", `CatColor${cat.Id}`, "en"),
         personality: translate("Cat", `CatChar${cat.Id}`, "en"),
-        memento: await getMemento(cat.MementoId),
+        memento: await getMemento(cat.MementoIdInt),
 
         food: food?.Dict ?? null,
         playSpaces,

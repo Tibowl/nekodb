@@ -1,8 +1,8 @@
 type Language = "en" | "ja"
 
-export function translate(tableName: string, key: string, lang: Language) {
+export function translate(tableName: string, key: string, lang: Language, fallback?: string) {
   const table = getTable(tableName, lang)
-  return table[key] ?? key
+  return table[key] ?? fallback ?? key
 }
 
 function getTable(tableName: string, lang: Language) {

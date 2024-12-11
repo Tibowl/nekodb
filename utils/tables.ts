@@ -50,11 +50,14 @@ export function getGoodie(id: number) {
     return goodies.find(goodie => goodie.Id == id)   
 }
 export type GoodieRecord = typeof goodies[number]
+export function getGoodieName(goodieId: number) {
+    return translate("Goods", `GoodsName${goodieId}`, "en")
+}
 export async function getSmallGoodie(goodie: typeof goodies[number]): Promise<SmallGoodie> {
     const anime = goodie.AnimePngs[0]
     return {
         id: goodie.Id,
-        name: translate("Goods", `GoodsName${goodie.Id}`, "en"),
+        name: getGoodieName(goodie.Id),
         image: anime && anime != "90ground" ? await getImageInfo(getGoodieIconURL(anime)) : null
     }
 }
