@@ -1,4 +1,4 @@
-import { readdir } from "fs/promises"
+import { readdir, readFile } from "fs/promises"
 import { GetStaticProps, InferGetStaticPropsType } from "next"
 import Head from "next/head"
 import { useState } from "react"
@@ -106,6 +106,9 @@ export const getStaticProps = (async (context) => {
     .filter(asset => asset.endsWith(".png"))
     .map(async (asset) => {return { name: asset.replace(".png", ""), ...await getImageInfo(`${bgPath}${asset}`) }})
 
+
+  const pixelsToUnits = JSON.parse(await readFile(`public/${bgPath}/m_PixelsToUnits.json`, "utf-8")) as Record<string, number>
+
   const places = require(`../../NekoAtsume2Data/yards/${idPrefix}_places.json`).m_Structure
   const yardOtherPlaces = require(`../../NekoAtsume2Data/yards/${idPrefix}_otherplaces.json`).m_Structure
   const view = require(`../../NekoAtsume2Data/yards/${idPrefix}_view.json`).m_Structure
@@ -133,6 +136,9 @@ export const getStaticProps = (async (context) => {
 
   const parsedView = [...(view.areas as ViewConfig[])].reverse()
 
+  const prefab = require(`../../NekoAtsume2Data/prefabs/${idPrefix}_bg.json`)
+
+
   return {
     props: {
       yard: {
@@ -145,7 +151,9 @@ export const getStaticProps = (async (context) => {
         otherPlaces: parsedOtherPlaces,
         view: parsedView,
 
-        assets: await Promise.all(assets)
+        assets: await Promise.all(assets),
+        prefab,
+        pixelsToUnits,
       },
     },
   }
@@ -164,8 +172,9 @@ function viewColors(i: number) {
   return `hsl(${i * 360 / 8}, 100%, 50%)`
 }
 function viewFillColors(i: number) {
-  return `hsla(${i * 360 / 8}, 100%, 50%, 0.1)`
+  return `hsla(${i * 360 / 8}, 100%, 10%, ${0.4 + 0.05 * i})`
 }
+
 function placeColor(place: ParsedPlace) {
   // Indoor
   // Expanded
@@ -197,19 +206,26 @@ function otherPlaceColor(place: ParsedOtherPlace) {
   return "pink"
 }
 
+function isSnowLayer(name: string) {
+  return name == "winter" || name == "okimono" || name.endsWith("_winter") || name.endsWith("_snow")
+}
 
 const nameReplacements: Record<string, string|undefined> = {
   "RemodelPreviewSlot": "RPS",
   "RemodelPreviewOrigin": "RPO",
   // "MynekoGoodsPos": "MGP",
 }
-export default function Goodie({ yard }: InferGetStaticPropsType<typeof getStaticProps>) {
+export default function Yard({ yard }: InferGetStaticPropsType<typeof getStaticProps>) {
   const largestView = yard.view.reduce((prev, current) => {
     return (prev.width * prev.height) > (current.width * current.height) ? prev : current
   })
   const hasExpansion = yard.places.some(predicate => predicate.attributes.includes("Expanded"))
 
   const [showText, setShowText] = useState(true)
+  const [points, setPoints] = useState(true)
+  const [layers, setLayers] = useState(true)
+
+  const [enabledAssets, setEnabledAssets] = useState<boolean[]>(yard.assets.map(asset => !isSnowLayer(asset.name) && asset.name != "summer"))
 
   const misc = yard.assets.filter(asset => !asset.name.match(/^[0-9]+/))
   const assetsGroupedByType = yard.assets.reduce((prev, current) => {
@@ -255,8 +271,12 @@ export default function Goodie({ yard }: InferGetStaticPropsType<typeof getStati
 
       <h2 className="text-xl font-bold" id="places">Places</h2>
       <div className="bg-gray-100 dark:bg-slate-800 rounded-md p-1">
-        <CheckboxInput label="Show text" set={setShowText} value={showText} />
-        <div className={showText ? "": "opacity-50"}>
+        <div className="flex flex-row flex-wrap gap-12">
+          <CheckboxInput label="Show layers" set={setLayers} value={layers} />
+          <CheckboxInput label="Show points" set={setPoints} value={points} />
+          {points && <CheckboxInput label="Show text" set={setShowText} value={showText} />}
+        </div>
+        <div className={(showText && points) ? "": "opacity-50"}>
           <h3 className="font-bold">Legend</h3>
           <div className="flex flex-row flex-wrap gap-4">
             {Object.entries(nameReplacements).map(([key, value], i) => <div key={i} className="flex flex-row gap-2 items-center">
@@ -266,16 +286,36 @@ export default function Goodie({ yard }: InferGetStaticPropsType<typeof getStati
           </div>
         </div>
         <svg viewBox={`${largestView.x} ${largestView.y} ${largestView.width} ${largestView.height}`} className="w-full h-full">
-          {yard.view.map((view, i) => <g key={i}>
+          <YardPrefab prefab={yard.prefab.nodes} pixelsToUnits={yard.pixelsToUnits} nodes={yard.prefab.scenes[yard.prefab.scene].nodes} assets={yard.assets.filter((_, i) => enabledAssets[i])} />
+          {layers && yard.view.map((view, i) => <g key={i}>
             <rect x={view.x} y={view.y} width={view.width} height={view.height} visibility={!hasExpansion && i == 2 ? "hidden" : "visible"}
               vectorEffect="non-scaling-stroke" fill={viewFillColors(yard.view.length - 1 - i)} stroke={viewColors(yard.view.length - 1 - i)} strokeWidth="5"/>
           </g>)}
-          {yard.otherPlaces.map((place, i) => <YardOtherPlace key={i} place={place} places={yard.places} showText={showText} />)}
-          <YardPlaces places={yard.places} showText={showText} />
+          {points && yard.otherPlaces.map((place, i) => <YardOtherPlace key={i} place={place} places={yard.places} showText={showText} />)}
+          {points && <YardPlaces places={yard.places} showText={showText} />}
         </svg>
       </div>
 
       <h2 className="text-xl font-bold" id="assets">Assets</h2>
+      <div className="flex gap-2 mb-2">
+        <button
+          className="bg-green-600 text-slate-50 w-fit px-3 py-1 text-center rounded-lg mt-2 cursor-pointer"
+          onClick={() =>
+            setEnabledAssets(prev => prev.map((x, i) => isSnowLayer(yard.assets[i].name) ? true : x))
+          }
+        >
+          Enable all winter/snow layers
+        </button>
+        <button
+          className="bg-red-700 text-slate-50 w-fit px-3 py-1 text-center rounded-lg mt-2 cursor-pointer"
+          onClick={() =>
+            setEnabledAssets(prev => prev.map((x, i) => isSnowLayer(yard.assets[i].name) ? false : x))
+          }
+        >
+          Disable all winter/snow layers
+        </button>
+      </div>
+
       <div className="flex flex-col flex-wrap gap-2">
         {Object.entries(assetsGroupedByType).sort(([a], [b]) => Number(a) - Number(b)).map(([_, assets], i) =>
           <div className="flex flex-row flex-wrap gap-2" key={i}>
@@ -288,6 +328,12 @@ export default function Goodie({ yard }: InferGetStaticPropsType<typeof getStati
                     </a>
                   </div>
                   <div>{asset.name}</div>
+                  <CheckboxInput label="Show" set={value => setEnabledAssets(prev => {
+                    const index = yard.assets.indexOf(asset)
+                    const copy = [...prev]
+                    copy[index] = value
+                    return copy
+                  })} value={enabledAssets[yard.assets.indexOf(asset)]} />
                 </div>
               </div>
             )}
@@ -331,6 +377,37 @@ function YardOtherPlace({ place, places, showText }: { place: ParsedOtherPlace, 
   return <g>
     <path d={`M ${place.position.x} ${-place.position.y} l 0.0001 0`} vectorEffect="non-scaling-stroke" stroke={otherPlaceColor(place)} strokeWidth="10" strokeLinecap="round"/>
     {showText && <text x={place.position.x} y={-place.position.y + 0.75} textAnchor="middle" alignmentBaseline="middle" fill="white" fontSize="0.5px">{mappedAttributes(place.attributes)}: {place.state}</text>}
+  </g>
+}
+
+function YardPrefab({ prefab, pixelsToUnits, nodes, assets }: { prefab: any, pixelsToUnits: any, nodes: number[], assets: (ImageMetaData & {name: string})[] }) {
+  return <g>
+    {nodes.map(node => {
+      const prefabNode = prefab[node]
+      const children = prefabNode.children
+      const nameToFind = prefabNode.name.replace("_front", "").replace(/(_c\d)_\d/, "$1")
+      const asset = assets.find(asset => asset.name == nameToFind) ?? assets.find(asset => asset.name.startsWith(nameToFind))
+      if (!asset) {
+        if (!children) {
+          console.log(`Asset not found for node ${node}: ${prefabNode.name}`)
+          return null
+        }
+
+        return <g key={node}>
+          <YardPrefab prefab={prefab} pixelsToUnits={pixelsToUnits} nodes={children} assets={assets} />
+        </g>
+      }
+      const position = prefabNode.translation ?? [0, 0, 0]
+      const scale = prefabNode.scale ?? [1, 1, 1]
+      const rotation = prefabNode.rotation ?? [0, 0, 0]
+      const width = asset.width * scale[0] / pixelsToUnits[asset.name]
+      const height = asset.height * scale[1] / pixelsToUnits[asset.name]
+      const x = position[0] + width / 2
+      const y = position[1] + height / 2
+      return <g key={node}>
+        <image href={asset.url} x={-x} y={-y} width={width} height={height} transform={`rotate(${rotation[2]})`} />
+      </g>
+    })}
   </g>
 }
 
