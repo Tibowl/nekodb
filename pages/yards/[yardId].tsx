@@ -382,10 +382,14 @@ function YardOtherPlace({ place, places, showText }: { place: ParsedOtherPlace, 
 
 function YardPrefab({ prefab, pixelsToUnits, nodes, assets }: { prefab: any, pixelsToUnits: any, nodes: number[], assets: (ImageMetaData & {name: string})[] }) {
   return <g>
-    {nodes.map(node => {
+    {nodes.sort((a, b) => {
+      const aDepth = prefab[a]?.translation?.[2] ?? 0
+      const bDepth = prefab[b]?.translation?.[2] ?? 0
+      return bDepth - aDepth
+    }).map(node => {
       const prefabNode = prefab[node]
       const children = prefabNode.children
-      const nameToFind = prefabNode.name.replace("_front", "").replace(/(_c\d)_\d/, "$1")
+      const nameToFind = prefabNode.name.replace("_front", "").replace(/(_c\d)_\d([a-z])?/, "$1")
       const asset = assets.find(asset => asset.name == nameToFind) ?? assets.find(asset => asset.name.startsWith(nameToFind))
       if (!asset) {
         if (!children) {
