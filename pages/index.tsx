@@ -30,6 +30,13 @@ const Home: NextPage = () => {
             <Card href="/cats" title="Cats &rarr;" desc="Want to know what goodies and snacks a cat needs or their play spaces?" location={"/"} src={Snowball} />
             <Card href="/goodies" title="Goodies &rarr;" desc="Or the opposite, what cats can visit a goodie and with what priority?" location={"/"} src={CatTree} />
           </div>
+          <div className="md:flex md:flex-row items-center max-w-4xl">
+            <Card href="/yards" title="Yards &rarr;" desc="Is it not clear what's inside or outside in a yard?" location={"/"} />
+            <Card href="/wallpapers" title="Wallpapers &rarr;" desc="Want to see the wallpapers in the game? (Or just steal the image without paying gold fish)" location={"/"} />
+          </div>
+          <div className="md:flex md:flex-row items-center max-w-4xl">
+            <Card href="/animation-playground" title="Animation playground &rarr;" desc="Want to play with both cat and goodie animations together?" location={"/"} />
+          </div>
         </div>
       </div>
     </main>
@@ -38,11 +45,11 @@ const Home: NextPage = () => {
 
 export default Home
 
-function Card({ href, src, title, desc, location, colors = "bg-slate-300 dark:bg-slate-800" }: { href?: string, src: StaticImageData, title: string, desc: string, colors?: string, location: string }) {
+function Card({ href, src, title, desc, location, colors = "bg-slate-300 dark:bg-slate-800" }: { href?: string, src?: StaticImageData, title: string, desc: string, colors?: string, location: string }) {
   const className = `px-6 py-1.5 m-1.5 h-full text-left border max-w-full items-start justify-center flex flex-col rounded-2xl ${colors}`
   const inner = <>
     <h3 className="text-3xl font-semibold flex flex-row items-center gap-2">
-      <div>{src && <Image src={src} alt="Icon" className="max-h-8 max-w-8" />}</div>
+      {src && <div><Image src={src} alt="Icon" className="max-h-8 max-w-8 rounded" /></div>}
       <div>{title}</div>
     </h3>
 
