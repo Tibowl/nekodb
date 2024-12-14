@@ -13,7 +13,7 @@ import { getSuffixes } from "../../utils/goodie/getSuffixes"
 import getImageInfo from "../../utils/image/getImageInfo"
 import { translate } from "../../utils/localization/translate"
 import { parseBitMap } from "../../utils/math/parseBitMap"
-import { getCat, getFood, getGoodie, getPlaySpaceVsCat, getSmallCat, getSmallGoodie, goodies, playSpaces } from "../../utils/tables"
+import { getCat, getFood, getGoodie, getPlaySpaceVsCat, getPlaySpaceVsWeather, getSmallCat, getSmallGoodie, goodies, playSpaces, WeatherType } from "../../utils/tables"
 import { SmallCat } from "../cats/[catId]"
 
 export type SmallGoodie = {
@@ -55,7 +55,7 @@ type PlaySpaceInfo = {
   catWeights: Record<number, number[]>
   catAnimations: Action[]
   altAnimations: Action[]
-  weatherWeights: Record<string, number>
+  weatherWeights: Partial<Record<WeatherType, number>>
 }
 
 type Action = {
@@ -92,6 +92,8 @@ export const getStaticProps = (async (context) => {
       const psVsCat = getPlaySpaceVsCat(ps)
       if (!psVsCat) return null // Myneko spaces don't have a play space vs cat
 
+      const psVsWeather = getPlaySpaceVsWeather(ps)
+
       const catWeights: Record<string, number[]> = {}
       Object.entries(psVsCat.Dict).forEach(([catId, weight]) => {
         if (catIds.every(cat => cat != Number(catId))) {
@@ -110,7 +112,7 @@ export const getStaticProps = (async (context) => {
         catWeights,
         catAnimations: createActions(ps.ActionNames, ps.ActionIds, ps.ActionWeights, ps.GoodsAnimeId),
         altAnimations: createActions(ps.ActionNames2, ps.ActionIds2, ps.ActionWeights2, ps.GoodsAnimeId2),
-        weatherWeights: {}, // TODO
+        weatherWeights: (psVsWeather?.Dict ?? {}) as Partial<Record<WeatherType, number>>,
       }
     }).filter(ps => ps) as PlaySpaceInfo[]
 
@@ -327,6 +329,19 @@ export default function Goodie({ goodie, cats }: InferGetStaticPropsType<typeof 
                 return <div key={catId} className="flex flex-row items-center">{link} {weights.join(" / ")}</div>
             })}
           </div>
+
+          {ps.weatherWeights && Object.entries(ps.weatherWeights).length > 0 && <>
+            <h4 className="text-lg font-thin">Weather weights</h4>
+            <div className="grid grid-cols-[auto_1fr] w-fit ml-4 gap-x-2">
+              {Object.entries(ps.weatherWeights).map(([weather, weight]) => {
+                const weatherType = weather == "Autum" ? "Autumn" : weather
+                return <div key={weather} className="contents">
+                  <div className="font-medium">{weatherType}</div>
+                  <div className={`text-right ${weight < 0 ? "text-red-700 dark:text-red-400" : ""}`}>{weight}</div>
+                </div>
+              })}
+            </div>
+          </>}
 
           {ps.catAnimations.length > 0 && <>
             <h4 className="text-lg font-thin">Cat animations</h4>

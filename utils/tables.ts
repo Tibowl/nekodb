@@ -5,6 +5,7 @@ import FoodRecordTable from "../NekoAtsume2Data/tables/FoodRecordTable.json"
 import GoodsRecordTable from "../NekoAtsume2Data/tables/GoodsRecordTable.json"
 import PlaySpaceRecordTable from "../NekoAtsume2Data/tables/PlaySpaceRecordTable.json"
 import PlaySpaceVsCatTable from "../NekoAtsume2Data/tables/PlaySpaceVsCatTable.json"
+import PlaySpaceVsWeatherTable from "../NekoAtsume2Data/tables/PlaySpaceVsWeatherTable.json"
 import WallpaperRecordTable from "../NekoAtsume2Data/tables/WallpaperRecordTable.json"
 import YardRecordTable from "../NekoAtsume2Data/tables/YardRecordTable.json"
 import { SmallCat } from "../pages/cats/[catId]"
@@ -30,7 +31,7 @@ export async function getSmallCat(cat: typeof cats[number]): Promise<SmallCat> {
 
 export const catVsFood = CatVsFoodTable as {
     Id: number
-    Dict: Partial<Record<"1" | "2" | "3" | "4" | "5" | "6" | "7" | "99", number>>
+    Dict: Partial<Record<"1" | "2" | "3" | "4" | "5" | "6" | "7" | "8", number>>
 }[]
 export function getCatVsFood(cat: typeof cats[number]) {
     return catVsFood.findLast(entry => entry.Id == cat.Id)
@@ -78,6 +79,14 @@ export const playSpaceVsCat = PlaySpaceVsCatTable as {
 }[]
 export function getPlaySpaceVsCat(playSpace: typeof playSpaces[number]) {
     return playSpaceVsCat.findLast(ps => ps.Id == playSpace.Id)
+}
+export type WeatherType = "Spring" | "Summer" | "Winter" | "Snow" | "Autum" | "Burning"
+export const playSpaceVsWeather = PlaySpaceVsWeatherTable as {
+    Id: number
+    Dict: Partial<Record<WeatherType, number[]>>
+}[]
+export function getPlaySpaceVsWeather(playSpace: typeof playSpaces[number]) {
+    return playSpaceVsWeather.findLast(ps => ps.Id == playSpace.Id)
 }
 
 export const wallpapers = WallpaperRecordTable

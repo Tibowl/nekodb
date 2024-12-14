@@ -291,7 +291,7 @@ export default function Cat({ cat, cats, goodies }: InferGetStaticPropsType<type
 
               return <div key={catId} className="bg-gray-100 dark:bg-slate-800 rounded-md flex flex-row items-center pr-2">
                 <div>{link}</div>
-                <div>{weight}</div>
+                <div className={`${(weight??0) < 0 ? "text-red-700 dark:text-red-400" : ""}`}>{weight}</div>
               </div>
             })}
           </div>
