@@ -14,7 +14,7 @@ export async function getCatAnimations(smallCat: SmallCat, cat: CatRecord): Prom
     const normalCats = await readdir("public/na2-assets/neko/normal")
     const match = normalCats.find(f => f.startsWith(getCatIconId({ id: cat.Id }) + "_"))
     if (!match) throw new Error("No animations found for " + smallCat.name)
-    const images = await readdir(`public/na2-assets/neko/normal/${match}`)
+    const images = (await readdir(`public/na2-assets/neko/normal/${match}`)).filter(x => x.endsWith(".png"))
 
     animations.push(...(await Promise.all(images.map(async (image) => {
       const imagePath = `/na2-assets/neko/normal/${match}/${image}`
@@ -25,7 +25,7 @@ export async function getCatAnimations(smallCat: SmallCat, cat: CatRecord): Prom
     const myNekoCats = await readdir("public/na2-assets/neko/myneko")
     const match = myNekoCats.find(f => f.startsWith(cat.Id.toString().slice(1) + "_"))
     if (!match) throw new Error("No animations found for " + smallCat.name)
-    const images = await readdir(`public/na2-assets/neko/myneko/${match}`)
+    const images = (await readdir(`public/na2-assets/neko/myneko/${match}`)).filter(x => x.endsWith(".png"))
 
     animations.push(...(await Promise.all(images.map(async (image) => {
       const imagePath = `/na2-assets/neko/myneko/${match}/${image}`
@@ -33,7 +33,7 @@ export async function getCatAnimations(smallCat: SmallCat, cat: CatRecord): Prom
       return await getAnimation(image, imagePath, xmlPath)
     }))).filter(x => x != null))
   } else if (type == CatType.Rare || type == CatType.Other) {
-    const rareCats = await readdir("public/na2-assets/neko/special/png")
+    const rareCats = (await readdir("public/na2-assets/neko/special/png")).filter(x => x.endsWith(".png"))
     const match = rareCats.filter(f => f.startsWith(getCatIconId({ id: cat.Id }).replace("s", "sp") + "_"))
     if (match.length == 0) throw new Error("No animations found for " + smallCat.name)
 
