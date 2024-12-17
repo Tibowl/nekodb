@@ -75,6 +75,7 @@ enum OtherPlaceAttribute {
   MynekoGoodsPos = 512,
   RemodelPreviewOrigin = 1024,
   RemodelPreviewSlot = 2048,
+  Santa = 4096,
 }
 type ParsedOtherPlace = {
   id: number

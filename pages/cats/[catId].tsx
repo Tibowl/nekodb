@@ -30,6 +30,7 @@ export type Cat = SmallCat & {
   niboshi: number
   gomenneRate: number
   groomingRate: number
+  activeMonths: null | number[]
 
   color: string
   personality: string
@@ -115,6 +116,7 @@ export const getStaticProps = (async (context) => {
         niboshi: cat.Niboshi,
         gomenneRate: cat.GomenneRate,
         groomingRate: cat.GroomingRate,
+        activeMonths: cat.ActiveMonths,
 
         color: translate("Cat", `CatColor${cat.Id}`, "en"),
         personality: translate("Cat", `CatChar${cat.Id}`, "en"),
@@ -226,6 +228,9 @@ export default function Cat({ cat, cats, goodies }: InferGetStaticPropsType<type
 
             <div className="font-semibold">Grooming Rate</div>
             <div className="text-right">{cat.groomingRate}</div>
+
+            <div className="font-semibold">Active months</div>
+            <div className="text-right">{cat.activeMonths?.join(", ") ?? "All months"}</div>
         </div>
 
         <AnimationGallery animations={cat.animations} />
