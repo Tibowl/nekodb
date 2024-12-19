@@ -170,9 +170,6 @@ export const getStaticPaths = (async () => {
 
 
 export default function Cat({ cat, cats, goodies }: InferGetStaticPropsType<typeof getStaticProps>) {
-  const [upcomingGoodies, setUpcomingGoodies] = useState(false)
-  const [memento, setMemento] = useState(false)
-
   return (
     <main className="w-full max-w-7xl">
       <Head>
@@ -203,16 +200,7 @@ export default function Cat({ cat, cats, goodies }: InferGetStaticPropsType<type
 
         {cat.memento && <>
           <h2 className="text-xl font-bold" id="memento">Memento</h2>
-          <CheckboxInput label="Show memento" set={setMemento} value={memento} />
-          {memento && <div className="flex flex-row items-center gap-2">
-            <div className="w-16 h-16 flex flex-col items-center justify-center">
-              <DisplayImage img={cat.memento.img} alt={cat.memento.name} className="max-h-full max-w-full" />
-            </div>
-            <div className="flex flex-col">
-              <div className="text-xl font-bold">{cat.memento.name}</div>
-              <div className="text-sm whitespace-pre-wrap"><RenderText text={cat.memento.comment} /></div>
-            </div>
-          </div>}
+          <Memento catMemento={cat.memento} />
         </>}
 
         <h2 className="text-xl font-bold" id="base-stats">Base stats</h2>
@@ -248,43 +236,7 @@ export default function Cat({ cat, cats, goodies }: InferGetStaticPropsType<type
 
         {!!cat.playSpaces?.length && <>
           <h2 className="text-xl font-bold" id="play-spaces">Goodies</h2>
-          {goodies.some(x => !x.image) && <CheckboxInput label="Show upcoming" set={setUpcomingGoodies} value={upcomingGoodies} />}
-
-          <div className="flex flex-row flex-wrap gap-2">
-            {goodies.filter(goodie => cat.playSpaces.some(playSpace => goodie.playSpaces.includes(playSpace.playSpaceId)) && (upcomingGoodies || goodie.image))
-              .map(goodie => {
-                const playSpaces = cat.playSpaces.filter(playSpace => goodie.playSpaces.includes(playSpace.playSpaceId))
-                return <div key={goodie.id}>
-                  <div className="bg-gray-100 dark:bg-slate-800 rounded-md">
-                    <GoodieLink goodie={goodie}></GoodieLink>
-                    <div className="text-sm p-2 pt-0 flex flex-col gap-1">
-                      {playSpaces.map(playSpace => {
-                        const weights = playSpace.weight
-                        const link = goodie.image ?
-                          <FormattedLink href={`/goodies/${goodie.id}#play-space-${playSpace.playSpaceId}`}>Space #{playSpace.playSpaceId}:</FormattedLink>
-                        :
-                          <span>Space #{playSpace.playSpaceId}:</span>
-
-                        if (weights.length == 1 || weights.every(weight => weight == weights[0]))
-                          return <div key={playSpace.playSpaceId}>{link} {weights[0]}</div>
-                        else if (weights.length == 3)
-                          return <div key={playSpace.playSpaceId} className="flex flex-row items-center gap-2">
-                            {link}
-                            <div className="flex flex-col">
-                              <div>{weights[0]} (intact)</div>
-                              <div>{weights[1]} (broken)</div>
-                              <div>{weights[2]} (fixed)</div>
-                            </div>
-                          </div>
-                        else
-                          return <div key={playSpace.playSpaceId}>{link} {weights.join(" / ")}</div>
-                      })}
-                    </div>
-                  </div>
-                </div>
-              })
-            }
-          </div>
+          <PlaySpaces goodies={goodies} playSpaces={cat.playSpaces} />
         </>}
 
         {cat.catVsCat && Object.entries(cat.catVsCat).length > 0 && <>
@@ -304,4 +256,65 @@ export default function Cat({ cat, cats, goodies }: InferGetStaticPropsType<type
     </div>
   </main>
   )
+}
+
+function Memento({ catMemento }: { catMemento: Memento }) {
+  const [memento, setMemento] = useState(false)
+
+  return <>
+    <CheckboxInput label="Show memento" set={setMemento} value={memento} />
+    {memento && <div className="flex flex-row items-center gap-2">
+      <div className="w-16 h-16 flex flex-col items-center justify-center">
+        <DisplayImage img={catMemento.img} alt={catMemento.name} className="max-h-full max-w-full" />
+      </div>
+      <div className="flex flex-col">
+        <div className="text-xl font-bold">{catMemento.name}</div>
+        <div className="text-sm whitespace-pre-wrap"><RenderText text={catMemento.comment} /></div>
+      </div>
+    </div>}
+  </>
+}
+
+function PlaySpaces({ goodies, playSpaces }: { goodies: (SmallGoodie & {playSpaces: number[]})[], playSpaces: PlaySpaceWeight[] }) {
+  const [upcomingGoodies, setUpcomingGoodies] = useState(false)
+
+  return <>
+    {goodies.some(x => !x.image) && <CheckboxInput label="Show upcoming" set={setUpcomingGoodies} value={upcomingGoodies} />}
+
+    <div className="flex flex-row flex-wrap gap-2">
+      {goodies.filter(goodie => playSpaces.some(playSpace => goodie.playSpaces.includes(playSpace.playSpaceId)) && (upcomingGoodies || goodie.image))
+        .map(goodie => {
+          const goodiePlaySpaces = playSpaces.filter(playSpace => goodie.playSpaces.includes(playSpace.playSpaceId))
+          return <div key={goodie.id}>
+            <div className="bg-gray-100 dark:bg-slate-800 rounded-md">
+              <GoodieLink goodie={goodie}></GoodieLink>
+              <div className="text-sm p-2 pt-0 flex flex-col gap-1">
+                {goodiePlaySpaces.map(playSpace => {
+                  const weights = playSpace.weight
+                  const link = goodie.image ?
+                    <FormattedLink href={`/goodies/${goodie.id}#play-space-${playSpace.playSpaceId}`}>Space #{playSpace.playSpaceId}:</FormattedLink>
+                  :
+                    <span>Space #{playSpace.playSpaceId}:</span>
+
+                  if (weights.length == 1 || weights.every(weight => weight == weights[0]))
+                    return <div key={playSpace.playSpaceId}>{link} {weights[0]}</div>
+                  else if (weights.length == 3)
+                    return <div key={playSpace.playSpaceId} className="flex flex-row items-center gap-2">
+                      {link}
+                      <div className="flex flex-col">
+                        <div>{weights[0]} (intact)</div>
+                        <div>{weights[1]} (broken)</div>
+                        <div>{weights[2]} (fixed)</div>
+                      </div>
+                    </div>
+                  else
+                    return <div key={playSpace.playSpaceId}>{link} {weights.join(" / ")}</div>
+                })}
+              </div>
+            </div>
+          </div>
+        })
+      }
+    </div>
+</>
 }
