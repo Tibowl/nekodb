@@ -208,7 +208,7 @@ function otherPlaceColor(place: ParsedOtherPlace) {
 }
 
 function isSnowLayer(name: string) {
-  return name == "winter" || name == "okimono" || name.endsWith("_winter") || name.endsWith("_snow")
+  return name == "winter" || name.endsWith("_winter") || name.endsWith("_snow")
 }
 
 const nameReplacements: Record<string, string|undefined> = {
