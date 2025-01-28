@@ -3,6 +3,8 @@ import CatVsCatTable from "../NekoAtsume2Data/tables/CatVsCatTable.json"
 import CatVsFoodTable from "../NekoAtsume2Data/tables/CatVsFoodTable.json"
 import FoodRecordTable from "../NekoAtsume2Data/tables/FoodRecordTable.json"
 import GoodsRecordTable from "../NekoAtsume2Data/tables/GoodsRecordTable.json"
+import LetterRecordTable from "../NekoAtsume2Data/tables/LetterRecordTable.json"
+import MynekoPartsRecordTable from "../NekoAtsume2Data/tables/MynekoPartsRecordTable.json"
 import PlaySpaceRecordTable from "../NekoAtsume2Data/tables/PlaySpaceRecordTable.json"
 import PlaySpaceVsCatTable from "../NekoAtsume2Data/tables/PlaySpaceVsCatTable.json"
 import PlaySpaceVsWeatherTable from "../NekoAtsume2Data/tables/PlaySpaceVsWeatherTable.json"
@@ -102,3 +104,13 @@ export function getSmallYard(yard: YardRecord): SmallYard {
         name: translate("Yard", `YardName${yard.Id}`, "en")
     }
 }
+
+
+export const mynekoParts = MynekoPartsRecordTable
+export function getMynekoPart(id: number) {
+    return mynekoParts.findLast(part => part.Id == id)   
+}
+export type MynekoPartRecord = typeof mynekoParts[number]
+
+export const letters = LetterRecordTable
+export type LetterRecord = typeof letters[number]
