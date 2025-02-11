@@ -208,7 +208,7 @@ function otherPlaceColor(place: ParsedOtherPlace) {
 }
 
 function isSnowLayer(name: string) {
-  return name == "winter" || name.endsWith("_winter") || name.endsWith("_snow")
+  return name == "winter" || name.endsWith("_winter") || name == "snow" || name.endsWith("_snow")
 }
 
 const nameReplacements: Record<string, string|undefined> = {
@@ -325,7 +325,7 @@ export default function Yard({ yard }: InferGetStaticPropsType<typeof getStaticP
                 <div className="bg:gray-100 dark:bg-slate-800 rounded-md flex flex-col items-center justify-center gap-2 p-2">
                   <div className="max-w-96">
                     <a href={asset.url} target="_blank" rel="noreferrer">
-                      <DisplayImage key={i} img={asset} alt={asset.url} />
+                      <DisplayImage key={i} img={asset} alt={asset.url} className="max-h-full max-w-full"/>
                     </a>
                   </div>
                   <div>{asset.name}</div>

@@ -21,7 +21,7 @@ export default function FoodIcon({ food, children, extraClasses = "" }: { food: 
       url: mapping.texture,
       width: mapping.width,
       height: mapping.height,
-    }} alt={mapping.name} className={`max-h-6 max-w-8 ${extraClasses}`} />
+    }} alt={mapping.name} className={`max-h-6 max-w-9 w-auto ${extraClasses}`} />
     <div>{children}</div>
   </div>
 }

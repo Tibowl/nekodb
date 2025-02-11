@@ -1,4 +1,4 @@
-import Image from "next/image"
+import Image from "next/image";
 
 export type ImageMetaData = {
   url: string;
@@ -18,7 +18,7 @@ export default function DisplayImage(props: {
       alt={props.alt}
       width={props.img.width}
       height={props.img.height}
-      className={props.className}
+      className={props.className ?? "max-h-6 max-w-9 w-auto"}
       loading={props.loading ?? "lazy"}
     />
   )
