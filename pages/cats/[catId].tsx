@@ -226,9 +226,9 @@ export default function Cat({ cat, cats, goodies }: InferGetStaticPropsType<type
         {cat.food && <>
           <h2 className="text-xl font-bold" id="food-modifiers">Food staying power</h2>
           <div className="flex flex-row flex-wrap gap-2">
-            {(["1", "2", "3", "4", "5", "6", "7"] as (keyof CatVsFood)[]).map(foodId =>
-              <div key={foodId} className="bg-gray-100 dark:bg-slate-800 rounded-md">
-                <FoodIcon food={foodId} gray={!cat.food![foodId]}>{cat.food![foodId] ?? "❌"}</FoodIcon>
+            {(["1", "2", "3", "4", "5", "6", "7", "8"] as (keyof CatVsFood)[]).map(foodId =>
+              <div key={foodId} className="bg-gray-100 dark:bg-slate-800 rounded-md group">
+                <FoodIcon food={foodId} extraClasses={`${!cat.food![foodId] ? "grayscale" : ""} w-auto ${foodId == "8" ? "blur group-hover:blur-none" : ""}`}>{cat.food![foodId] ?? "❌"}</FoodIcon>
               </div>
             )}
           </div>
