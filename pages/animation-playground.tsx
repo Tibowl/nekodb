@@ -35,7 +35,8 @@ export const getStaticProps = (async () => {
       .filter((goodie) => goodie.Category != 0)
       .sort(
         (a, b) =>
-          a.DisplayOrderInShop - b.DisplayOrderInShop ||
+          a.DisplayOrder - b.DisplayOrder ||
+          a.DisplayOrderInShopRaw - b.DisplayOrderInShopRaw ||
           a.DisplayOrderInTrade - b.DisplayOrderInTrade
       )
       .map(async (goodie) => {

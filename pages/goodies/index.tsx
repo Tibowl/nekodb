@@ -21,12 +21,12 @@ export const getStaticProps = (async () => {
 
   const mappedGoodies = await Promise.all(goodies
     .filter((goodie) => goodie.Category != 0)
-    .sort((a, b) => a.DisplayOrderInShop - b.DisplayOrderInShop || a.DisplayOrderInTrade - b.DisplayOrderInTrade)
+    .sort((a, b) => a.DisplayOrder - b.DisplayOrder || a.DisplayOrderInShopRaw - b.DisplayOrderInShopRaw || a.DisplayOrderInTrade - b.DisplayOrderInTrade)
     .map(async (goodie) => {
       const categories = parseBitMap(goodie.Category).map((id) =>
         translate("Program", `Category${id + 1}`, "en")
       )
-      return { ...await getSmallGoodie(goodie), categories, shopSort: goodie.DisplayOrderInShop, tradeSort: goodie.DisplayOrderInTrade, new: goodie.IsNew }
+      return { ...await getSmallGoodie(goodie), categories, shopSort: goodie.DisplayOrder, tradeSort: goodie.DisplayOrderInTrade, new: goodie.IsNew }
     })
   )
 
