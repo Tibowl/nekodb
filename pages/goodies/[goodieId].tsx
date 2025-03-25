@@ -52,11 +52,17 @@ type PlaySpaceInfo = {
   gomenne: boolean
   grooming: boolean
 
-  catWeights: Record<number, number[]>
+  catWeights: CatWeight
   catAnimations: Action[]
   altAnimations: Action[]
   weatherWeights: Partial<Record<WeatherType, number>>
 }
+
+type CatWeightType = 1 | 2
+type CatWeight = Record<number,  {
+  weights: number[],
+  type: CatWeightType
+}>
 
 type Action = {
   name: string
@@ -94,13 +100,23 @@ export const getStaticProps = (async (context) => {
 
       const psVsWeather = getPlaySpaceVsWeather(ps)
 
-      const catWeights: Record<string, number[]> = {}
-      Object.entries(psVsCat.Dict).forEach(([catId, weight]) => {
-        if (catIds.every(cat => cat != Number(catId))) {
-          catIds.push(+catId)
-        }
-        catWeights[catId] = weight!
-      })
+      const catWeights: CatWeight = {}
+      const processCatWeights = (dict: Partial<Record<string, number[]>>, type: CatWeightType) => {
+        Object.entries(dict).forEach(([catId, weight]) => {
+          const catIdNum = +catId
+
+          if (catIds.every(cat => cat != catIdNum)) {
+            catIds.push(catIdNum)
+          }
+          catWeights[catIdNum] = {
+            weights: weight!,
+            type: type
+          }
+        })
+      }
+
+      processCatWeights(psVsCat.Dict, 1)
+      processCatWeights(psVsCat.Dict2, 2)
 
       return {
         playSpaceId: ps.Id,
@@ -310,23 +326,27 @@ export default function Goodie({ goodie, cats }: InferGetStaticPropsType<typeof 
 
           <h4 className="text-lg font-thin">Cat weights</h4>
           <div className="flex flex-row flex-wrap gap-x-2">
-            {Object.entries(ps.catWeights).map(([catId, weights]) => {
+            {Object.entries(ps.catWeights).map(([catId, catWeights]) => {
+              const { weights, type } = catWeights
               const cat = cats.find(cat => cat.id == Number(catId))
               const link = cat ? <CatLink cat={cat}></CatLink> : <div className="text-sm">Unknown cat #{catId}</div>
 
+              let suffix = ""
+              if (type == 2)
+                suffix = " (special)"
               if (weights.length == 1 || weights.every(weight => weight == weights[0]))
-                return <div key={catId} className="flex flex-row items-center">{link} {weights[0]}</div>
+                return <div key={catId} className="flex flex-row items-center">{link} {weights[0]}{suffix}</div>
               else if (weights.length == 3)
                 return <div key={catId} className="flex flex-row items-center gap-2">
                   {link}
                   <div className="flex flex-col">
-                    <div>{weights[0]} (intact)</div>
-                    <div>{weights[1]} (broken)</div>
-                    <div>{weights[2]} (fixed)</div>
+                    <div>{weights[0]} (intact){suffix}</div>
+                    <div>{weights[1]} (broken){suffix}</div>
+                    <div>{weights[2]} (fixed){suffix}</div>
                   </div>
                 </div>
               else
-                return <div key={catId} className="flex flex-row items-center">{link} {weights.join(" / ")}</div>
+                return <div key={catId} className="flex flex-row items-center">{link} {weights.join(" / ")}{suffix}</div>
             })}
           </div>
 

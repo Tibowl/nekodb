@@ -31,6 +31,8 @@ function Render({ node }: { node: NodeItem }) {
         return <span title={`Raw value: ${node.value}`} className='value'><RenderList nodes={node.children} /></span>
       else if (node.tag == "br")
         return <><br></br><RenderList nodes={node.children} /></>
+      else if (node.tag.includes(" ") && node.tag[0].toUpperCase() == node.tag[0])
+        return <>{node.tag} <RenderList nodes={node.children} /></>
 
       throw `Unsupported tag ${node.tag}`
       // return <b style={{ color: "red" }}>{node.tag} is unsupported</b>

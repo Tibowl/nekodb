@@ -78,6 +78,7 @@ export function getPlaySpace(id: number) {
 export const playSpaceVsCat = PlaySpaceVsCatTable as {
     Id: number
     Dict: Partial<Record<number, number[]>>
+    Dict2: Partial<Record<number, number[]>>
 }[]
 export function getPlaySpaceVsCat(playSpace: typeof playSpaces[number]) {
     return playSpaceVsCat.findLast(ps => ps.Id == playSpace.Id)

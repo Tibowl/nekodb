@@ -76,6 +76,10 @@ export const getStaticProps = (async (context) => {
       playSpaceId: playSpaceVsCat.Id,
       weight: playSpaceVsCat.Dict[cat.Id]!
     }
+    if (playSpaceVsCat.Dict2[cat.Id]) return {
+      playSpaceId: playSpaceVsCat.Id,
+      weight: playSpaceVsCat.Dict2[cat.Id]!
+    }
   }).filter(playSpace => playSpace) as PlaySpaceWeight[]
 
   // Goodie ID => Play space IDs
