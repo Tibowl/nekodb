@@ -1,16 +1,16 @@
 import Image from "next/image";
 
 export type ImageMetaData = {
-  url: string;
-  width: number;
-  height: number;
-};
+  url: string
+  width: number
+  height: number
+}
 
 export default function DisplayImage(props: {
-  img: ImageMetaData;
-  alt: string;
-  className?: string;
-  loading?: "lazy" | "eager";
+  img: ImageMetaData
+  alt: string
+  className?: string
+  loading?: "lazy" | "eager"
 }) {
   return (
     <Image
