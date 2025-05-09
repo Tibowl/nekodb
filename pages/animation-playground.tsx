@@ -81,12 +81,12 @@ export default function AnimationPlayground({
   const goodieIndex = (id: number) => goodieAnimations.findIndex(goodie => goodie.thing.id == id)
   const catIndex = (id: number) => catAnimations.findIndex(cat => cat.thing.id == id)
   const [layers, setLayers] = useState<AnimationLayer[]>([
-    { "type":"Goodie", "index":goodieIndex(258), "actionIndex":2,                               "animation":{ "name":"06jarashi_rail", "url_img":"/na2-assets/goods/06jarashi_rail.png", "url_xml":"/na2-assets/goods/06jarashi_rail.xml", "actions":5, "defaultAction":2 } },
+    { "type":"Goodie", "index":goodieIndex(258), "actionIndex":2,                               "animation":{ "name":"06jarashi_rail", "url_img":"/na2-assets/goods/06jarashi/06jarashi_rail.png", "url_xml":"/na2-assets/goods/06jarashi/06jarashi_rail.xml", "actions":5, "defaultAction":2 } },
     { "type":"Cat",    "index":   catIndex(  1), "actionIndex":0, "xOffset": -6, "yOffset": 51, "animation":{ "name":"06jarashi_rail", "url_img":"/na2-assets/neko/normal/01_kuroneko_san/06jarashi_rail.png", "url_xml":"/na2-assets/neko/normal/master_xml/06jarashi_rail.xml", "actions":1, "defaultAction":0 } },
     { "type":"Cat",    "index":   catIndex(  0), "actionIndex":0, "xOffset":300, "yOffset":-15, "animation":{ "name":"01ball_pingpong", "url_img":"/na2-assets/neko/normal/00_sironeko_san/01ball_pingpong.png", "url_xml":"/na2-assets/neko/normal/master_xml/01ball_pingpong.xml", "actions":1, "defaultAction":0 } },
-    { "type":"Goodie", "index":goodieIndex(106), "actionIndex":3, "xOffset":300, "yOffset":-15, "animation":{ "name":"01ball_pingpong", "url_img":"/na2-assets/goods/01ball_pingpong.png", "url_xml":"/na2-assets/goods/01ball_pingpong.xml", "actions":5, "defaultAction":3 } },
+    { "type":"Goodie", "index":goodieIndex(106), "actionIndex":3, "xOffset":300, "yOffset":-15, "animation":{ "name":"01ball_pingpong", "url_img":"/na2-assets/goods/01ball/01ball_pingpong.png", "url_xml":"/na2-assets/goods/01ball/01ball_pingpong.xml", "actions":5, "defaultAction":3 } },
     { "type":"Cat",    "index":   catIndex( 24), "actionIndex":0, "xOffset":350, "yOffset":135, "animation":{ "name":"01ball_soccer", "url_img":"/na2-assets/neko/normal/24_cream_san/01ball_soccer.png", "url_xml":"/na2-assets/neko/normal/master_xml/01ball_soccer.xml", "actions":1, "defaultAction":0 } },
-    { "type":"Goodie", "index":goodieIndex(111), "actionIndex":3, "xOffset":350, "yOffset":135, "animation":{ "name":"01ball_soccer_mari", "url_img":"/na2-assets/goods/01ball_soccer_mari.png", "url_xml":"/na2-assets/goods/01ball_soccer_mari.xml", "actions":5, "defaultAction":3 } }
+    { "type":"Goodie", "index":goodieIndex(111), "actionIndex":3, "xOffset":350, "yOffset":135, "animation":{ "name":"01ball_soccer_mari", "url_img":"/na2-assets/goods/01ball/01ball_soccer_mari.png", "url_xml":"/na2-assets/goods/01ball/01ball_soccer_mari.xml", "actions":5, "defaultAction":3 } }
   ])
 
   useEffect(() => {
