@@ -7,8 +7,9 @@ export async function getGoodieAnimations(goodie: GoodieRecord, suffixes: string
   for (const anime of goodie.AnimeXmls.filter((x, i, arr) => arr.indexOf(x) === i)) {
     const img = goodie.AnimePngs[0]
     for (const suffix of suffixes) {
-      const imgPath = `/na2-assets/goods/${img}${suffix}.png`
-      const xmlPath = `/na2-assets/goods/${anime}${suffix}.xml`
+      const group = img.split("_")[0]
+      const imgPath = `/na2-assets/goods/${group}/${img}${suffix}.png`
+      const xmlPath = `/na2-assets/goods/${group}/${anime}${suffix}.xml`
       const animation = await getAnimation(`${anime}${suffix}`, imgPath, xmlPath)
       if (animation) {
         animations.push(animation)
