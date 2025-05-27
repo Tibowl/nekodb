@@ -21,7 +21,7 @@ import { SmallGoodie } from "../goodies/[goodieId]"
 export type SmallCat = {
   id: number
   name: string
-  image: ImageMetaData
+  image: ImageMetaData | null
 };
 
 export type Cat = SmallCat & {
@@ -69,7 +69,15 @@ export const getStaticProps = (async (context) => {
   const smallCat = await getSmallCat(cat)
   const food = getCatVsFood(cat)
   const catVsCat = getCatVsCat(cat) ?? null
-  const cats = await Promise.all(catVsCat ? Object.keys(catVsCat.Dict).map(id => getSmallCat(getCat(Number(id))!)) : [])
+  const cats = await Promise.all(catVsCat ? Object.keys(catVsCat.Dict).map(id => {
+    const catId = Number(id)
+    const cat = getCat(catId)
+    return cat ? getSmallCat(cat) : {
+      id: catId,
+      name: `Unknown cat #${catId}`,
+      image: null
+    }
+  }) : [])
 
   const playSpaces = playSpaceVsCat.map(playSpaceVsCat => {
     if (playSpaceVsCat.Dict[cat.Id]) return {

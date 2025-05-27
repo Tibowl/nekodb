@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from "next/image"
 
 export type ImageMetaData = {
   url: string
@@ -7,11 +7,14 @@ export type ImageMetaData = {
 }
 
 export default function DisplayImage(props: {
-  img: ImageMetaData
+  img: ImageMetaData | null
   alt: string
   className?: string
   loading?: "lazy" | "eager"
 }) {
+  if (!props.img) {
+    return <span className="text-red-500">X</span>
+  }
   return (
     <Image
       src={props.img.url}

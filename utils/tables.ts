@@ -20,7 +20,7 @@ import { translate } from "./localization/translate"
 
 export const cats = CatRecordTable
 export function getCat(id: number) {
-    return cats.findLast(cat => cat.Id == id)   
+    return cats.findLast(cat => cat.Id == id)
 }
 export type CatRecord = typeof cats[number]
 export async function getSmallCat(cat: typeof cats[number]): Promise<SmallCat> {
@@ -28,7 +28,7 @@ export async function getSmallCat(cat: typeof cats[number]): Promise<SmallCat> {
         id: cat.Id,
         name: translate("Cat", `CatName${cat.Id}`, "en"),
         image: await getImageInfo(getCatIconLink({ id: cat.Id }))
-    }   
+    }
 }
 
 export const catVsFood = CatVsFoodTable as {
@@ -50,7 +50,7 @@ export function getCatVsCat(cat: typeof cats[number]) {
 
 export const goodies = GoodsRecordTable
 export function getGoodie(id: number) {
-    return goodies.find(goodie => goodie.Id == id)   
+    return goodies.find(goodie => goodie.Id == id)
 }
 export type GoodieRecord = typeof goodies[number]
 export function getGoodieName(goodieId: number) {
@@ -67,12 +67,12 @@ export async function getSmallGoodie(goodie: typeof goodies[number]): Promise<Sm
 
 export const foods = FoodRecordTable
 export function getFood(id: number) {
-    return foods.findLast(food => food.Id == id)   
+    return foods.findLast(food => food.Id == id)
 }
 
 export const playSpaces = PlaySpaceRecordTable
 export function getPlaySpace(id: number) {
-    return playSpaces.findLast(playSpace => playSpace.Id == id)   
+    return playSpaces.findLast(playSpace => playSpace.Id == id)
 }
 
 export const playSpaceVsCat = PlaySpaceVsCatTable as {
@@ -96,7 +96,7 @@ export const wallpapers = WallpaperRecordTable
 
 export const yards = YardRecordTable.filter((yard, index, self) => self.findLastIndex(predicate => predicate.Id == yard.Id) == index)
 export function getYard(id: number) {
-    return yards.findLast(yard => yard.Id == id)   
+    return yards.findLast(yard => yard.Id == id)
 }
 export type YardRecord = typeof yards[number]
 export function getSmallYard(yard: YardRecord): SmallYard {
@@ -109,7 +109,7 @@ export function getSmallYard(yard: YardRecord): SmallYard {
 
 export const mynekoParts = MynekoPartsRecordTable
 export function getMynekoPart(id: number) {
-    return mynekoParts.findLast(part => part.Id == id)   
+    return mynekoParts.findLast(part => part.Id == id)
 }
 export type MynekoPartRecord = typeof mynekoParts[number]
 
