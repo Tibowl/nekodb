@@ -1,8 +1,9 @@
 import { readdir } from "fs/promises"
 import { GetStaticProps, InferGetStaticPropsType } from "next"
 import Head from "next/head"
-import { translate } from "../utils/localization/translate"
+import { translate, TranslationTable } from "../utils/localization/translate"
 import { mynekoParts } from "../utils/tables"
+import { useLanguage } from "../hooks/useLanguage"
 
 type MyNekoList = {
   parts: MynekoPart[]
@@ -12,7 +13,7 @@ type MyNekoList = {
 type MynekoPart = {
   id: number
   urlPath: string
-  name: string
+  name: TranslationTable
   kind: keyof typeof MynekoPartsKind
   priority: number
   ignoreParts: number[]
@@ -37,7 +38,7 @@ export const getStaticProps = (async () => {
         return {
           id: part.Id,
           urlPath: files.find(x => x.startsWith(part.Id.toString().padStart(3, "0"))) ?? "?",
-          name: translate("Myneko", `PartsName${part.Id}`, "en"),
+          name: translate("Myneko", `PartsName${part.Id}`),
           kind: MynekoPartsKind[part.Kind] as keyof typeof MynekoPartsKind,
           priority: part.Priority,
           ignoreParts: part.IgnoreParts,
@@ -50,6 +51,7 @@ export const getStaticProps = (async () => {
 export default function PartList({
   parts,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
+  const { translate } = useLanguage();
 
   return (
     <main className="w-full max-w-7xl">
@@ -62,13 +64,13 @@ export default function PartList({
       </Head>
       <h1 className="text-4xl font-bold">Parts</h1>
       {parts.map(part => <div key={part.id} id={part.id.toString()}>
-        <h2 className="text-xl font-bold">{part.name} #{part.id}</h2>
+        <h2 className="text-xl font-bold">{translate(part.name)} #{part.id}</h2>
         <div className="flex flex-row flex-wrap gap-2">
-          <img src={`/na2-assets/neko/parts/${part.urlPath}/00kihon_grooming.png`} alt={part.name} className="max-h-full max-w-full" />
+          <img src={`/na2-assets/neko/parts/${part.urlPath}/00kihon_grooming.png`} alt={translate(part.name)} className="max-h-full max-w-full" />
         </div>
         <div className="text-sm">{part.kind}</div>
         <div className="text-sm">{part.priority}</div>
-        <div className="text-sm">{part.ignoreParts.map(x => parts.find(y => y.id == x)).filter(x => x?.kind != part.kind).map(x => <a key={x?.id} href={`#${x?.id}`}>{x?.name}</a>)}</div>
+        <div className="text-sm">{part.ignoreParts.map(x => parts.find(y => y.id == x)).filter(x => x?.kind != part.kind).map(x => <a key={x?.id} href={`#${x?.id}`}>{translate(x?.name!)}</a>)}</div>
       </div>)}
     </main>
   )

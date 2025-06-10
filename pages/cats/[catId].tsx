@@ -14,13 +14,14 @@ import { getCatAnimations } from "../../utils/animation/server/getCatAnimations"
 import { getCatIconLink } from "../../utils/cat/getCatIconLink"
 import { getCatIconURL } from "../../utils/cat/getCatIconURL"
 import getImageInfo from "../../utils/image/getImageInfo"
-import { translate } from "../../utils/localization/translate"
+import { translate, TranslationTable } from "../../utils/localization/translate"
 import { cats, catVsCat, catVsFood, getCat, getCatVsCat, getCatVsFood, getGoodie, getGoodieName, getPlaySpace, getSmallCat, getSmallGoodie, playSpaceVsCat } from "../../utils/tables"
 import { SmallGoodie } from "../goodies/[goodieId]"
+import { useLanguage } from '../../hooks/useLanguage'
 
 export type SmallCat = {
   id: number
-  name: string
+  name: TranslationTable
   image: ImageMetaData | null
 };
 
@@ -31,9 +32,8 @@ export type Cat = SmallCat & {
   gomenneRate: number
   groomingRate: number
   activeMonths: null | number[]
-
-  color: string
-  personality: string
+  color: TranslationTable
+  personality: TranslationTable
 
   memento: Memento | null
 
@@ -74,7 +74,11 @@ export const getStaticProps = (async (context) => {
     const cat = getCat(catId)
     return cat ? getSmallCat(cat) : {
       id: catId,
-      name: `Unknown cat #${catId}`,
+      name: {
+        en: `Unknown cat #${catId}`,
+        ja: `不明な猫 #${catId}`,
+        ko: `알 수 없는 고양이 #${catId}`
+      },
       image: null
     }
   }) : [])
@@ -130,8 +134,8 @@ export const getStaticProps = (async (context) => {
         groomingRate: cat.GroomingRate,
         activeMonths: cat.ActiveMonths,
 
-        color: translate("Cat", `CatColor${cat.Id}`, "en"),
-        personality: translate("Cat", `CatChar${cat.Id}`, "en"),
+        color: translate("Cat", `CatColor${cat.Id}`),
+        personality: translate("Cat", `CatChar${cat.Id}`),
         memento: await getMemento(cat.MementoIdInt),
 
         food: food?.Dict ?? null,
@@ -149,17 +153,19 @@ export const getStaticProps = (async (context) => {
 async function getMemento(mementoId: number): Promise<Memento | null> {
   if (mementoId == 0) return null
 
-  let mementoComment = translate("Cat", `TakaraComment${mementoId}`, "en")
+  let mementoComment = translate("Cat", `TakaraComment${mementoId}`)
   if (mementoId == 62) {
-    mementoComment = mementoComment.replace(
-      "{0}",
-      translate("Cat", `TakaraComment${mementoId}_2`, "en").replace("{0}", "X").replace("{1}", "Y")
-    )
+    const replacementText = translate("Cat", `TakaraComment${mementoId}_2`)
+    mementoComment = {
+      en: mementoComment.en.replace("{0}", replacementText.en.replace("{0}", "X").replace("{1}", "Y")),
+      ja: mementoComment.ja.replace("{0}", replacementText.ja.replace("{0}", "X").replace("{1}", "Y")),
+      ko: mementoComment.ko.replace("{0}", replacementText.ko.replace("{0}", "X").replace("{1}", "Y"))
+    }
   }
 
   return {
     id: mementoId,
-    name: translate("Cat", `TakaraName${mementoId}`, "en"),
+    name: translate("Cat", `TakaraName${mementoId}`),
     comment: mementoComment,
     img: await getImageInfo(getCatIconURL(`takara_${mementoId.toString().padStart(3, "0")}`))
   }
@@ -167,8 +173,8 @@ async function getMemento(mementoId: number): Promise<Memento | null> {
 
 type Memento = {
   id: number
-  name: string
-  comment: string
+  name: TranslationTable
+  comment: TranslationTable
   img: ImageMetaData
 }
 
@@ -182,28 +188,30 @@ export const getStaticPaths = (async () => {
 
 
 export default function Cat({ cat, cats, goodies }: InferGetStaticPropsType<typeof getStaticProps>) {
+  const { translate } = useLanguage();
+  
   return (
     <main className="w-full max-w-7xl">
       <Head>
-        <title>{`${cat.name} - NekoDB`}</title>
+        <title>{`${translate(cat.name)} - NekoDB`}</title>
         <meta name="twitter:card" content="summary" />
-        <meta property="og:title" content={`${cat.name} - NekoDB`} />
-        <meta property="og:description" content={`Discover ${cat.name}'s favorite goodies and snacks in Neko Atsume 2! ${cat.name} is a ${cat.color.toLowerCase()} cat with a ${cat.personality.toLowerCase()} personality and a power level of ${cat.power}.`} />
-        <meta property="description" content={`Discover ${cat.name}'s favorite goodies and snacks in Neko Atsume 2! ${cat.name} is a ${cat.color.toLowerCase()} cat with a ${cat.personality.toLowerCase()} personality and a power level of ${cat.power}.`} />
+        <meta property="og:title" content={`${translate(cat.name)} - NekoDB`} />
+        <meta property="og:description" content={`Discover ${translate(cat.name)}'s favorite goodies and snacks in Neko Atsume 2! ${translate(cat.name)} is a ${translate(cat.color).toLowerCase()} cat with a ${translate(cat.personality).toLowerCase()} personality and a power level of ${cat.power}.`} />
+        <meta property="description" content={`Discover ${translate(cat.name)}'s favorite goodies and snacks in Neko Atsume 2! ${translate(cat.name)} is a ${translate(cat.color).toLowerCase()} cat with a ${translate(cat.personality).toLowerCase()} personality and a power level of ${cat.power}.`} />
         <meta property="og:image" content={getCatIconLink(cat)} />
       </Head>
 
       <div className="flex flex-col gap-2 w-full">
         <div className="flex flex-row items-center gap-2">
           <div className="w-24 h-24 flex flex-col items-center justify-center">
-            <DisplayImage img={cat.image} alt={cat.name} loading="eager" className="max-h-full max-w-full" />
+            <DisplayImage img={cat.image} alt={translate(cat.name)} loading="eager" className="max-h-full max-w-full" />
           </div>
           <div className="flex flex-col">
-            <h1 className="text-4xl font-bold">{cat.name}</h1>
+            <h1 className="text-4xl font-bold">{translate(cat.name)}</h1>
             <div className="flex flex-row items-center gap-2">
-              <div className="text-sm">{cat.color}</div>
+              <div className="text-sm">{translate(cat.color)}</div>
               <div>&middot;</div>
-              <div className="text-sm">{cat.personality}</div>
+              <div className="text-sm">{translate(cat.personality)}</div>
               <div>&middot;</div>
               <div className="text-sm">Power level {cat.power}</div>
             </div>
@@ -272,16 +280,17 @@ export default function Cat({ cat, cats, goodies }: InferGetStaticPropsType<type
 
 function Memento({ catMemento }: { catMemento: Memento }) {
   const [memento, setMemento] = useState(false)
+  const { translate } = useLanguage();
 
   return <>
     <CheckboxInput label="Show memento" set={setMemento} value={memento} />
     {memento && <div className="flex flex-row items-center gap-2">
       <div className="w-16 h-16 flex flex-col items-center justify-center">
-        <DisplayImage img={catMemento.img} alt={catMemento.name} className="max-h-full max-w-full" />
+        <DisplayImage img={catMemento.img} alt={translate(catMemento.name)} className="max-h-full max-w-full" />
       </div>
       <div className="flex flex-col">
-        <div className="text-xl font-bold">{catMemento.name}</div>
-        <div className="text-sm whitespace-pre-wrap"><RenderText text={catMemento.comment} /></div>
+        <div className="text-xl font-bold">{translate(catMemento.name)}</div>
+        <div className="text-sm whitespace-pre-wrap"><RenderText text={translate(catMemento.comment)} /></div>
       </div>
     </div>}
   </>

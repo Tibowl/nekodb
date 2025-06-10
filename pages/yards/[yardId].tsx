@@ -8,10 +8,12 @@ import DisplayImage, { ImageMetaData } from "../../components/DisplayImage"
 import getImageInfo from "../../utils/image/getImageInfo"
 import { parseBitMap } from "../../utils/math/parseBitMap"
 import { getSmallYard, getYard, yards } from "../../utils/tables"
+import { TranslationTable } from "../../utils/localization/translate"
+import { useLanguage } from "../../hooks/useLanguage"
 
 export type SmallYard = {
   id: number
-  name: string
+  name: TranslationTable
 };
 
 export type Yard = SmallYard & {
@@ -219,6 +221,7 @@ const nameReplacements: Record<string, string|undefined> = {
   // "MynekoGoodsPos": "MGP",
 }
 export default function Yard({ yard }: InferGetStaticPropsType<typeof getStaticProps>) {
+  const { translate } = useLanguage()
   const largestView = yard.view.reduce((prev, current) => {
     return (prev.width * prev.height) > (current.width * current.height) ? prev : current
   })
@@ -246,16 +249,16 @@ export default function Yard({ yard }: InferGetStaticPropsType<typeof getStaticP
   return (
     <main className="w-full max-w-7xl">
       <Head>
-        <title>{`${yard.name} - NekoDB`}</title>
+        <title>{`${translate(yard.name)} - NekoDB`}</title>
         <meta name="twitter:card" content="summary" />
-        <meta property="og:title" content={`${yard.name} - NekoDB`} />
-        <meta property="og:description" content={`Discover all locations and their attributes in ${yard.name} in Neko Atsume 2!`} />
-        <meta property="description" content={`Discover all locations and their attributes in ${yard.name} in Neko Atsume 2!`} />
+        <meta property="og:title" content={`${translate(yard.name)} - NekoDB`} />
+        <meta property="og:description" content={`Discover all locations and their attributes in ${translate(yard.name)} in Neko Atsume 2!`} />
+        <meta property="description" content={`Discover all locations and their attributes in ${translate(yard.name)} in Neko Atsume 2!`} />
       </Head>
       <div className="flex flex-col gap-2 w-full">
         <div className="flex flex-row items-center gap-2">
           <div className="flex flex-col">
-            <h1 className="text-4xl font-bold">{yard.name}</h1>
+            <h1 className="text-4xl font-bold">{translate(yard.name)}</h1>
           </div>
         </div>
       </div>

@@ -11,24 +11,25 @@ import { getGoodieIconURL } from "../../utils/goodie/getGoodieIconURL"
 import { getRepairCost } from "../../utils/goodie/getRepairCost"
 import { getSuffixes } from "../../utils/goodie/getSuffixes"
 import getImageInfo from "../../utils/image/getImageInfo"
-import { translate } from "../../utils/localization/translate"
+import { translate, TranslationTable } from "../../utils/localization/translate"
 import { parseBitMap } from "../../utils/math/parseBitMap"
 import { getCat, getFood, getGoodie, getPlaySpaceVsCat, getPlaySpaceVsWeather, getSmallCat, getSmallGoodie, goodies, playSpaces, WeatherType } from "../../utils/tables"
 import { SmallCat } from "../cats/[catId]"
+import { useLanguage } from "../../contexts/LanguageContext"
 
 export type SmallGoodie = {
   id: number
-  name: string
+  name: TranslationTable
   image: ImageMetaData | null
 };
 
 export type Goodie = SmallGoodie & {
-  shopDesc: string
-  yardDesc: string
-  warning: string | null
+  shopDesc: TranslationTable
+  yardDesc: TranslationTable
+  warning: TranslationTable | null
 
   attributes: number
-  category: string[]
+  category: TranslationTable[]
   toughness: number
   foodInfo: FoodInfo | null
 
@@ -90,7 +91,7 @@ export const getStaticProps = (async (context) => {
     }
   }
 
-  const catgories = parseBitMap(goodie.Category).map(id => translate("Program", `Category${id+1}`, "en"))
+  const catgories = parseBitMap(goodie.Category).map(id => translate("Program", `Category${id+1}`))
 
   const catIds: number[] = []
   const spaces = playSpaces.filter(ps => ps.ItemId == goodie.Id)
@@ -145,13 +146,12 @@ export const getStaticProps = (async (context) => {
     props: {
       goodie: {
         ...await getSmallGoodie(goodie),
-
-        shopDesc: translate("Goods", `GoodsShop${goodie.Id}`, "en"),
-        yardDesc: translate("Goods", `GoodsYard${goodie.Id}`, "en"),
-        warning: goodie.WarningKey == null ? null : translate("Goods", goodie.WarningKey, "en"),
+        shopDesc: translate("Goods", `GoodsShop${goodie.Id}`),
+        yardDesc: translate("Goods", `GoodsYard${goodie.Id}`),
+        warning: goodie.WarningKey == null ? null : translate("Goods", goodie.WarningKey),
 
         attributes: goodie.Attribute,
-        category: catgories,
+        category: catgories.map(cat => cat),
         toughness: goodie.Toughness,
 
         silver: goodie.Silver,
@@ -207,32 +207,33 @@ export const getStaticPaths = (async () => {
 
 
 export default function Goodie({ goodie, cats }: InferGetStaticPropsType<typeof getStaticProps>) {
+  const { translate } = useLanguage()
   return (
     <main className="w-full max-w-7xl">
       <Head>
-        <title>{`${goodie.name} - NekoDB`}</title>
+        <title>{`${translate(goodie.name)} - NekoDB`}</title>
         <meta name="twitter:card" content="summary" />
-        <meta property="og:title" content={`${goodie.name} - NekoDB`} />
-        <meta property="og:description" content={`Discover all the cats that can visit ${goodie.name} in Neko Atsume 2!`} />
-        <meta property="description" content={`Discover all the cats that can visit ${goodie.name} in Neko Atsume 2!`} />
+        <meta property="og:title" content={`${translate(goodie.name)} - NekoDB`} />
+        <meta property="og:description" content={`Discover all the cats that can visit ${translate(goodie.name)} in Neko Atsume 2!`} />
+        <meta property="description" content={`Discover all the cats that can visit ${translate(goodie.name)} in Neko Atsume 2!`} />
         <meta property="og:image" content={goodie.image?.url} />
       </Head>
       <div className="flex flex-col gap-2 w-full">
         <div className="flex flex-row items-center gap-2">
           <div className="w-24 h-24 flex flex-col items-center justify-center">
-            {goodie.image && <DisplayImage img={goodie.image} alt={goodie.name} className="max-h-full max-w-full" />}
+            {goodie.image && <DisplayImage img={goodie.image} alt={translate(goodie.name)} className="max-h-full max-w-full" />}
           </div>
           <div className="flex flex-col">
-            <h1 className="text-4xl font-bold">{goodie.name}</h1>
+            <h1 className="text-4xl font-bold">{translate(goodie.name)}</h1>
             <div className="flex flex-row items-center gap-2">
               <div className="text-sm">{goodie.attributes == 0 ? "Small" : "Large"}</div>
               <div>&middot;</div>
               {goodie.category.map((cat, i) => {
                 if (i > 0) return <div key={i} className="flex flex-row items-center gap-2">
                   <div>&middot;</div>
-                  <div key={i} className="text-sm">{cat}</div>
+                  <div key={i} className="text-sm">{translate(cat)}</div>
                 </div>
-                return <div key={i} className="text-sm">{cat}</div>
+                return <div key={i} className="text-sm">{translate(cat)}</div>
               })}
             </div>
           </div>
@@ -241,14 +242,14 @@ export default function Goodie({ goodie, cats }: InferGetStaticPropsType<typeof 
         <h2 className="text-xl font-bold" id="description">Description</h2>
         <div className="grid grid-cols-[auto_1fr] w-fit ml-4 gap-2">
           <div className="font-semibold">Shop description</div>
-          <div className="text-sm whitespace-pre-wrap"><RenderText text={goodie.shopDesc} /></div>
+          <div className="text-sm whitespace-pre-wrap"><RenderText text={translate(goodie.shopDesc)} /></div>
 
           <div className="font-semibold">Yard description</div>
-          <div className="text-sm whitespace-pre-wrap"><RenderText text={goodie.yardDesc} /></div>
+          <div className="text-sm whitespace-pre-wrap"><RenderText text={translate(goodie.yardDesc)} /></div>
 
           {goodie.warning && <>
             <div className="font-semibold">Warning</div>
-            <div className="text-sm whitespace-pre-wrap"><RenderText text={goodie.warning} /></div>
+            <div className="text-sm whitespace-pre-wrap"><RenderText text={translate(goodie.warning)} /></div>
           </>}
         </div>
 

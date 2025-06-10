@@ -17,6 +17,7 @@ import createRange from "../utils/math/createRange"
 import { cats, getSmallCat, getSmallGoodie, goodies } from "../utils/tables"
 import { SmallCat } from "./cats/[catId]"
 import { SmallGoodie } from "./goodies/[goodieId]"
+import { useLanguage } from "../hooks/useLanguage"
 
 type AnimationsList = {
   catAnimations: {
@@ -38,10 +39,14 @@ export const getStaticProps = (async () => {
           a.DisplayOrder - b.DisplayOrder ||
           a.DisplayOrderInShopRaw - b.DisplayOrderInShopRaw ||
           a.DisplayOrderInTrade - b.DisplayOrderInTrade
-      )
-      .map(async (goodie) => {
+      )      .map(async (goodie) => {
         const smallGoodie = await getSmallGoodie(goodie)
-        smallGoodie.name = `${smallGoodie.id} - ${smallGoodie.name}`
+        const displayName = {
+          en: `${smallGoodie.id} - ${smallGoodie.name.en}`,
+          ja: `${smallGoodie.id} - ${smallGoodie.name.ja}`,
+          ko: `${smallGoodie.id} - ${smallGoodie.name.ko}`
+        }
+        smallGoodie.name = displayName
         const suffixes = getSuffixes(goodie)
         return {
           thing: smallGoodie,
@@ -53,7 +58,12 @@ export const getStaticProps = (async () => {
   const mappedCats = (await Promise.all(
     cats.map(async (cat) => {
       const smallCat = await getSmallCat(cat)
-      smallCat.name = `${smallCat.id} - ${smallCat.name}`
+      const displayName = {
+        en: `${smallCat.id} - ${smallCat.name.en}`,
+        ja: `${smallCat.id} - ${smallCat.name.ja}`,
+        ko: `${smallCat.id} - ${smallCat.name.ko}`
+      }
+      smallCat.name = displayName
       return {
         thing: smallCat,
         animations: await getCatAnimations(smallCat, cat),
@@ -78,6 +88,7 @@ export default function AnimationPlayground({
   goodieAnimations,
   catAnimations,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
+  const { translate } = useLanguage()
   const goodieIndex = (id: number) => goodieAnimations.findIndex(goodie => goodie.thing.id == id)
   const catIndex = (id: number) => catAnimations.findIndex(cat => cat.thing.id == id)
   const [layers, setLayers] = useState<AnimationLayer[]>([
@@ -197,16 +208,16 @@ export default function AnimationPlayground({
               <div>
                 <div className="flex flex-row items-baseline">
                   <SelectInput
-                    value={thing.name}
+                    value={translate(thing.name)}
                     set={(newValue) => {
                       const layersCopy = [...layers]
                       layer.index = availableEntries.findIndex(
-                        (entry) => entry.thing.name == newValue
+                        (entry) => translate(entry.thing.name) === newValue
                       )
                       setLayers(layersCopy)
                     }}
                     label={layer.type}
-                    options={availableEntries.map((entry) => entry.thing.name)}
+                    options={availableEntries.map((entry) => translate(entry.thing.name))}
                   />
                   {layer.type == "Cat" && <CatLink cat={thing as SmallCat} />}
                   {layer.type == "Goodie" && (
@@ -219,7 +230,7 @@ export default function AnimationPlayground({
                   set={(newValue) => {
                     const layersCopy = [...layers]
                     layer.animation = animations.find(
-                      (a) => a.name == newValue
+                      (a) => a.name === newValue
                     )!
                     setLayers(layersCopy)
                   }}

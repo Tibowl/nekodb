@@ -3,38 +3,49 @@ import Head from "next/head"
 import { useMemo, useState } from "react"
 import { CheckboxInput } from "../../components/CheckboxInput"
 import GoodieLink from "../../components/GoodieLink"
-import { translate } from "../../utils/localization/translate"
+import { translate, TranslationTable } from "../../utils/localization/translate"
 import { parseBitMap } from "../../utils/math/parseBitMap"
 import { getSmallGoodie, goodies } from "../../utils/tables"
 import { SmallGoodie } from "./[goodieId]"
+import { useLanguage } from "../../contexts/LanguageContext"
+
+type CategoryWithTranslation = {
+  id: number;
+  name: TranslationTable;
+};
 
 type GoodieList = {
-  goodies: (SmallGoodie & { categories: string[] })[];
-  categories: string[];
+  goodies: (SmallGoodie & { 
+    categories: number[],
+    shopSort: number,
+    tradeSort: number,
+    new: boolean 
+  })[];
+  categories: CategoryWithTranslation[];
 };
 
 export const getStaticProps = (async () => {
   const allCategories = []
   for (let i = 0; i < 32; i++) {
-    allCategories.push(translate("Program", `Category${i + 1}`, "en"))
+    allCategories.push({
+      id: i,
+      name: translate("Program", `Category${i + 1}`)
+    })
   }
 
   const mappedGoodies = await Promise.all(goodies
     .filter((goodie) => goodie.Category != 0)
     .sort((a, b) => a.DisplayOrder - b.DisplayOrder || a.DisplayOrderInShopRaw - b.DisplayOrderInShopRaw || a.DisplayOrderInTrade - b.DisplayOrderInTrade)
     .map(async (goodie) => {
-      const categories = parseBitMap(goodie.Category).map((id) =>
-        translate("Program", `Category${id + 1}`, "en")
-      )
+      const categories = parseBitMap(goodie.Category)
       return { ...await getSmallGoodie(goodie), categories, shopSort: goodie.DisplayOrder, tradeSort: goodie.DisplayOrderInTrade, new: goodie.IsNew }
     })
   )
-
   return {
     props: {
       goodies: mappedGoodies,
       categories: allCategories.filter((category) =>
-        mappedGoodies.some((goodie) => goodie.categories.includes(category))
+        mappedGoodies.some((goodie) => goodie.categories.includes(category.id))
       ),
     },
   }
@@ -44,6 +55,7 @@ export default function GoodiesList({
   goodies,
   categories,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
+  const { translate } = useLanguage();
   const [groupByCategory, setGroupByCategory] = useState(false)
   const shopGoodies = useMemo(() => goodies.filter((goodie) => goodie.shopSort > 0), [goodies])
   const tradeGoodies = useMemo(() => goodies.filter((goodie) => goodie.tradeSort > 0), [goodies])
@@ -68,13 +80,12 @@ export default function GoodiesList({
         </div>
       </div>}
       <CheckboxInput label="Group by category" set={setGroupByCategory} value={groupByCategory} />
-
       {groupByCategory && categories.map((category) => {
-        const filtered = goodies.filter((goodie) => goodie.categories.includes(category))
+        const filtered = goodies.filter((goodie) => goodie.categories.includes(category.id))
 
-        return <div key={category}>
-          <h2 className="text-xl font-bold" id={category}>
-            {category} ({filtered.length})
+        return <div key={category.id}>
+          <h2 className="text-xl font-bold" id={`category-${category.id}`}>
+            {translate(category.name)} ({filtered.length})
           </h2>
           <div className="flex flex-row flex-wrap">
             {filtered.map((goodie) => (

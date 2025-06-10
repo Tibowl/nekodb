@@ -26,7 +26,7 @@ export type CatRecord = typeof cats[number]
 export async function getSmallCat(cat: typeof cats[number]): Promise<SmallCat> {
     return {
         id: cat.Id,
-        name: translate("Cat", `CatName${cat.Id}`, "en"),
+        name: translate("Cat", `CatName${cat.Id}`),
         image: await getImageInfo(getCatIconLink({ id: cat.Id }))
     }
 }
@@ -54,7 +54,7 @@ export function getGoodie(id: number) {
 }
 export type GoodieRecord = typeof goodies[number]
 export function getGoodieName(goodieId: number) {
-    return translate("Goods", `GoodsName${goodieId}`, "en")
+    return translate("Goods", `GoodsName${goodieId}`)
 }
 export async function getSmallGoodie(goodie: typeof goodies[number]): Promise<SmallGoodie> {
     const anime = goodie.AnimePngs[0]
@@ -102,7 +102,7 @@ export type YardRecord = typeof yards[number]
 export function getSmallYard(yard: YardRecord): SmallYard {
     return {
         id: yard.Id,
-        name: translate("Yard", `YardName${yard.Id}`, "en")
+        name: translate("Yard", `YardName${yard.Id}`)
     }
 }
 

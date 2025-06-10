@@ -3,6 +3,7 @@ import Head from "next/head"
 import FormattedLink from "../../components/FormattedLink"
 import { getSmallYard, yards } from "../../utils/tables"
 import { SmallYard } from "./[yardId]"
+import { useLanguage } from "../../hooks/useLanguage"
 
 type YardList = {
   yards: SmallYard[]
@@ -19,6 +20,8 @@ export const getStaticProps = (async () => {
 export default function GoodiesList({
   yards,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
+  const { translate } = useLanguage();
+  
   return (
     <main className="w-full max-w-7xl">
       <Head>
@@ -34,7 +37,7 @@ export default function GoodiesList({
       {yards.map((yard) => (
         <li key={yard.id} className="flex flex-col gap-2">
           <FormattedLink href={`/yards/${yard.id}`}>
-            {yard.name}
+            {translate(yard.name)}
           </FormattedLink>
         </li>
       ))}

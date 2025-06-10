@@ -1,11 +1,23 @@
 import { useState } from "react"
 import FormattedLink from "./FormattedLink"
+import SelectInput from "./SelectInput"
+import { Language, availableLanguages } from "../utils/localization/translate"
 
 const pages = ["Cats", "Goodies", "Wallpapers", "Yards", "Letters", "Animation playground"]
 
-export default function NavBar({ location }: {location: string}) {
+export default function NavBar({ location, language, onLanguageChange }: {
+  location: string
+  language: Language
+  onLanguageChange: (lang: Language) => void
+}) {
   const [menuOpen, setMenuOpen] = useState(false)
   const navLinks = pages.map(page => <FormattedLink key={page} href={`/${page.toLowerCase().replace(/ /g, "-")}`} location={location}>{page}</FormattedLink>)
+
+  const languageNames: Record<Language, string> = {
+    "en": "English",
+    "ja": "日本語",
+    "ko": "한국어"
+  }
 
   return (
     <div className="text-xl bg-gradient-to-r from-blue-200 to-blue-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-between lg:justify-start p-4 w-full top-0">
@@ -13,8 +25,15 @@ export default function NavBar({ location }: {location: string}) {
         <Logo />
         <FormattedLink location={location} href="/" className="font-bold">NekoDB</FormattedLink>
       </div>
-      <nav className="hidden lg:block space-x-6">
+      <nav className="hidden lg:flex items-center space-x-6">
         {navLinks}
+        <SelectInput 
+          label="Language"
+          value={language}
+          set={(value) => onLanguageChange(value as Language)}
+          options={availableLanguages}
+          optionLabels={availableLanguages.map(l => languageNames[l])}
+        />
       </nav>
       <div className={`flex flex-row items-start justify-between lg:hidden ${menuOpen?"w-full":""}`}>
         {menuOpen && <MobileMenu navLinks={navLinks} />}
@@ -24,7 +43,7 @@ export default function NavBar({ location }: {location: string}) {
       </div>
     </div>
   )
-};
+}
 
 function MobileMenu({ navLinks }: {navLinks: JSX.Element[] }) {
   return (
@@ -38,7 +57,6 @@ function Logo() {
   return null
 }
 
-
 function MenuAlt4Svg({ menuOpen }: {menuOpen: boolean}) {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" className={`transition duration-100 ease h-7 w-7 ${menuOpen ? "transform rotate-90 origin-center" : ""}`} viewBox="0 0 49 49" fill="currentColor">
@@ -48,4 +66,3 @@ function MenuAlt4Svg({ menuOpen }: {menuOpen: boolean}) {
     </svg>
   )
 }
-// 1|7|1 10 1|7|1 10 1|7|1
