@@ -77,6 +77,7 @@ enum OtherPlaceAttribute {
   RemodelPreviewSlot = 2048,
   Santa = 4096,
   Tamago = 8192,
+  Omaturi = 16384,
 }
 type ParsedOtherPlace = {
   id: number
