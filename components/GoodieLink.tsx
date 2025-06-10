@@ -4,7 +4,7 @@ import FormattedLink from "./FormattedLink"
 import { useLanguage } from "../hooks/useLanguage"
 
 export default function GoodieLink({ goodie }: {goodie: SmallGoodie}) {
-    const { translate } = useLanguage();
+    const { translate } = useLanguage()
 
     if (!goodie.image) return <div className="flex flex-row items-center gap-2 p-2">
         <div>{translate(goodie.name)}</div>

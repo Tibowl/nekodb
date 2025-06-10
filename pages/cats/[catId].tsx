@@ -17,7 +17,7 @@ import getImageInfo from "../../utils/image/getImageInfo"
 import { translate, TranslationTable } from "../../utils/localization/translate"
 import { cats, catVsCat, catVsFood, getCat, getCatVsCat, getCatVsFood, getGoodie, getGoodieName, getPlaySpace, getSmallCat, getSmallGoodie, playSpaceVsCat } from "../../utils/tables"
 import { SmallGoodie } from "../goodies/[goodieId]"
-import { useLanguage } from '../../hooks/useLanguage'
+import { useLanguage } from "../../hooks/useLanguage"
 
 export type SmallCat = {
   id: number
@@ -188,8 +188,8 @@ export const getStaticPaths = (async () => {
 
 
 export default function Cat({ cat, cats, goodies }: InferGetStaticPropsType<typeof getStaticProps>) {
-  const { translate } = useLanguage();
-  
+  const { translate } = useLanguage()
+
   return (
     <main className="w-full max-w-7xl">
       <Head>
@@ -280,7 +280,7 @@ export default function Cat({ cat, cats, goodies }: InferGetStaticPropsType<type
 
 function Memento({ catMemento }: { catMemento: Memento }) {
   const [memento, setMemento] = useState(false)
-  const { translate } = useLanguage();
+  const { translate } = useLanguage()
 
   return <>
     <CheckboxInput label="Show memento" set={setMemento} value={memento} />

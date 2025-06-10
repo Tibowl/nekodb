@@ -15,11 +15,11 @@ type CategoryWithTranslation = {
 };
 
 type GoodieList = {
-  goodies: (SmallGoodie & { 
+  goodies: (SmallGoodie & {
     categories: number[],
     shopSort: number,
     tradeSort: number,
-    new: boolean 
+    new: boolean
   })[];
   categories: CategoryWithTranslation[];
 };
@@ -55,7 +55,7 @@ export default function GoodiesList({
   goodies,
   categories,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
-  const { translate } = useLanguage();
+  const { translate } = useLanguage()
   const [groupByCategory, setGroupByCategory] = useState(false)
   const shopGoodies = useMemo(() => goodies.filter((goodie) => goodie.shopSort > 0), [goodies])
   const tradeGoodies = useMemo(() => goodies.filter((goodie) => goodie.tradeSort > 0), [goodies])

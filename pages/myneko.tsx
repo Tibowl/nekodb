@@ -51,7 +51,7 @@ export const getStaticProps = (async () => {
 export default function PartList({
   parts,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
-  const { translate } = useLanguage();
+  const { translate } = useLanguage()
 
   return (
     <main className="w-full max-w-7xl">

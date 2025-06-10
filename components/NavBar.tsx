@@ -27,7 +27,7 @@ export default function NavBar({ location, language, onLanguageChange }: {
       </div>
       <nav className="hidden lg:flex items-center space-x-6">
         {navLinks}
-        <SelectInput 
+        <SelectInput
           label="Language"
           value={language}
           set={(value) => onLanguageChange(value as Language)}

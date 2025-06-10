@@ -20,8 +20,8 @@ export const getStaticProps = (async () => {
 export default function GoodiesList({
   yards,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
-  const { translate } = useLanguage();
-  
+  const { translate } = useLanguage()
+
   return (
     <main className="w-full max-w-7xl">
       <Head>

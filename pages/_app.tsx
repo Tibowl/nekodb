@@ -8,7 +8,7 @@ import { useLanguage } from "../hooks/useLanguage"
 
 function AppContent({ Component, pageProps, router }: AppProps) {
   const { currentLanguage, setLanguage } = useLanguage()
-  
+
   return (
     <div className="bg-slate-50 dark:bg-slate-700 min-h-screen flex flex-col items-center justify-between text-slate-900 dark:text-slate-100">
       <Head>
@@ -18,9 +18,9 @@ function AppContent({ Component, pageProps, router }: AppProps) {
       </Head>
 
       <div className="w-full">
-        <NavBar 
-          location={router.asPath} 
-          language={currentLanguage} 
+        <NavBar
+          location={router.asPath}
+          language={currentLanguage}
           onLanguageChange={setLanguage}
         />
         <div className="p-4 flex flex-col w-full flex-1 px-1 lg:px-20 items-center justify-center">
