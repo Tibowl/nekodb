@@ -110,7 +110,9 @@ export default function AnimationViewer({ animations }: {
         {xmls.map((xml, i) => {
           if (!xml) return null
           const maxSequenceLength = getMaxSequenceLength(xml, animations[i].actionIndex)
-          const maxSequenceDirectLength = xml.Animation.Actions.Action[animations[i].actionIndex].Sequence.length
+          const action = xml?.Animation?.Actions?.Action?.[animations[i].actionIndex]
+          if (!action?.Sequence) return null
+          const maxSequenceDirectLength = action.Sequence.length
           if (maxSequenceLength !== maxSequenceDirectLength) {
             const sequenceIndex = getSequenceIndex(xml, animations[i].actionIndex, sequenceIndices[i])
             return <div className="text-sm w-28 text-right" key={i}>{sequenceIndices[i] + 1}/{maxSequenceLength} [{sequenceIndex + 1}/{maxSequenceDirectLength}]</div>
@@ -124,18 +126,32 @@ export default function AnimationViewer({ animations }: {
 }
 
 function getMaxSequenceLength(xml: any, actionIndex: number) {
-  const sequence = xml.Animation.Actions.Action[actionIndex].Sequence
-  return sequence.reduce((acc: number, frame: any) => acc + +frame.duration, 0)
+  try {
+    const action = xml?.Animation?.Actions?.Action?.[actionIndex]
+    if (!action?.Sequence) return 1
+    return action.Sequence.reduce((acc: number, frame: any) => acc + +frame.duration, 0)
+  } catch (e) {
+    console.error("Error in getMaxSequenceLength:", e)
+    return 1
+  }
 }
 
 function getSequenceIndex(xml: any, actionIndex: number, sequenceIndex: number) {
-  const sequence = xml.Animation.Actions.Action[actionIndex].Sequence
-  let acc = 0
-  for (let i = 0; i < sequence.length; i++) {
-    acc += +sequence[i].duration
-    if (acc > sequenceIndex) {
-      return i
+  try {
+    const action = xml?.Animation?.Actions?.Action?.[actionIndex]
+    if (!action?.Sequence) return 0
+
+    const sequence = action.Sequence
+    let acc = 0
+    for (let i = 0; i < sequence.length; i++) {
+      acc += +sequence[i].duration
+      if (acc > sequenceIndex) {
+        return i
+      }
     }
+    return 0
+  } catch (e) {
+    console.error("Error in getSequenceIndex:", e)
+    return 0
   }
-  return 0
 }
