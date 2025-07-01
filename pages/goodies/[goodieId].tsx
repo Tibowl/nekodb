@@ -16,12 +16,13 @@ import { parseBitMap } from "../../utils/math/parseBitMap"
 import { getCat, getFood, getGoodie, getPlaySpaceVsCat, getPlaySpaceVsWeather, getSmallCat, getSmallGoodie, goodies, playSpaces, WeatherType } from "../../utils/tables"
 import { SmallCat } from "../cats/[catId]"
 import { useLanguage } from "../../contexts/LanguageContext"
+import WikiTextBox from "../../components/WikiTextBox"
 
 export type SmallGoodie = {
   id: number
   name: TranslationTable
   image: ImageMetaData | null
-};
+}
 
 export type Goodie = SmallGoodie & {
   shopDesc: TranslationTable
@@ -42,7 +43,7 @@ export type Goodie = SmallGoodie & {
   playSpaces: PlaySpaceInfo[]
 
   animations: AnimationMeta[]
-};
+}
 
 type PlaySpaceInfo = {
   playSpaceId: number
@@ -150,6 +151,8 @@ export const getStaticProps = (async (context) => {
         yardDesc: translate("Goods", `GoodsYard${goodie.Id}`),
         warning: goodie.WarningKey == null ? null : translate("Goods", goodie.WarningKey),
 
+        sellableMonths: goodie.SellableMonths,
+
         attributes: goodie.Attribute,
         category: catgories.map(cat => cat),
         toughness: goodie.Toughness,
@@ -218,6 +221,7 @@ export default function Goodie({ goodie, cats }: InferGetStaticPropsType<typeof 
         <meta property="description" content={`Discover all the cats that can visit ${translate(goodie.name)} in Neko Atsume 2!`} />
         <meta property="og:image" content={goodie.image?.url} />
       </Head>
+      <WikiTextBox text={formatWikiText({goodie, cats})} url={`https://nekoatsume.fandom.com/wiki/${goodie.name.en}`} />
       <div className="flex flex-col gap-2 w-full">
         <div className="flex flex-row items-center gap-2">
           <div className="w-24 h-24 flex flex-col items-center justify-center">
@@ -268,6 +272,11 @@ export default function Goodie({ goodie, cats }: InferGetStaticPropsType<typeof 
             {goodie.stampcard > 0 && <>
               <div className="font-semibold">Stampcard cost</div>
               <div className="text-right"><Cost count={goodie.stampcard} type="stamp" /></div>
+            </>}
+
+            {goodie.sellableMonths && <>
+              <div className="font-semibold">Sellable months</div>
+              <div className="text-right">{goodie.sellableMonths.join(", ")}</div>
             </>}
 
             <div className="font-semibold">Toughness</div>
@@ -392,4 +401,63 @@ function CatAnimations({ actions }: { actions: Action[] }) {
       {action.goodieAction !== null ? <div>{action.goodieAction}</div> : <div>/</div>}
     </div>)}
   </div>
+}
+
+function formatWikiText({ goodie, cats }: InferGetStaticPropsType<typeof getStaticProps>) {
+  const prices: string[] = []
+  if (goodie.silver > 0) prices.push(`${goodie.gold} [[File:GoldFish.png|link=|18px]]`)
+  if (goodie.gold > 0) prices.push(`${goodie.silver} [[File:SilverFish.png|link=|18px]]`)
+  if (goodie.stampcard > 0) prices.push(`${goodie.stampcard} [[File:StampCard.png|link=|18px]]`)
+  const price = prices.join(' or ')
+
+  const size = goodie.attributes === 0 ? "[[File:Small_icon.png|15px|link=Category:Small]]" : "[[File:Large_icon.png|15px|link=Category:Large]]"
+  const categories = goodie.category.map(cat => cat.en.replace(/s$/, ''))
+  const catsIds = goodie.playSpaces.map(ps => ps.catWeights).flatMap(catWeight => Object.keys(catWeight)).filter((id, index, self) => self.indexOf(id) === index)
+
+  const uniqueSpots = goodie.playSpaces.filter((ps, index, self) => {
+    const conflictIndex = self.findIndex(p => p.conflicts.includes(ps.playSpaceId)) 
+    return conflictIndex === -1 || conflictIndex > index
+  })
+  
+  const wikiTemplate = `{{Goody Infobox
+|Sprite             = [[File:${goodie.name.en} Original.png|100px]]
+|Price              = ${price}
+|Size               = ${size}
+|Fit                = ${uniqueSpots.length}
+|Type               = ${categories.map(cat => `[[:Category:${cat}|${cat}]]`).join(', ')}
+|Rare Cats          = ${catsIds.filter(x => +x > 100).map(id => cats.find(cat => cat.id == +id)?.name.en || `Unknown Cat #${id}`).sort().map(name => `[[${name}]]`).join('<br>') || 'None'}
+|Regular Cats       = ${catsIds.filter(x => +x <= 100).map(id => cats.find(cat => cat.id == +id)?.name.en || `Unknown Cat #${id}`).sort().map(name => `[[${name}]]`).join('<br>') || 'None'}
+|Japanese name      = ${goodie.name['ja']}
+|Romanji name       = [XXX]
+|Translated name    = [XXX]
+}}
+__NOTOC__
+The ${goodie.name.en} is a ${categories.join(', ')} type goodie in [[Neko Atsume 2]] that can be purchased at the [[Shop]]${goodie.sellableMonths ? ' for a limited time' : ''}. 
+
+${goodie.sellableMonths ? `It is available during ${goodie.sellableMonths.map(monthIndex => ['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][monthIndex]).join(", ")} each year. ` : ''}
+
+== Description ==
+;Shop Description
+:${goodie.shopDesc.en.replace(/\n/g, ' ').replace(/<(.*?)>/g, (match, p1) => `''${p1}''`)}
+
+;Goody Description
+:${goodie.yardDesc.en.replace(/\n/g, ' ').replace(/<(.*?)>/g, (match, p1) => `''${p1}''`)}
+
+${goodie.warning ? `=== Warning ===\n:${goodie.warning.en.replace(/\\n/g, ' ')}\n` : ''}
+
+==Durability==
+{{DurabilityDesc}}
+{{GoodiesStatusBox
+| Cost      = {{SilverFish|${getRepairCost(goodie)}}}
+| Toughness = ${goodie.toughness}
+}}
+
+{{GoodiesNav}}
+${categories.map(cat => `[[Category:${cat}]]`).join('\n')}
+[[Category:Goody]]
+[[Category:${goodie.attributes === 0 ? 'Small' : 'Large'}]]
+
+`.replace(/\n\n+/g, '\n\n')
+
+  return wikiTemplate
 }
