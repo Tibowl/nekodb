@@ -405,8 +405,8 @@ function CatAnimations({ actions }: { actions: Action[] }) {
 
 function formatWikiText({ goodie, cats }: InferGetStaticPropsType<typeof getStaticProps>) {
   const prices: string[] = []
-  if (goodie.silver > 0) prices.push(`${goodie.gold} [[File:GoldFish.png|link=|18px]]`)
-  if (goodie.gold > 0) prices.push(`${goodie.silver} [[File:SilverFish.png|link=|18px]]`)
+  if (goodie.silver > 0) prices.push(`${goodie.silver} [[File:SilverFish.png|link=|18px]]`)
+  if (goodie.gold > 0) prices.push(`${goodie.gold} [[File:GoldFish.png|link=|18px]]`)
   if (goodie.stampcard > 0) prices.push(`${goodie.stampcard} [[File:StampCard.png|link=|18px]]`)
   const price = prices.join(" or ")
 
