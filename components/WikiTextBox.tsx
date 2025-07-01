@@ -1,22 +1,22 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from "react"
 
 interface WikiTextBoxProps {
   text: string
   url: string
 }
 
-export default function WikiTextBox({ text, url}: WikiTextBoxProps) {
+export default function WikiTextBox({ text, url }: WikiTextBoxProps) {
   const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'F4') {
+      if (e.key === "F4") {
         setIsVisible(prev => !prev)
       }
     }
 
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
   }, [])
 
   if (!isVisible) return null
