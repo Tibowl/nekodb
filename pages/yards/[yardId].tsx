@@ -395,8 +395,7 @@ function YardPrefab({ prefab, pixelsToUnits, nodes, assets }: { prefab: any, pix
     }).map(node => {
       const prefabNode = prefab[node]
       const children = prefabNode.children
-      const nameToFind = prefabNode.name.replace("_front", "").replace(/(_c\d)_\d([a-z])?/, "$1")
-      const asset = assets.find(asset => asset.name == nameToFind) ?? assets.find(asset => asset.name.startsWith(nameToFind))
+      const asset = assets.find(asset => cleanAssetName(asset.name) === cleanAssetName(prefabNode.name))
       if (!asset) {
         if (!children) {
           console.log(`Asset not found for node ${node}: ${prefabNode.name}`)
@@ -419,6 +418,10 @@ function YardPrefab({ prefab, pixelsToUnits, nodes, assets }: { prefab: any, pix
       </g>
     })}
   </g>
+}
+
+function cleanAssetName(name: string) {
+  return name.replace(/(_c\d)_\d([a-z])?/, "$1").replace(/_front$/, "").toLowerCase()
 }
 
 function mappedAttributes(attributes: string[]) {
