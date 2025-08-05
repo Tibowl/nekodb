@@ -80,6 +80,8 @@ enum OtherPlaceAttribute {
   Santa = 4096,
   Tamago = 8192,
   Omaturi = 16384,
+  Akindo = 32768,
+  Coin = 65536
 }
 type ParsedOtherPlace = {
   id: number
