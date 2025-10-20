@@ -8,12 +8,16 @@ import MynekoPartsRecordTable from "../NekoAtsume2Data/tables/MynekoPartsRecordT
 import PlaySpaceRecordTable from "../NekoAtsume2Data/tables/PlaySpaceRecordTable.json"
 import PlaySpaceVsCatTable from "../NekoAtsume2Data/tables/PlaySpaceVsCatTable.json"
 import PlaySpaceVsWeatherTable from "../NekoAtsume2Data/tables/PlaySpaceVsWeatherTable.json"
+import SealDecoRecordTable from "../NekoAtsume2Data/tables/SealDecoRecordTable.json"
 import WallpaperRecordTable from "../NekoAtsume2Data/tables/WallpaperRecordTable.json"
 import YardRecordTable from "../NekoAtsume2Data/tables/YardRecordTable.json"
 import { SmallCat } from "../pages/cats/[catId]"
+import { DecoType } from "../pages/deco"
+import { SmallDeco } from "../pages/deco/[decoId]"
 import { SmallGoodie } from "../pages/goodies/[goodieId]"
 import { SmallYard } from "../pages/yards/[yardId]"
 import { getCatIconLink } from "./cat/getCatIconLink"
+import { getDecoIconURL } from "./goodie/getDecoIconURL"
 import { getGoodieIconURL } from "./goodie/getGoodieIconURL"
 import getImageInfo from "./image/getImageInfo"
 import { translate } from "./localization/translate"
@@ -115,3 +119,22 @@ export type MynekoPartRecord = typeof mynekoParts[number]
 
 export const letters = LetterRecordTable
 export type LetterRecord = typeof letters[number]
+
+
+export const decos = SealDecoRecordTable
+export function getDeco(id: number) {
+    return decos.find(deco => deco.Id == id)
+}
+export type DecoRecord = typeof decos[number]
+export function getDecoName(decoId: number) {
+    return translate("Seal", `SealDecoName${decoId}`)
+}
+export async function getSmallDeco(deco: typeof decos[number]): Promise<SmallDeco> {
+    const type = deco.DecoTypeInt == 1 ? DecoType.Bg : DecoType.Deco
+    return {
+        id: deco.Id,
+        name: getDecoName(deco.Id),
+        image: await getImageInfo(getDecoIconURL(deco.Id)),
+        type
+    }
+}

@@ -3,7 +3,7 @@ import FormattedLink from "./FormattedLink"
 import SelectInput from "./SelectInput"
 import { Language, availableLanguages } from "../utils/localization/translate"
 
-const pages = ["Cats", "Goodies", "Wallpapers", "Yards", "Letters", "Animation playground"]
+const pages = ["Cats", "Goodies", "Wallpapers", "Yards", "Deco", "Letters", "Animation playground"]
 
 export default function NavBar({ location, language, onLanguageChange }: {
   location: string
