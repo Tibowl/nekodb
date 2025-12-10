@@ -103,8 +103,10 @@ export default function AnimationPlayground({
   useEffect(() => {
     console.log("layers", layers)
 
+    const layersCopy = layers.map(l => ({ ...l }))
+
     let needChange = false
-    for (const layer of layers) {
+    for (const layer of layersCopy) {
       const availableEntries =
         layer.type == "Cat" ? catAnimations : goodieAnimations
       const { animations } = availableEntries[layer.index]
@@ -127,7 +129,8 @@ export default function AnimationPlayground({
         needChange = true
       }
     }
-    if (needChange) setLayers([...layers])
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (needChange) setLayers(layersCopy)
   }, [layers, goodieAnimations, catAnimations])
 
   return (
@@ -228,10 +231,10 @@ export default function AnimationPlayground({
                   label="Animation"
                   value={layer.animation.name}
                   set={(newValue) => {
-                    const layersCopy = [...layers]
-                    layer.animation = animations.find(
-                      (a) => a.name === newValue
-                    )!
+                    const layersCopy = layers.map(l => {
+                      if (l == layer) return { ...l, animation: animations.find((a) => a.name === newValue)! }
+                      return l
+                    })
                     setLayers(layersCopy)
                   }}
                   options={animations.map((a) => a.name)}
@@ -242,8 +245,10 @@ export default function AnimationPlayground({
                     label="Action"
                     value={`${layer.actionIndex + 1}`}
                     set={(x) => {
-                      const layersCopy = [...layers]
-                      layer.actionIndex = +x - 1
+                      const layersCopy = layers.map(l => {
+                        if (l == layer) return { ...l, actionIndex: +x - 1 }
+                        return l
+                      })
                       setLayers(layersCopy)
                     }}
                     options={createRange(animation?.actions ?? 0).map((i) =>
@@ -254,13 +259,17 @@ export default function AnimationPlayground({
                 </div>
 
                 <NumberInput label="X offset" value={layer.xOffset ?? 0} set={(x) => {
-                  const layersCopy = [...layers]
-                  layer.xOffset = x
+                  const layersCopy = layers.map(l => {
+                    if (l == layer) return { ...l, xOffset: x }
+                    return l
+                  })
                   setLayers(layersCopy)
                 }} />
                 <NumberInput label="Y offset" value={layer.yOffset ?? 0} set={(y) => {
-                  const layersCopy = [...layers]
-                  layer.yOffset = y
+                  const layersCopy = layers.map(l => {
+                    if (l == layer) return { ...l, yOffset: y }
+                    return l
+                  })
                   setLayers(layersCopy)
                 }} />
               </div>

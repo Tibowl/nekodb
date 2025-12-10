@@ -5,7 +5,7 @@ export function getRecommendedSize(animations: PlayingAnimation[], xmls: any[]) 
     width: 128, height: 128,
     x: 0, y: 0
   }
-  
+
   const response = {
     minX: Infinity,
     maxX: -Infinity,
@@ -20,12 +20,12 @@ export function getRecommendedSize(animations: PlayingAnimation[], xmls: any[]) 
 
     for (const frame of xml.Animation.Frames.Frame) {
       for (const sprite of frame.Sprite) {
-        const module = xml.Animation.Modules.Module[sprite.module_id]
+        const animationModule = xml.Animation.Modules.Module[sprite.module_id]
         const corners = [
           [0, 0],
-          [+module.w, 0],
-          [+module.w, +module.h],
-          [0, +module.h],
+          [+animationModule.w, 0],
+          [+animationModule.w, +animationModule.h],
+          [0, +animationModule.h],
         ].map(([x, y]) => [x + (animation.xOffset ?? 0), y + (animation.yOffset ?? 0)])
 
         for (const corner of corners) {
@@ -45,12 +45,12 @@ export function getRecommendedSize(animations: PlayingAnimation[], xmls: any[]) 
   }
 
   // Convert into width, height and x, y
-  let width = response.maxX - response.minX
-  let height = response.maxY - response.minY
-  let x = response.minX
-  let y = response.minY
+  const width = response.maxX - response.minX
+  const height = response.maxY - response.minY
+  const x = response.minX
+  const y = response.minY
 
   console.log(response, { width, height, x, y })
-  
+
   return { width, height, x, y }
 }

@@ -26,11 +26,13 @@ function AnimationGalleryInternal({ animations }: { animations: AnimationMeta[] 
   )
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setActionIndex(animation?.defaultAction ?? 0)
   }, [animation])
 
   useEffect(() => {
     if (animation && actionIndex >= animation.actions)
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setActionIndex(animation.defaultAction)
     if (!animation && animations.length > 0) {
       const animation = getDefaultAnimation(animations)

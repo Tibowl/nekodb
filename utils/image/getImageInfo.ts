@@ -11,7 +11,7 @@ export default async function getImageInfo(image: string) {
         if (imageDimensions.width == undefined || imageDimensions.height == undefined) {
             throw new Error("Invalid image dimensions for " + image)
         }
-    
+
         return {
             url: image,
             width: imageDimensions.width,

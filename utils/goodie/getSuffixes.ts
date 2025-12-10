@@ -1,7 +1,7 @@
 import { GoodieRecord } from "../tables"
 
 export function getSuffixes(goodie: GoodieRecord) {
-  if (goodie.Id == 320) return [ 
+  if (goodie.Id == 320) return [
     // This goodie has RepairPattern 2 but has a shared repair_break
     "",
     "_break",
@@ -36,4 +36,3 @@ export function getSuffixes(goodie: GoodieRecord) {
 
   return patterns
 }
-  

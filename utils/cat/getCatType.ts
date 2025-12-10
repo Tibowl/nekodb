@@ -12,4 +12,3 @@ export function getCatType(cat: SmallCat): CatType {
         return CatType.Myneko
     throw new Error("Unknown cat type")
 }
-

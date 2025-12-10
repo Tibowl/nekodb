@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { ReactNode, useState } from "react"
 import FormattedLink from "./FormattedLink"
 import SelectInput from "./SelectInput"
 import { Language, availableLanguages } from "../utils/localization/translate"
@@ -20,7 +20,7 @@ export default function NavBar({ location, language, onLanguageChange }: {
   }
 
   return (
-    <div className="text-xl bg-gradient-to-r from-blue-200 to-blue-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-between lg:justify-start p-4 w-full top-0">
+    <div className="text-xl bg-linear-to-r from-blue-200 to-blue-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-between lg:justify-start p-4 w-full top-0">
       <div className={`flex items-center pr-20 ${menuOpen ? "hidden": ""} sm:block`}>
         <Logo />
         <FormattedLink location={location} href="/" className="font-bold">NekoDB</FormattedLink>
@@ -45,7 +45,7 @@ export default function NavBar({ location, language, onLanguageChange }: {
   )
 }
 
-function MobileMenu({ navLinks }: {navLinks: JSX.Element[] }) {
+function MobileMenu({ navLinks }: {navLinks: ReactNode[] }) {
   return (
     <nav className="p-4 flex flex-col space-y-3 lg:hidden">
       {navLinks}

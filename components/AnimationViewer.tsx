@@ -32,6 +32,7 @@ export default function AnimationViewer({ animations }: {
   useEffect(() => {
     const newXmls: any[] = animations.map(a => null)
     const newImgs: (HTMLImageElement | null)[] = animations.map(a => null)
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSequenceIndices(animations.map(a => 0))
     setXmls([])
 
