@@ -13,7 +13,11 @@ export async function getCatAnimations(smallCat: SmallCat, cat: CatRecord): Prom
   if (type == CatType.Normal) {
     const normalCats = await readdir("public/na2-assets/neko/normal")
     const match = normalCats.find(f => f.startsWith(getCatIconId({ id: cat.Id }) + "_"))
-    if (!match) throw new Error("No animations found for " + smallCat.name)
+    if (!match && cat.IsDebug) {
+      console.warn(`No animations found for ${smallCat.name?.en} (${cat.Id}), but cat is marked as debug.`)
+      return []
+    }
+    if (!match) throw new Error(`No animations found for ${smallCat.name?.en} (${cat.Id})`)
     const images = (await readdir(`public/na2-assets/neko/normal/${match}`)).filter(x => x.endsWith(".png"))
 
     animations.push(...(await Promise.all(images.map(async (image) => {
@@ -24,7 +28,11 @@ export async function getCatAnimations(smallCat: SmallCat, cat: CatRecord): Prom
   } else if (type == CatType.Myneko) {
     const myNekoCats = await readdir("public/na2-assets/neko/myneko")
     const match = myNekoCats.find(f => f.startsWith(cat.Id.toString().slice(1) + "_"))
-    if (!match) throw new Error("No animations found for " + smallCat.name)
+    if (!match && cat.IsDebug) {
+      console.warn(`No animations found for ${smallCat.name?.en} (${cat.Id}), but cat is marked as debug.`)
+      return []
+    }
+    if (!match) throw new Error(`No animations found for ${smallCat.name?.en} (${cat.Id})`)
     const images = (await readdir(`public/na2-assets/neko/myneko/${match}`)).filter(x => x.endsWith(".png"))
 
     animations.push(...(await Promise.all(images.map(async (image) => {
@@ -35,7 +43,11 @@ export async function getCatAnimations(smallCat: SmallCat, cat: CatRecord): Prom
   } else if (type == CatType.Rare || type == CatType.Other) {
     const rareCats = (await readdir("public/na2-assets/neko/special/png")).filter(x => x.endsWith(".png"))
     const match = rareCats.filter(f => f.startsWith(getCatIconId({ id: cat.Id }).replace("s", "sp") + "_"))
-    if (match.length == 0) throw new Error("No animations found for " + smallCat.name)
+    if (match.length == 0 && cat.IsDebug) {
+      console.warn(`No animations found for ${smallCat.name?.en} (${cat.Id}), but cat is marked as debug.`)
+      return []
+    }
+    if (match.length == 0) throw new Error(`No animations found for ${smallCat.name?.en} (${cat.Id})`)
 
     animations.push(...(await Promise.all(match.map(async (image) => {
       const imagePath = `/na2-assets/neko/special/png/${image}`

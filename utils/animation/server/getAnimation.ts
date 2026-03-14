@@ -1,6 +1,7 @@
 import { readFile } from "fs/promises"
 import { AnimationMeta } from "../../../components/AnimationViewer"
 import { xmlParser } from "../xmlParser"
+import getImageInfo from "../../image/getImageInfo"
 
 export async function getAnimation(image: string, imagePath: string, xmlPath: string): Promise<AnimationMeta | null> {
   try {
@@ -19,7 +20,21 @@ export async function getAnimation(image: string, imagePath: string, xmlPath: st
       defaultAction: index,
     }
   } catch (error) {
+    console.warn("Failed to parse " + imagePath)
+  }
+
+  try {
+    return {
+      name: image.replace(".png", ""),
+      url_img: imagePath,
+      url_xml: null,
+      actions: 1,
+      defaultAction: 0,
+      imageInfo: await getImageInfo(imagePath),
+    }
+  } catch (error) {
     console.error("Failed to parse " + imagePath)
   }
+
   return null
 }

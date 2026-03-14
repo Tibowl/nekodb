@@ -2,14 +2,30 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import { drawSequence } from "../utils/animation/drawSequence"
 import { getRecommendedSize } from "../utils/animation/getRecommendedSize"
 import { xmlParser } from "../utils/animation/xmlParser"
+import { ImageMetaData } from "./DisplayImage"
 
-export type AnimationMeta = {
+export type FoundAnimationMeta = {
   name: string;
   url_img: string;
   url_xml: string;
   actions: number;
   defaultAction: number;
 };
+
+export type FallbackAnimation = {
+  name: string;
+  url_img: string;
+  url_xml: null;
+  actions: 1;
+  defaultAction: 0;
+  imageInfo: ImageMetaData;
+}
+
+export function isFoundAnimationMeta(animation: AnimationMeta): animation is FoundAnimationMeta {
+  return (animation as FoundAnimationMeta).url_xml !== null
+}
+
+export type AnimationMeta = FoundAnimationMeta | FallbackAnimation
 
 export type PlayingAnimation = {
   animation: AnimationMeta;
@@ -40,15 +56,49 @@ export default function AnimationViewer({ animations }: {
 
     animations.forEach((pa, i) => {
       const { animation } = pa
-      fetch(animation.url_xml)
-        .then((response) => response.text())
-        .then((text) => {
-          const xml = xmlParser.parse(text)
-          newXmls[i] = xml
-          if (newXmls.every(x => x != null))
-            setXmls(newXmls)
-        })
-        .catch((error) => console.error(error))
+      if (isFoundAnimationMeta(animation)) {
+        fetch(animation.url_xml)
+          .then((response) => response.text())
+          .then((text) => {
+            const xml = xmlParser.parse(text)
+            newXmls[i] = xml
+            if (newXmls.every(x => x != null))
+              setXmls(newXmls)
+          })
+          .catch((error) => console.error(error))
+      } else {
+        setXmls([{
+          Animation: {
+            Actions: {
+              Action: [{
+                Sequence: [{
+                  id: 0,
+                  duration: 1,
+                }],
+              }],
+            },
+            Modules: {
+              Module: [{
+                id: 0,
+                x: 0, y: 0,
+                w: animation.imageInfo.width, h: animation.imageInfo.height,
+              }],
+            },
+            Frames: {
+              Frame: [{
+                Sprite: [
+                  {
+                    module_id: 0,
+                    m00: 1, m10: 0,
+                    m01: 0, m11: 1,
+                    m02: 0, m12: 0,
+                  },
+                ],
+              }]
+            }
+          }
+        }])
+      }
 
       const img = new Image()
       img.src = animation.url_img
