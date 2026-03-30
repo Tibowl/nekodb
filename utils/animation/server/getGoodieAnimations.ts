@@ -16,6 +16,7 @@ const groups = [
   "11hot",
   "12cube",
   "13blanket",
+  "14",
   "90other"
 ]
 
