@@ -51,8 +51,7 @@ type PlaySpaceInfo = {
 
   charm: number
   niboshi: number
-  gomenne: boolean
-  grooming: boolean
+  rareMotion: (keyof typeof RareMotionPermissions)[]
 
   catWeights: CatWeight
   catAnimations: Action[]
@@ -81,6 +80,14 @@ type FoodInfo = {
 type GoodieInfo = {
   goodie: Goodie
   cats: SmallCat[]
+}
+
+enum RareMotionPermissions {
+  None = 0,
+  Gommenne = 1,
+  Grooming = 2,
+  Eat = 4,
+  CameraCloseIn = 8
 }
 
 export const getStaticProps = (async (context) => {
@@ -125,8 +132,7 @@ export const getStaticProps = (async (context) => {
         conflicts: ps.ConflictIndices,
         charm: ps.Charm,
         niboshi: ps.Niboshi,
-        gomenne: ps.Gomenne,
-        grooming: ps.Grooming,
+        rareMotion: parseBitMap(ps.RareMotionPermissions).map(attribute => RareMotionPermissions[1 << attribute]) as (keyof typeof RareMotionPermissions)[],
         catWeights,
         catAnimations: createActions(ps.ActionNames, ps.ActionIds, ps.ActionWeights, ps.GoodsAnimeId),
         altAnimations: createActions(ps.ActionNames2, ps.ActionIds2, ps.ActionWeights2, ps.GoodsAnimeId2),
@@ -327,11 +333,8 @@ export default function Goodie({ goodie, cats }: InferGetStaticPropsType<typeof 
             <div className="text-right">{ps.niboshi}</div>
 
 
-            <div className="font-medium">Gommenne</div>
-            <div className="text-right">{ps.gomenne ? "✅" : "❌"}</div>
-
-            <div className="font-medium">Grooming</div>
-            <div className="text-right">{ps.grooming ? "✅" : "❌"}</div>
+            <div className="font-medium">Flags</div>
+            <div className="text-right">{ps.rareMotion.length == 0 ? "/" : ps.rareMotion.map((x, i) => <div key={i}>{x}</div>)}</div>
           </div>
 
           <h4 className="text-lg font-thin">Cat weights</h4>
@@ -432,7 +435,7 @@ function formatWikiText({ goodie, cats }: InferGetStaticPropsType<typeof getStat
 |Translated name    = [XXX]
 }}
 __NOTOC__
-The ${goodie.name.en} is a ${categories.join(", ")} type goodie in [[Neko Atsume 2]] that can be purchased at the [[Shop]]${goodie.sellableMonths ? " for a limited time" : ""}. 
+The ${goodie.name.en} is a ${categories.join(", ")} type goodie in [[Neko Atsume 2]] that can be purchased at the [[Shop]]${goodie.sellableMonths ? " for a limited time" : ""}.
 
 ${goodie.sellableMonths ? `It is available during ${goodie.sellableMonths.map(monthIndex => ["", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][monthIndex]).join(", ")} each year. ` : ""}
 

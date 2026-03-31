@@ -48,6 +48,7 @@ enum PlaceAttribute {
   Large = 4,
   Myneko = 8,
   Food = 16,
+  EatMotion = 32,
 }
 type ParsedPlace = {
   id: number
