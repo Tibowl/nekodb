@@ -1,11 +1,28 @@
-import type { NextPage } from "next"
+import { readFile } from "fs/promises"
+import type { GetStaticProps, InferGetStaticPropsType } from "next"
 import Head from "next/head"
 import Image, { StaticImageData } from "next/image"
+import { join } from "path"
 import FormattedLink from "../components/FormattedLink"
 import Snowball from "../public/na2-assets/SpriteAtlas/icon_cat.spriteatlas/00.png"
 import CatTree from "../public/na2-assets/SpriteAtlas/icon_goods_big.spriteatlas/04tower_2dan.png"
 
-const Home: NextPage = () => {
+type HomeProps = {
+  dataVersion: string
+}
+
+export const getStaticProps: GetStaticProps<HomeProps> = async () => {
+  const readme = await readFile(join("NekoAtsume2Data", "README.md"), "utf8")
+  const match = readme.match(/version:\s*([\d.]+)/i)
+
+  return {
+    props: {
+      dataVersion: match![1]
+    },
+  }
+}
+
+const Home = ({ dataVersion }: InferGetStaticPropsType<typeof getStaticProps>) => {
   const desc = "NekoDB is a database of Neko Atsume 2's data."
   return (
     <main>
@@ -22,9 +39,10 @@ const Home: NextPage = () => {
           Welcome to NekoDB
         </h1>
 
-        <p className="m-3 text-2xl">
+        <p className="m-3 text-2xl text-gray-800 dark:text-gray-200">
           A Neko Atsume 2 database site
         </p>
+        <div className="text-md text-gray-600 dark:text-gray-400 mb-2">Game data version: {dataVersion}</div>
         <div className="grid items-center justify-around max-w-4xl mt-1">
           <div className="md:flex md:flex-row items-center max-w-4xl">
             <Card href="/cats" title="Cats &rarr;" desc="Want to know what goodies and snacks a cat needs or their play spaces?" location={"/"} src={Snowball} />
