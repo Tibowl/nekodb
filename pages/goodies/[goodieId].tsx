@@ -87,7 +87,9 @@ enum RareMotionPermissions {
   Gommenne = 1,
   Grooming = 2,
   Eat = 4,
-  CameraCloseIn = 8
+  SuwariUp = 8,
+  Stretch = 16,
+  Shock = 32,
 }
 
 export const getStaticProps = (async (context) => {
