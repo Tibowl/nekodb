@@ -13,11 +13,10 @@ export async function getCatAnimations(smallCat: SmallCat, cat: CatRecord): Prom
   if (type == CatType.Normal) {
     const normalCats = await readdir("public/na2-assets/neko/normal")
     const match = normalCats.find(f => f.startsWith(getCatIconId({ id: cat.Id }) + "_"))
-    if (!match && cat.IsDebug) {
-      console.warn(`No animations found for ${smallCat.name?.en} (${cat.Id}), but cat is marked as debug.`)
+    if (!match) {
+      console.warn(`No animations found for ${smallCat.name?.en} (${cat.Id}).`)
       return []
     }
-    if (!match) throw new Error(`No animations found for ${smallCat.name?.en} (${cat.Id})`)
     const images = (await readdir(`public/na2-assets/neko/normal/${match}`)).filter(x => x.endsWith(".png"))
 
     animations.push(...(await Promise.all(images.map(async (image) => {
