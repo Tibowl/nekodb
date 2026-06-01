@@ -109,7 +109,7 @@ export const getStaticProps = (async (context) => {
 
   const idPrefix = yard.Id.toString().padStart(3, "0")
 
-  const bgPath = `/na2-assets/bg/${idPrefix}/`
+  const bgPath = `/na2-assets/png/bg/${idPrefix}/`
   const yardAssets = await readdir(`public/${bgPath}`)
   const assets = yardAssets
     .filter(asset => asset.endsWith(".png"))
@@ -118,9 +118,9 @@ export const getStaticProps = (async (context) => {
 
   const pixelsToUnits = JSON.parse(await readFile(`public/${bgPath}/m_PixelsToUnits.json`, "utf-8")) as Record<string, number>
 
-  const places = require(`../../NekoAtsume2Data/yards/${idPrefix}_places.json`).m_Structure
-  const yardOtherPlaces = require(`../../NekoAtsume2Data/yards/${idPrefix}_otherplaces.json`).m_Structure
-  const view = require(`../../NekoAtsume2Data/yards/${idPrefix}_view.json`).m_Structure
+  const places = require(`../../NekoAtsume2Data/yards/${idPrefix}_places.json`)
+  const yardOtherPlaces = require(`../../NekoAtsume2Data/yards/${idPrefix}_otherplaces.json`)
+  const view = require(`../../NekoAtsume2Data/yards/${idPrefix}_view.json`)
 
   const parsedPlaces: ParsedPlace[] = (places.places as PlaceConfig[]).map(place => {
     const attributes = parseBitMap(place["<Attribute>k__BackingField"]).map(attribute => PlaceAttribute[1 << attribute]) as (keyof typeof PlaceAttribute)[]

@@ -12,7 +12,6 @@ type MyNekoList = {
 
 type MynekoPart = {
   id: number
-  urlPath: string
   name: TranslationTable
   kind: keyof typeof MynekoPartsKind
   priority: number
@@ -30,14 +29,11 @@ enum MynekoPartsKind {
 }
 
 export const getStaticProps = (async () => {
-  const files = await readdir("public/na2-assets/neko/parts")
-
   return {
     props: {
       parts: mynekoParts.sort((a, b) => a.DisplayOrder - b.DisplayOrder).map(part => {
         return {
           id: part.Id,
-          urlPath: files.find(x => x.startsWith(part.Id.toString().padStart(3, "0"))) ?? "?",
           name: translate("Myneko", `PartsName${part.Id}`),
           kind: MynekoPartsKind[part.Kind] as keyof typeof MynekoPartsKind,
           priority: part.Priority,
@@ -66,7 +62,10 @@ export default function PartList({
       {parts.map(part => <div key={part.id} id={part.id.toString()}>
         <h2 className="text-xl font-bold">{translate(part.name)} #{part.id}</h2>
         <div className="flex flex-row flex-wrap gap-2">
-          <img src={`/na2-assets/neko/parts/${part.urlPath}/00kihon_grooming.png`} alt={translate(part.name)} className="max-h-full max-w-full" />
+          {part.id < 500 ?
+            <img src={`/na2-assets/png/parts/${part.id.toString().padStart(3, "0")}/00kihon_grooming.png`} alt={translate(part.name)} className="max-h-full max-w-full" /> :
+            <img src={`/na2-assets/png/parts2/pedestal_${part.id - 500}.png`} alt={translate(part.name)} className="max-h-full max-w-full" />
+          }
         </div>
         <div className="text-sm">{part.kind}</div>
         <div className="text-sm">{part.priority}</div>

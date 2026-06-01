@@ -4,8 +4,8 @@ import Head from "next/head"
 import Image, { StaticImageData } from "next/image"
 import { join } from "path"
 import FormattedLink from "../components/FormattedLink"
-import Snowball from "../public/na2-assets/SpriteAtlas/icon_cat.spriteatlas/00.png"
-import CatTree from "../public/na2-assets/SpriteAtlas/icon_goods_big.spriteatlas/04tower_2dan.png"
+import Snowball from "../public/na2-assets/spriteatlas/icon_cat/00.png"
+import CatTree from "../public/na2-assets/spriteatlas/icon_goods_big/04tower_2dan.png"
 
 type HomeProps = {
   dataVersion: string
