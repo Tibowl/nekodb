@@ -45,7 +45,7 @@ const Home = ({ dataVersion }: InferGetStaticPropsType<typeof getStaticProps>) =
         <div className="text-md text-gray-600 dark:text-gray-400 mb-2">Game data version: {dataVersion}</div>
         <div className="grid items-center justify-around max-w-4xl mt-1">
           <div className="md:flex md:flex-row items-center max-w-4xl">
-            <Card href="/cats" title="Cats &rarr;" desc="Want to know what goodies and snacks a cat needs or their play spaces?" location={"/"} src={Snowball} />
+            <Card href="/cats" title="Cats &rarr;" desc="Want to know what goodies and food a cat needs or their play spaces?" location={"/"} src={Snowball} />
             <Card href="/goodies" title="Goodies &rarr;" desc="Or the opposite, what cats can visit a goodie and with what priority?" location={"/"} src={CatTree} />
           </div>
           <div className="md:flex md:flex-row items-center max-w-4xl">
@@ -53,6 +53,7 @@ const Home = ({ dataVersion }: InferGetStaticPropsType<typeof getStaticProps>) =
             <Card href="/wallpapers" title="Wallpapers &rarr;" desc="Want to see the wallpapers in the game? (Or just steal the image without paying gold fish)" location={"/"} />
           </div>
           <div className="md:flex md:flex-row items-center max-w-4xl">
+            <Card href="/yard-optimizer" title="Yard optimizer &rarr;" desc="Try lots of layouts in your browser and keep the best for fish, visits, or mementos." location={"/"} />
             <Card href="/animation-playground" title="Animation playground &rarr;" desc="Want to play with both cat and goodie animations together?" location={"/"} />
           </div>
         </div>
@@ -68,7 +69,7 @@ function Card({ href, src, title, desc, location, colors = "bg-slate-300 dark:bg
   const inner = <>
     <h3 className="text-3xl font-semibold flex flex-row items-center gap-2">
       {src && <div><Image src={src} alt="Icon" className="max-h-8 max-w-8 rounded" /></div>}
-      <div>{title}</div>
+      <div className="text-nowrap">{title}</div>
     </h3>
 
     <p className="mt-2 text-lg">

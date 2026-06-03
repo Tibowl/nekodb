@@ -5,6 +5,7 @@ import { CatType } from "../../cat/catType"
 import { getCatIconId } from "../../cat/getCatIconId"
 import { getCatType } from "../../cat/getCatType"
 import { CatRecord } from "../../tables"
+import { catAnimationPaths } from "../goodieAnimationPaths"
 import { getAnimation } from "./getAnimation"
 
 export async function getCatAnimations(smallCat: SmallCat, cat: CatRecord): Promise<AnimationMeta[]> {
@@ -13,18 +14,15 @@ export async function getCatAnimations(smallCat: SmallCat, cat: CatRecord): Prom
   const match = cat.Id.toString().padStart(3, "0")
   const images = (await readdir(`public/na2-assets/png/neko/${match}`)).filter(x => x.endsWith(".png"))
 
-  animations.push(...(await Promise.all(images.map(async (image) => {
-    const imagePath = `/na2-assets/png/neko/${match}/${image}`
-    let xmlPath: string
+  const sharedXml = type == CatType.Normal || type == CatType.Myneko
+  const perCatXml = type == CatType.Rare || type == CatType.Other
 
-    if (type == CatType.Normal || type == CatType.Myneko) {
-      xmlPath = `/na2-assets/xml/anime/master_xml/${image.replace(".png", "")}`
-    } else if (type == CatType.Rare || type == CatType.Other) {
-      xmlPath = `/na2-assets/xml/anime/neko/${match}/${image.replace(".png", "")}`
-    } else {
+  animations.push(...(await Promise.all(images.map(async (image) => {
+    if (!sharedXml && !perCatXml) {
       return null
     }
-    return await getAnimation(image, imagePath, xmlPath)
+    const paths = catAnimationPaths(match, image.replace(".png", ""), { sharedXml })
+    return await getAnimation(image, paths.image, paths.xml)
   }))).filter(x => x != null))
 
   return animations

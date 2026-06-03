@@ -1,13 +1,19 @@
 import type { AppProps } from "next/app"
 import Head from "next/head"
+import { useEffect } from "react"
 import Footer from "../components/Footer"
 import NavBar from "../components/NavBar"
 import "../styles/globals.css"
+import "katex/dist/katex.min.css"
 import { LanguageProvider } from "../contexts/LanguageContext"
 import { useLanguage } from "../hooks/useLanguage"
 
 function AppContent({ Component, pageProps, router }: AppProps) {
   const { currentLanguage, setLanguage } = useLanguage()
+
+  useEffect(() => {
+    document.documentElement.lang = currentLanguage
+  }, [currentLanguage])
 
   return (
     <div className="bg-slate-50 dark:bg-slate-700 min-h-screen flex flex-col items-center justify-between text-slate-900 dark:text-slate-100">

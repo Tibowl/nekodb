@@ -136,7 +136,7 @@ export default function AnimationPlayground({
   return (
     <main className="w-full max-w-7xl">
       <Head>
-        <title>Goodies - NekoDB</title>
+        <title>Animation playground - NekoDB</title>
         <meta name="twitter:card" content="summary" />
         <meta property="og:title" content="Animation playground - NekoDB" />
         <meta

@@ -2,21 +2,19 @@
   "name": "nekodb",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "node scripts/build-workers.mjs && next dev",
+    "build": "node scripts/build-workers.mjs && next build",
     "start": "next start",
     "lint": "eslint .",
     "lint-fix": "eslint . --fix"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.1.17",
-    "clsx": "^2.1.1",
     "fast-xml-parser": "^5.3.2",
-    "mermaid": "^11.4.1",
+    "katex": "^0.16.27",
     "next": "^16.0.8",
     "react": "^19.2.1",
-    "react-dom": "^19.2.1",
-    "react-zoom-pan-pinch": "^3.7.0"
+    "react-dom": "^19.2.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.3",
@@ -25,6 +23,7 @@
     "@types/react": "^19.2.7",
     "autoprefixer": "^10.4.22",
     "baseline-browser-mapping": "^2.10.25",
+    "esbuild": "^0.25.12",
     "eslint": "^9.39.1",
     "eslint-config-next": "^16.0.8",
     "postcss": "^8.5.6",

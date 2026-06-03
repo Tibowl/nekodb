@@ -3,7 +3,7 @@ import FormattedLink from "./FormattedLink"
 import SelectInput from "./SelectInput"
 import { Language, availableLanguages } from "../utils/localization/translate"
 
-const pages = ["Cats", "Goodies", "Wallpapers", "Yards", "Deco", "Letters", "Animation playground"]
+const pages = ["Cats", "Goodies", "Wallpapers", "Yards", "Yard optimizer", "Deco", "Letters", "Animation playground"]
 
 export default function NavBar({ location, language, onLanguageChange }: {
   location: string
@@ -36,8 +36,21 @@ export default function NavBar({ location, language, onLanguageChange }: {
         />
       </nav>
       <div className={`flex flex-row items-start justify-between lg:hidden ${menuOpen?"w-full":""}`}>
-        {menuOpen && <MobileMenu navLinks={navLinks} />}
-        <button type="button" aria-label="Toggle mobile menu" onClick={() => setMenuOpen(!menuOpen)}>
+        {menuOpen && (
+          <MobileMenu
+            navLinks={navLinks}
+            language={language}
+            onLanguageChange={onLanguageChange}
+            languageNames={languageNames}
+          />
+        )}
+        <button
+          type="button"
+          aria-label="Toggle mobile menu"
+          aria-expanded={menuOpen}
+          aria-controls="site-mobile-menu"
+          onClick={() => setMenuOpen(!menuOpen)}
+        >
           <MenuAlt4Svg menuOpen={menuOpen} />
         </button>
       </div>
@@ -45,10 +58,31 @@ export default function NavBar({ location, language, onLanguageChange }: {
   )
 }
 
-function MobileMenu({ navLinks }: {navLinks: ReactNode[] }) {
+function MobileMenu({
+  navLinks,
+  language,
+  onLanguageChange,
+  languageNames,
+}: {
+  navLinks: ReactNode[]
+  language: Language
+  onLanguageChange: (lang: Language) => void
+  languageNames: Record<Language, string>
+}) {
   return (
-    <nav className="p-4 flex flex-col space-y-3 lg:hidden">
+    <nav
+      id="site-mobile-menu"
+      className="p-4 flex flex-col space-y-3 lg:hidden"
+      aria-label="Mobile navigation"
+    >
       {navLinks}
+      <SelectInput
+        label="Language"
+        value={language}
+        set={(value) => onLanguageChange(value as Language)}
+        options={availableLanguages}
+        optionLabels={availableLanguages.map(l => languageNames[l])}
+      />
     </nav>
   )
 }

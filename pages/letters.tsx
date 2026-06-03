@@ -28,14 +28,14 @@ export default function LetterList({
   return (
     <main className="w-full max-w-7xl">
       <Head>
-        <title>Words - NekoDB</title>
+        <title>Letters - NekoDB</title>
         <meta name="twitter:card" content="summary" />
-        <meta property="og:title" content="Words - NekoDB" />
-        <meta property="og:description" content={`Discover all ${letters.length} words in Neko Atsume 2!`} />
-        <meta property="description" content={`Discover all ${letters.length} words in Neko Atsume 2!`} />
+        <meta property="og:title" content="Letters - NekoDB" />
+        <meta property="og:description" content={`Discover all ${letters.length} letters in Neko Atsume 2!`} />
+        <meta property="description" content={`Discover all ${letters.length} letters in Neko Atsume 2!`} />
       </Head>
 
-      <h1 className="text-4xl font-bold">Words</h1>
+      <h1 className="text-4xl font-bold">Letters</h1>
 
       <h2 className="text-xl font-bold">Japanese</h2>
       <div className="flex flex-col flex-wrap">

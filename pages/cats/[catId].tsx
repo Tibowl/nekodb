@@ -228,7 +228,7 @@ export default function Cat({ cat, cats, goodies }: InferGetStaticPropsType<type
             <div className="font-semibold">Seasonal modifier factor</div>
             <div className="text-right">{cat.weatherImpact}</div>
 
-            <div className="font-semibold">Fish gift factor</div>
+            <div className="font-semibold">Silver fish gift factor</div>
             <div className="text-right">{cat.niboshi}</div>
 
             <div className="font-semibold">Gomenne Rate</div>
@@ -260,7 +260,7 @@ export default function Cat({ cat, cats, goodies }: InferGetStaticPropsType<type
         </>}
 
         {cat.catVsCat && Object.entries(cat.catVsCat).length > 0 && <>
-          <h2 className="text-xl font-bold" id="food-modifiers">Cat vs cat weights</h2>
+          <h2 className="text-xl font-bold" id="food-modifiers">Cat relationships</h2>
           <div className="flex flex-row flex-wrap gap-2">
             {Object.entries(cat.catVsCat).map(([catId, weight]) => {
               const cat = cats.find(cat => cat.id == Number(catId))

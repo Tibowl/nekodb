@@ -38,3 +38,6 @@ yarn-error.log*
 
 # next.js
 next-env.d.ts
+
+# generated worker bundles
+/public/workers/
