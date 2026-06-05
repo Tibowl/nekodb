@@ -15,3 +15,61 @@ a {
 * {
   box-sizing: border-box;
 }
+
+.run-complete-status {
+  animation:
+    run-complete-enter 260ms ease-out both,
+    run-complete-breathe 2600ms ease-in-out 260ms infinite;
+  transform-origin: left center;
+}
+
+@keyframes run-complete-enter {
+  from {
+    opacity: 0;
+    transform: translateY(3px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes run-complete-breathe {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.86;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .run-complete-status {
+    animation: none;
+  }
+}
+
+.math-formula-block .katex-display {
+  margin: 0.4rem 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  text-align: left;
+  -webkit-overflow-scrolling: touch;
+}
+
+.math-formula-block .katex-display > .katex {
+  max-width: 100%;
+  text-align: left;
+  white-space: normal;
+}
+
+.math-formula-block .katex-html {
+  max-width: 100%;
+}
+
+.math-formula-block .base {
+  max-width: 100%;
+}

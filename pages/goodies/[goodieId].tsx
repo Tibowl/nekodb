@@ -331,7 +331,7 @@ export default function Goodie({ goodie, cats }: InferGetStaticPropsType<typeof 
             <div className="font-medium">Charm</div>
             <div className="text-right">{ps.charm}</div>
 
-            <div className="font-medium">Fish gift factor</div>
+            <div className="font-medium">Silver fish gift factor</div>
             <div className="text-right">{ps.niboshi}</div>
 
 
