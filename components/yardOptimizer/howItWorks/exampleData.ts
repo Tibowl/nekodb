@@ -115,6 +115,7 @@ function maxConcurrentSlots(rows: PlaySpaceRow[]): number {
 }
 
 function buildRelationshipExamples(): RelationshipExample[] {
+  const MAX_EXAMPLES = 24
   const playSpaceById = new Map(PLAY_SPACE_ROWS.map((playSpace) => [playSpace.Id, playSpace]))
   const goodieById = new Map(GOODIE_ROWS.map((goodie) => [goodie.Id, goodie]))
   const relationshipByCat = new Map(
@@ -128,6 +129,44 @@ function buildRelationshipExamples(): RelationshipExample[] {
   }
 
   const examples: Array<RelationshipExample & { score: number }> = []
+  const exampleIndexByKey = new Map<string, number>()
+
+  function worstExampleIndex(): number {
+    let index = 0
+    let score = examples[0]?.score ?? Infinity
+    for (let i = 1; i < examples.length; i++) {
+      const nextScore = examples[i]?.score ?? Infinity
+      if (nextScore < score) {
+        score = nextScore
+        index = i
+      }
+    }
+    return index
+  }
+
+  function upsertTopExample(example: RelationshipExample & { score: number }): void {
+    const key = `${example.catId}:${example.otherCatId}:${example.goodieId}`
+    const existingIndex = exampleIndexByKey.get(key)
+    if (existingIndex !== undefined) {
+      if ((examples[existingIndex]?.score ?? -Infinity) >= example.score) return
+      examples[existingIndex] = example
+      return
+    }
+
+    if (examples.length < MAX_EXAMPLES) {
+      examples.push(example)
+      exampleIndexByKey.set(key, examples.length - 1)
+      return
+    }
+
+    const worstIndex = worstExampleIndex()
+    const worst = examples[worstIndex]
+    if (!worst || worst.score >= example.score) return
+
+    exampleIndexByKey.delete(`${worst.catId}:${worst.otherCatId}:${worst.goodieId}`)
+    examples[worstIndex] = example
+    exampleIndexByKey.set(key, worstIndex)
+  }
 
   for (const row of PLAY_SPACE_CAT_ROWS) {
     const playSpace = playSpaceById.get(row.Id)
@@ -165,7 +204,7 @@ function buildRelationshipExamples(): RelationshipExample[] {
         const adjustedDrawPercent =
           (adjustedWeight / (totalWeight - weight + adjustedWeight)) * 100
         const score = adjustedDrawPercent - baseDrawPercent + modifier / 1000
-        examples.push({
+        upsertTopExample({
           catId,
           otherCatId,
           cat: catName(catId),
@@ -197,17 +236,7 @@ function buildRelationshipExamples(): RelationshipExample[] {
 
   return examples
     .sort((a, b) => b.score - a.score)
-    .filter(
-      (example, index, all) =>
-        index ===
-        all.findIndex(
-          (other) =>
-            other.catId === example.catId &&
-            other.otherCatId === example.otherCatId &&
-            other.goodieId === example.goodieId
-        )
-    )
-    .slice(0, 24)
+    .slice(0, MAX_EXAMPLES)
     .map(({ score: _score, ...example }) => example)
     .concat(examples.length === 0 ? [fallback] : [])
 }
