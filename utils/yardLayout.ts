@@ -59,12 +59,11 @@ enum OtherPlaceAttribute {
   Akindo = 32768,
   Coin = 65536,
   Jack = 131072,
-  // 2.25.0+ uses bits 21/22; original names are obfuscated in the dump
-  Unknown18 = 262144,
-  Unknown19 = 524288,
-  Unknown20 = 1048576,
-  Unknown21 = 2097152,
-  Unknown22 = 4194304,
+  Sit = 262144,
+  Stretch = 524288,
+  Startle = 1048576,
+  Walk = 2097152,
+  Run = 4194304
 }
 
 export type ParsedOtherPlace = {
