@@ -168,6 +168,7 @@ export const getStaticProps = (async (context) => {
         silver: goodie.Silver,
         gold: goodie.Gold,
         stampcard: goodie.StampCard,
+        coin: goodie.Coin,
 
         repairCost: goodie.RepairSilver,
 
@@ -280,6 +281,11 @@ export default function Goodie({ goodie, cats }: InferGetStaticPropsType<typeof 
             {goodie.stampcard > 0 && <>
               <div className="font-semibold">Stampcard cost</div>
               <div className="text-right"><Cost count={goodie.stampcard} type="stamp" /></div>
+            </>}
+
+            {goodie.coin > 0 && <>
+              <div className="font-semibold">Kitty coin cost</div>
+              <div className="text-right"><Cost count={goodie.coin} type="coin" /></div>
             </>}
 
             {goodie.sellableMonths && <>
@@ -413,6 +419,7 @@ function formatWikiText({ goodie, cats }: InferGetStaticPropsType<typeof getStat
   if (goodie.silver > 0) prices.push(`${goodie.silver} [[File:SilverFish.png|link=|18px]]`)
   if (goodie.gold > 0) prices.push(`${goodie.gold} [[File:GoldFish.png|link=|18px]]`)
   if (goodie.stampcard > 0) prices.push(`${goodie.stampcard} [[File:StampCard.png|link=|18px]]`)
+  if (goodie.coin > 0) prices.push(`${goodie.coin} [[File:KittyCoin.png|link=|18px]]`)
   const price = prices.join(" or ")
 
   const size = goodie.attributes === 0 ? "[[File:Small_icon.png|15px|link=Category:Small]]" : "[[File:Large_icon.png|15px|link=Category:Large]]"

@@ -19,6 +19,7 @@ type GoodieList = {
     categories: number[],
     shopSort: number,
     tradeSort: number,
+    akindoSort: number,
     new: boolean
   })[];
   categories: CategoryWithTranslation[];
@@ -38,7 +39,7 @@ export const getStaticProps = (async () => {
     .sort((a, b) => a.DisplayOrder - b.DisplayOrder || a.DisplayOrderInShopRaw - b.DisplayOrderInShopRaw || a.DisplayOrderInTrade - b.DisplayOrderInTrade)
     .map(async (goodie) => {
       const categories = parseBitMap(goodie.Category)
-      return { ...await getSmallGoodie(goodie), categories, shopSort: goodie.DisplayOrder, tradeSort: goodie.DisplayOrderInTrade, new: goodie.IsNew }
+      return { ...await getSmallGoodie(goodie), categories, shopSort: goodie.DisplayOrder, tradeSort: goodie.DisplayOrderInTrade, akindoSort: goodie.DisplayOrderInAkindo, new: goodie.IsNew }
     })
   )
   return {
@@ -57,8 +58,13 @@ export default function GoodiesList({
 }: InferGetStaticPropsType<typeof getStaticProps>) {
   const { translate } = useLanguage()
   const [groupByCategory, setGroupByCategory] = useState(false)
-  const shopGoodies = useMemo(() => goodies.filter((goodie) => goodie.shopSort > 0), [goodies])
-  const tradeGoodies = useMemo(() => goodies.filter((goodie) => goodie.tradeSort > 0), [goodies])
+
+  const shopGoodies = useMemo(() => goodies.filter((goodie) => goodie.shopSort > 0).sort((a, b) => a.shopSort - b.shopSort), [goodies])
+  const tradeGoodies = useMemo(() => goodies.filter((goodie) => goodie.tradeSort > 0).sort((a, b) => a.tradeSort - b.tradeSort), [goodies])
+  const akindoGoodies = useMemo(() => goodies.filter((goodie) => goodie.akindoSort > 0).sort((a, b) => a.akindoSort - b.akindoSort), [goodies])
+
+  const unlistedGoodies = useMemo(() => goodies.filter((goodie) => goodie.shopSort <= 0 && goodie.tradeSort <= 0 && goodie.akindoSort <= 0), [goodies])
+
   const newGoodies = useMemo(() => goodies.filter((goodie) => goodie.new), [goodies])
 
   return (
@@ -104,9 +110,27 @@ export default function GoodiesList({
         </div>
 
         {tradeGoodies.length > 0 && <>
-          <h2 className="text-xl font-bold" id="goodies">Trade goodies ({tradeGoodies.length})</h2>
+          <h2 className="text-xl font-bold" id="trade">Trade goodies ({tradeGoodies.length})</h2>
           <div className="flex flex-row flex-wrap">
             {tradeGoodies.map((goodie) => (
+              <GoodieLink key={goodie.id} goodie={goodie}></GoodieLink>
+            ))}
+          </div>
+        </>}
+
+        {akindoGoodies.length > 0 && <>
+          <h2 className="text-xl font-bold" id="akindo">Souvenir goodies ({akindoGoodies.length})</h2>
+          <div className="flex flex-row flex-wrap">
+            {akindoGoodies.map((goodie) => (
+              <GoodieLink key={goodie.id} goodie={goodie}></GoodieLink>
+            ))}
+          </div>
+        </>}
+
+        {unlistedGoodies.length > 0 && <>
+          <h2 className="text-xl font-bold" id="unlisted">Unlisted goodies ({unlistedGoodies.length})</h2>
+          <div className="flex flex-row flex-wrap">
+            {unlistedGoodies.map((goodie) => (
               <GoodieLink key={goodie.id} goodie={goodie}></GoodieLink>
             ))}
           </div>

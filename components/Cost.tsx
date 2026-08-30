@@ -1,6 +1,6 @@
 import DisplayImage from "./DisplayImage"
 
-export default function Cost({ count, type }: { count: number, type: "gold" | "silver" | "stamp" | "tickets"}) {
+export default function Cost({ count, type }: { count: number, type: "gold" | "silver" | "stamp" | "tickets" | "coin"}) {
   return (
     <div className="relative table text-right w-auto">
       <div className="absolute table-caption right-1 top-0 text-sm font-semibold">{count}</div>
@@ -19,6 +19,11 @@ export default function Cost({ count, type }: { count: number, type: "gold" | "s
         width: 147,
         height: 42,
       })} alt="Stamp cards" className="max-h-6 w-auto" />}
+      {type == "coin" && <DisplayImage img={({
+        url: "/na2-assets/spriteatlas/ui/catcoin_counter.png",
+        width: 152,
+        height: 52,
+      })} alt="Kitty coins" className="max-h-6 w-auto" />}
       {type == "tickets" && <DisplayImage img={({
         url: "/odekake_counter.png",
         width: 174,
