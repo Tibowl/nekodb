@@ -12,7 +12,6 @@ import SelectInput from "../components/SelectInput"
 import { getDefaultAnimation } from "../utils/animation/getDefaultAnimation"
 import { getCatAnimations } from "../utils/animation/server/getCatAnimations"
 import { getGoodieAnimations } from "../utils/animation/server/getGoodieAnimations"
-import { getSuffixes } from "../utils/goodie/getSuffixes"
 import createRange from "../utils/math/createRange"
 import { cats, getSmallCat, getSmallGoodie, goodies } from "../utils/tables"
 import { SmallCat } from "./cats/[catId]"
@@ -47,10 +46,9 @@ export const getStaticProps = (async () => {
           ko: `${smallGoodie.id} - ${smallGoodie.name.ko}`
         }
         smallGoodie.name = displayName
-        const suffixes = getSuffixes(goodie)
         return {
           thing: smallGoodie,
-          animations: await getGoodieAnimations(goodie, suffixes),
+          animations: await getGoodieAnimations(goodie),
         }
       })
   )).filter((goodie) => goodie.animations.length > 0)

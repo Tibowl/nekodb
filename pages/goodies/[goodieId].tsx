@@ -9,7 +9,7 @@ import { RenderText } from "../../components/TextRenderer"
 import { getGoodieAnimations } from "../../utils/animation/server/getGoodieAnimations"
 import { getGoodieIconURL } from "../../utils/goodie/getGoodieIconURL"
 import { getRepairCost } from "../../utils/goodie/getRepairCost"
-import { getSuffixes } from "../../utils/goodie/getSuffixes"
+import { goodieIconVariants } from "../../utils/goodie/server/goodieVariants"
 import getImageInfo from "../../utils/image/getImageInfo"
 import { translate, TranslationTable } from "../../utils/localization/translate"
 import { parseBitMap } from "../../utils/math/parseBitMap"
@@ -142,8 +142,7 @@ export const getStaticProps = (async (context) => {
       }
     }).filter(ps => ps) as PlaySpaceInfo[]
 
-  const suffixes = getSuffixes(goodie)
-  const animations: AnimationMeta[] = await getGoodieAnimations(goodie, suffixes)
+  const animations: AnimationMeta[] = await getGoodieAnimations(goodie)
 
   const food = getFood(goodie.Id)
   const foodInfo = food && {
@@ -175,7 +174,7 @@ export const getStaticProps = (async (context) => {
         foodInfo,
 
         gallery: await Promise.all(
-          suffixes
+          (await goodieIconVariants(goodie))
             .map(x => `${goodie.AnimePngs[0]}${x}`)
             .filter(x => x != "90ground")
             .map(async g => ({

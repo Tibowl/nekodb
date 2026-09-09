@@ -1,9 +1,11 @@
 import { AnimationMeta } from "../../../components/AnimationViewer"
 import { GoodieRecord } from "../../tables"
+import { goodieAnimeVariants } from "../../goodie/server/goodieVariants"
 import { goodieAnimationPaths } from "../goodieAnimationPaths"
 import { getAnimation } from "./getAnimation"
 
-export async function getGoodieAnimations(goodie: GoodieRecord, suffixes: string[]) {
+export async function getGoodieAnimations(goodie: GoodieRecord) {
+  const suffixes = await goodieAnimeVariants(goodie)
   const animations: AnimationMeta[] = []
   for (const anime of goodie.AnimeXmls.filter((x, i, arr) => arr.indexOf(x) === i)) {
     const img = goodie.AnimePngs[0]
