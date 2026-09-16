@@ -198,12 +198,12 @@ function createActions(names: string[] | null, ids: number[] | null, weights: nu
   if (!names || !ids) return []
 
   if (names.length != ids.length) throw new Error("names and ids must be the same length")
-  if (weights && weights.length != ids.length) throw new Error("weights and ids must be the same length")
+  if (weights && weights.length > ids.length) throw new Error("more weights than ids")
   return names.map((name, index) => {
     return {
       name,
       actionIndex: ids[index],
-      weight: weights ? weights[index] : null,
+      weight: weights ? (weights[index] ?? 0) : null,
       goodieAction: goodieActions ? goodieActions[index] : null,
     }
   })
